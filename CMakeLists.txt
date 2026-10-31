@@ -1,0 +1,100 @@
+cmake_minimum_required(VERSION 3.16)
+
+project(sensornode-ui LANGUAGES CXX)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTORCC ON)
+
+include(GNUInstallDirs)
+
+find_package(Qt5 5.15 COMPONENTS Core Network REQUIRED)
+
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(SQLITE3 REQUIRED IMPORTED_TARGET sqlite3)
+
+add_compile_options(-Wall -Wextra -Wpedantic)
+
+if(PRODUCTION_BUILD)
+  add_compile_definitions(QT_NO_DEBUG_OUTPUT)
+endif()
+
+add_library(sensornode-ui-lib STATIC
+  src/ipc/DaemonClient.cpp
+  src/ipc/DaemonClient.h
+  src/ipc/DaemonEndpoints.h
+
+  src/model/HistoryModel.cpp
+  src/model/HistoryModel.h
+  src/model/OtaModel.cpp
+  src/model/OtaModel.h
+  src/model/OtaState.h
+  src/model/Sample.h
+  src/model/TelemetryModel.cpp
+  src/model/TelemetryModel.h
+
+  src/drivers/BacklightPwm.cpp
+  src/drivers/BacklightPwm.h
+
+  src/network/NetworkInfo.cpp
+  src/network/NetworkInfo.h
+
+  src/settings/AppSettings.cpp
+  src/settings/AppSettings.h
+  src/settings/OtaSettings.cpp
+  src/settings/OtaSettings.h
+)
+
+target_include_directories(sensornode-ui-lib PUBLIC ${CMAKE_SOURCE_DIR}/src)
+target_link_libraries(sensornode-ui-lib PUBLIC
+  Qt5::Core
+  Qt5::Network
+  PkgConfig::SQLITE3
+)
+
+find_package(Qt5 5.15 COMPONENTS Widgets Charts REQUIRED)
+
+add_executable(sensornode-ui
+  src/main.cpp
+
+  src/app/AppWindow.cpp
+  src/app/AppWindow.h
+  src/app/Theme.cpp
+  src/app/Theme.h
+
+  src/screens/ChartScreen.cpp
+  src/screens/ChartScreen.h
+  src/screens/ChartScreen.ui
+  src/screens/HomeScreen.cpp
+  src/screens/HomeScreen.h
+  src/screens/HomeScreen.ui
+  src/screens/SettingsScreen.cpp
+  src/screens/SettingsScreen.h
+  src/screens/SettingsScreen.ui
+  src/screens/UpdatePopup.cpp
+  src/screens/UpdatePopup.h
+  src/screens/UpdatePopup.ui
+  src/screens/UpdateProgressScreen.cpp
+  src/screens/UpdateProgressScreen.h
+  src/screens/UpdateProgressScreen.ui
+
+  src/widgets/BottomNavBar.cpp
+  src/widgets/BottomNavBar.h
+  src/widgets/BottomNavBar.ui
+  src/widgets/StatusHeader.cpp
+  src/widgets/StatusHeader.h
+  src/widgets/StatusHeader.ui
+
+  resources/resources.qrc
+)
+
+target_link_libraries(sensornode-ui PRIVATE
+  sensornode-ui-lib
+  Qt5::Widgets
+  Qt5::Charts
+)
+
+install(TARGETS sensornode-ui RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
