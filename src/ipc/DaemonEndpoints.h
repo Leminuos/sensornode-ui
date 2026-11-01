@@ -31,6 +31,16 @@ inline QString telemetryDb()
     return qEnvironmentVariable("SENSORNODE_TELEMETRY_DB", QStringLiteral("/var/lib/sensornode/telemetry.db"));
 }
 
+inline QString timeSyncFlag()
+{
+    return qEnvironmentVariable("SENSORNODE_TIMESYNC_FLAG", QStringLiteral("/run/systemd/timesync/synchronized"));
+}
+
+inline QString networkInterface()
+{
+    return qEnvironmentVariable("SENSORNODE_NET_INTERFACE", QStringLiteral("eth0"));
+}
+
 } // namespace DaemonEndpoints
 
 #endif // DAEMON_ENDPOINTS_H
