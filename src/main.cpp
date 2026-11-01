@@ -6,7 +6,7 @@
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
-    app.setStyleSheet(Theme::load());
+    Theme::apply(app);
 
     AppWindow window;
     window.show();

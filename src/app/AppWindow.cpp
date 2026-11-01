@@ -4,6 +4,7 @@
 #include "model/OtaModel.h"
 #include "model/DisplayModel.h"
 #include "model/SettingsModel.h"
+#include "model/SystemStatusModel.h"
 #include "model/TelemetryModel.h"
 #include "screens/ChartScreen.h"
 #include "screens/HomeScreen.h"
@@ -15,20 +16,20 @@
 
 #include <QDebug>
 #include <QStackedWidget>
-#include <QVBoxLayout>
 
 AppWindow::AppWindow(QWidget *parent)
-    : QWidget(parent)
+    : PageFrame(parent)
     , mTelemetry(new TelemetryModel(this))
     , mHistory(new HistoryModel(this))
     , mOta(new OtaModel(this))
     , mSettingsModel(new SettingsModel(this))
     , mDisplayModel(new DisplayModel(this))
+    , mSystemStatus(new SystemStatusModel(this))
 {
     buildUi();
-    wireNavigation();
     wireTelemetry();
     wireSettings();
+    wireSystemStatus();
     wireOta();
     start();
 }
@@ -37,44 +38,24 @@ AppWindow::~AppWindow() = default;
 
 void AppWindow::buildUi()
 {
-    setFixedSize(240, 320);
     setWindowTitle("SensorNode");
-    setObjectName("AppRoot");
 
-    QVBoxLayout *rootLayout = new QVBoxLayout(this);
-    rootLayout->setContentsMargins(0, 0, 0, 0);
-    rootLayout->setSpacing(0);
+    mHome = new HomeScreen(stack());
+    mCharts = new ChartScreen(mHistory, stack());
+    mSettings = new SettingsScreen(stack());
+    mProgress = new UpdateProgressScreen(stack());
 
-    mStatusHeader = new StatusHeader(this);
-    rootLayout->addWidget(mStatusHeader);
+    addTab(BottomNavBar::Home, mHome);
+    addTab(BottomNavBar::Dashboard, mCharts);
+    addTab(BottomNavBar::Settings, mSettings);
+    stack()->addWidget(mProgress);
 
-    mStack = new QStackedWidget(this);
-    rootLayout->addWidget(mStack, 1);
-
-    mNavBar = new BottomNavBar(this);
-    rootLayout->addWidget(mNavBar);
-
-    mHome = new HomeScreen(mStack);
-    mCharts = new ChartScreen(mHistory, mStack);
-    mSettings = new SettingsScreen(mStack);
-    mProgress = new UpdateProgressScreen(mStack);
-
-    mStack->addWidget(mHome);
-    mStack->addWidget(mCharts);
-    mStack->addWidget(mSettings);
-    mStack->addWidget(mProgress);
     mPopup = new UpdatePopup(this);
     mPopup->hide();
 }
 
-void AppWindow::wireNavigation()
-{
-    connect(mNavBar, &BottomNavBar::navRequested, this, &AppWindow::onNavRequested);
-}
-
 void AppWindow::wireTelemetry()
 {
-    connect(mTelemetry, &TelemetryModel::onlineChanged, mStatusHeader, &StatusHeader::setOnlineStatus);
     connect(mTelemetry, &TelemetryModel::sampleReceived, mHome, &HomeScreen::setValues);
     connect(mTelemetry, &TelemetryModel::sampleReceived, mCharts, &ChartScreen::reload);
     connect(mTelemetry, &TelemetryModel::macAddressChanged, mSettings, &SettingsScreen::setMacAddress);
@@ -91,10 +72,16 @@ void AppWindow::wireSettings()
     connect(mSettings, &SettingsScreen::otaAutoModeChanged, mSettingsModel, &SettingsModel::setAutoMode);
 }
 
+void AppWindow::wireSystemStatus()
+{
+    connect(mSystemStatus, &SystemStatusModel::clockChanged, statusHeader(), &StatusHeader::setClock);
+    connect(mSystemStatus, &SystemStatusModel::networkChanged, statusHeader(), &StatusHeader::setNetworkUp);
+}
+
 void AppWindow::wireOta()
 {
     connect(mOta, &OtaModel::currentVersionChanged, mSettings, &SettingsScreen::setCurrentVersion);
-    connect(mOta, &OtaModel::trialBootChanged, mStatusHeader, &StatusHeader::setVerifying);
+    connect(mOta, &OtaModel::trialBootChanged, statusHeader(), &StatusHeader::setVerifying);
     connect(mOta, &OtaModel::trialBootChanged, mPopup, &UpdatePopup::setVerifying);
     connect(mSettings, &SettingsScreen::checkForUpdateRequested, this, &AppWindow::onCheckForUpdateRequested);
     connect(mOta, &OtaModel::upToDate, this, [this]() {
@@ -114,23 +101,13 @@ void AppWindow::wireOta()
 
 void AppWindow::start()
 {
-    mStack->setCurrentWidget(mHome);
-    mNavBar->setActive(BottomNavBar::Home);
+    showTab(BottomNavBar::Home);
 
     mTelemetry->start();
     mSettingsModel->start();
     mDisplayModel->start();
     mOta->start();
-}
-
-void AppWindow::onNavRequested(int tab)
-{
-    switch (tab) {
-    case BottomNavBar::Home:      mStack->setCurrentWidget(mHome);     break;
-    case BottomNavBar::Dashboard: mStack->setCurrentWidget(mCharts);   break;
-    case BottomNavBar::Settings:  mStack->setCurrentWidget(mSettings); break;
-    default: break;
-    }
+    mSystemStatus->start();
 }
 
 void AppWindow::onCheckForUpdateRequested()
@@ -187,13 +164,10 @@ void AppWindow::showUpdatePopup()
 
 void AppWindow::enterUpdateMode()
 {
-    mStack->setCurrentWidget(mProgress);
-    mNavBar->hide();
+    showTakeover(mProgress);
 }
 
 void AppWindow::exitUpdateMode()
 {
-    mStack->setCurrentWidget(mSettings);
-    mNavBar->setActive(BottomNavBar::Settings);
-    mNavBar->show();
+    showTab(BottomNavBar::Settings);
 }

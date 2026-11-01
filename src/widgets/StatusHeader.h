@@ -3,9 +3,7 @@
 
 #include <QWidget>
 
-QT_BEGIN_NAMESPACE
-namespace Ui { class StatusHeader; }
-QT_END_NAMESPACE
+class QLabel;
 
 class StatusHeader : public QWidget
 {
@@ -13,13 +11,17 @@ class StatusHeader : public QWidget
 
 public:
     explicit StatusHeader(QWidget *parent = nullptr);
-    ~StatusHeader();
 
-    void setOnlineStatus(bool online);
+public slots:
+    // Chuỗi rỗng nghĩa là giờ chưa đồng bộ.
+    void setClock(const QString &text);
+    void setNetworkUp(bool up);
     void setVerifying(bool verifying);
 
 private:
-    Ui::StatusHeader *ui;
+    QLabel *mClock;
+    QLabel *mChip;
+    QLabel *mNetwork;
 };
 
 #endif // STATUS_HEADER_H

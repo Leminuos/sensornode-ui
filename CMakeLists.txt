@@ -11,7 +11,10 @@ set(CMAKE_AUTORCC ON)
 
 include(GNUInstallDirs)
 
-find_package(Qt5 5.15 COMPONENTS Core Network REQUIRED)
+option(SENSORNODE_BUILD_APP "Build the application, needs Qt Charts" ON)
+option(BUILD_TESTING "Build tests when tests/ is present" OFF)
+
+find_package(Qt5 5.15 COMPONENTS Core Network Widgets REQUIRED)
 
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(SQLITE3 REQUIRED IMPORTED_TARGET sqlite3)
@@ -37,6 +40,8 @@ add_library(sensornode-ui-lib STATIC
   src/model/DisplayModel.h
   src/model/SettingsModel.cpp
   src/model/SettingsModel.h
+  src/model/SystemStatusModel.cpp
+  src/model/SystemStatusModel.h
   src/model/TelemetryModel.cpp
   src/model/TelemetryModel.h
 )
@@ -48,46 +53,64 @@ target_link_libraries(sensornode-ui-lib PUBLIC
   PkgConfig::SQLITE3
 )
 
-find_package(Qt5 5.15 COMPONENTS Widgets Charts REQUIRED)
-
-add_executable(sensornode-ui
-  src/main.cpp
-
-  src/app/AppWindow.cpp
-  src/app/AppWindow.h
+add_library(sensornode-ui-widgets STATIC
+  src/app/PageFrame.cpp
+  src/app/PageFrame.h
   src/app/Theme.cpp
   src/app/Theme.h
 
-  src/screens/ChartScreen.cpp
-  src/screens/ChartScreen.h
-  src/screens/ChartScreen.ui
-  src/screens/HomeScreen.cpp
-  src/screens/HomeScreen.h
-  src/screens/HomeScreen.ui
-  src/screens/SettingsScreen.cpp
-  src/screens/SettingsScreen.h
-  src/screens/SettingsScreen.ui
-  src/screens/UpdatePopup.cpp
-  src/screens/UpdatePopup.h
-  src/screens/UpdatePopup.ui
-  src/screens/UpdateProgressScreen.cpp
-  src/screens/UpdateProgressScreen.h
-  src/screens/UpdateProgressScreen.ui
-
   src/widgets/BottomNavBar.cpp
   src/widgets/BottomNavBar.h
-  src/widgets/BottomNavBar.ui
+  src/widgets/RaisedButton.cpp
+  src/widgets/RaisedButton.h
   src/widgets/StatusHeader.cpp
   src/widgets/StatusHeader.h
-  src/widgets/StatusHeader.ui
+  src/widgets/SubPage.cpp
+  src/widgets/SubPage.h
 
+  resources/assets.qrc
   resources/resources.qrc
 )
 
-target_link_libraries(sensornode-ui PRIVATE
-  sensornode-ui-lib
-  Qt5::Widgets
-  Qt5::Charts
-)
+target_include_directories(sensornode-ui-widgets PUBLIC ${CMAKE_SOURCE_DIR}/src)
+target_link_libraries(sensornode-ui-widgets PUBLIC Qt5::Widgets)
 
-install(TARGETS sensornode-ui RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+if(SENSORNODE_BUILD_APP)
+  find_package(Qt5 5.15 COMPONENTS Charts REQUIRED)
+
+  add_executable(sensornode-ui
+    src/main.cpp
+
+    src/app/AppWindow.cpp
+    src/app/AppWindow.h
+
+    src/screens/ChartScreen.cpp
+    src/screens/ChartScreen.h
+    src/screens/ChartScreen.ui
+    src/screens/HomeScreen.cpp
+    src/screens/HomeScreen.h
+    src/screens/HomeScreen.ui
+    src/screens/SettingsScreen.cpp
+    src/screens/SettingsScreen.h
+    src/screens/SettingsScreen.ui
+    src/screens/UpdatePopup.cpp
+    src/screens/UpdatePopup.h
+    src/screens/UpdatePopup.ui
+    src/screens/UpdateProgressScreen.cpp
+    src/screens/UpdateProgressScreen.h
+    src/screens/UpdateProgressScreen.ui
+  )
+
+  target_link_libraries(sensornode-ui PRIVATE
+    sensornode-ui-lib
+    sensornode-ui-widgets
+    Qt5::Charts
+  )
+
+  install(TARGETS sensornode-ui RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+endif()
+
+if(BUILD_TESTING AND EXISTS ${CMAKE_SOURCE_DIR}/tests/CMakeLists.txt)
+  enable_testing()
+  add_subdirectory(tests)
+endif()
