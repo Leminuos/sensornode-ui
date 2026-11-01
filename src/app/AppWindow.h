@@ -5,7 +5,13 @@
 #include "model/Metric.h"
 #include "model/OtaState.h"
 
+#include <QPointF>
+#include <QVector>
+
+class BootHoldDetector;
 class BottomSheet;
+class CalibrationIntroPage;
+class CalibrationPage;
 class ChartScreen;
 class DeviceInfoModel;
 class DevicePage;
@@ -47,6 +53,7 @@ private slots:
     void onTemperatureUnitRequested(TemperatureUnit unit);
     void onLanguageRequested(const QString &language);
     void onLocationRequested(int index);
+    void onCalibrationPoints(const QVector<QPointF> &touched);
     void onUpdateAvailable(const QString &current, const QString &available);
     void onOtaStateChanged(OtaState state);
     void onUpdateClosed();
@@ -64,6 +71,10 @@ private:
     void buildServicePages();
     void showLocation(int index);
     void buildUpdateFlow();
+    void buildCalibration();
+    void startCalibration();
+    void finishCalibration();
+    void applyLanguageTexts();
     void showUpdateSheet();
     void checkRollback();
     int sizeMb() const;
@@ -95,7 +106,9 @@ private:
     DevicePage *mDevicePage;
     SensorsPage *mSensorsPage;
     ErrorLogPage *mErrorLogPage;
-    SubPage *mCalibrationPage;
+    CalibrationIntroPage *mCalibrationIntro;
+    CalibrationPage *mCalibration;
+    BootHoldDetector *mBootHold;
     BottomSheet *mRestartSheet;
     UpdateFlowPage *mUpdateFlow;
 };

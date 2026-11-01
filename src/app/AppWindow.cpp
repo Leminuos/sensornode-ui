@@ -1,6 +1,8 @@
 #include "app/AppWindow.h"
 
+#include "app/BootHoldDetector.h"
 #include "app/DemoData.h"
+#include "app/Language.h"
 #include "app/Stubs.h"
 #include "model/DeviceInfoModel.h"
 #include "model/ErrorLogModel.h"
@@ -8,9 +10,13 @@
 #include "model/Locations.h"
 #include "model/OtaModel.h"
 #include "model/DisplayModel.h"
+#include "ipc/DaemonEndpoints.h"
 #include "model/SettingsModel.h"
 #include "model/SystemStatusModel.h"
 #include "model/TelemetryModel.h"
+#include "model/TouchCalibration.h"
+#include "screens/CalibrationIntroPage.h"
+#include "screens/CalibrationPage.h"
 #include "screens/ChartScreen.h"
 #include "screens/DevicePage.h"
 #include "screens/DisplayPage.h"
@@ -31,6 +37,7 @@
 #include "widgets/SubPage.h"
 
 #include <QDebug>
+#include <QFile>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QStackedWidget>
@@ -47,6 +54,8 @@ AppWindow::AppWindow(QWidget *parent)
     , mDeviceInfo(new DeviceInfoModel(this))
     , mErrorLog(new ErrorLogModel(this))
 {
+    Language::instance().setCode(QLatin1String(DemoData::language));
+
     buildUi();
     wireTelemetry();
     wireSettings();
@@ -75,13 +84,92 @@ void AppWindow::buildUi()
     buildSettingsPages();
     buildServicePages();
     buildUpdateFlow();
+    buildCalibration();
+
+    Language::bind(this, [this]() { applyLanguageTexts(); });
+}
+
+void AppWindow::buildCalibration()
+{
+    mCalibrationIntro = new CalibrationIntroPage(stack());
+    mCalibration = new CalibrationPage(stack());
+    mBootHold = new BootHoldDetector(this);
+
+    addPage(mCalibrationIntro);
+    stack()->addWidget(mCalibration);
+
+    connect(mServicePage, &ServicePage::calibrationRequested, this, [this]() { pushPage(mCalibrationIntro); });
+    connect(mCalibrationIntro, &CalibrationIntroPage::startRequested, this, &AppWindow::startCalibration);
+    connect(mBootHold, &BootHoldDetector::triggered, this, &AppWindow::startCalibration);
+
+    connect(mCalibration, &CalibrationPage::pointsCaptured, this, &AppWindow::onCalibrationPoints);
+    connect(mCalibration, &CalibrationPage::cancelled, this, &AppWindow::finishCalibration);
+    connect(mCalibration, &CalibrationPage::kept, this, [this]() {
+        Stubs::keepTouchCalibration();
+        finishCalibration();
+    });
+    connect(mCalibration, &CalibrationPage::reverted, this, [this]() {
+        Stubs::restoreTouchCalibration();
+        finishCalibration();
+    });
+    connect(mCalibration, &CalibrationPage::restartRequested, this, [this]() {
+        Stubs::restoreTouchCalibration();
+        mCalibration->beginPoints();
+    });
+}
+
+void AppWindow::applyLanguageTexts()
+{
+    mUpdateSheet->setTitle(tr("Có bản mới"));
+    mUpdateSheet->setActions(tr("Để sau"), tr("Cập nhật"), RaisedButton::Primary);
+
+    mRestartSheet->setTitle(tr("Khởi động lại thiết bị?"));
+    mRestartSheet->setBody(tr("Việc đo sẽ dừng khoảng 1 phút."));
+    mRestartSheet->setActions(tr("Huỷ"), tr("Khởi động lại"), RaisedButton::Danger);
+
+    const QString period = SamplingPage::periodText(mSamplingPage->period());
+    mSettings->setSamplingPeriodText(period);
+    mSensorsPage->setPeriodText(period);
+    mLanguagePage->setLocationName(Locations::displayName(Locations::all().at(mLocationPage->selectedIndex())));
+}
+
+void AppWindow::startCalibration()
+{
+    mCalibration->beginPoints();
+    showFullScreenPage(mCalibration);
+}
+
+void AppWindow::finishCalibration()
+{
+    leaveOverlay();
+}
+
+void AppWindow::onCalibrationPoints(const QVector<QPointF> &touched)
+{
+    QVector<QPointF> targets;
+    for (const QPoint &target : CalibrationPage::targets()) {
+        targets.append(target);
+    }
+
+    AffineFit fit;
+    if (!TouchCalibration::solve(touched, targets, &fit)) {
+        mCalibration->beginPoints();
+        return;
+    }
+
+    Pointercal current = TouchCalibration::identity(width(), height());
+    QFile file(DaemonEndpoints::touchCalibrationFile());
+    if (file.open(QFile::ReadOnly)) {
+        TouchCalibration::parse(file.readAll(), &current);
+    }
+
+    Stubs::applyTouchCalibration(TouchCalibration::format(TouchCalibration::compose(fit, current)));
+    mCalibration->beginVerify();
 }
 
 void AppWindow::buildUpdateFlow()
 {
     mUpdateSheet = new BottomSheet(this);
-    mUpdateSheet->setTitle(tr("Có bản mới"));
-    mUpdateSheet->setActions(tr("Để sau"), tr("Cập nhật"), RaisedButton::Primary);
 
     auto *versions = new QWidget(mUpdateSheet->panel());
     versions->setObjectName(QStringLiteral("versionRow"));
@@ -142,11 +230,9 @@ void AppWindow::buildServicePages()
     mDevicePage = new DevicePage(stack());
     mSensorsPage = new SensorsPage(stack());
     mErrorLogPage = new ErrorLogPage(stack());
-    mCalibrationPage = new SubPage(tr("Hiệu chỉnh cảm ứng"), stack());
 
     for (SubPage *page : {static_cast<SubPage *>(mFirmwarePage), static_cast<SubPage *>(mDevicePage),
-                          static_cast<SubPage *>(mSensorsPage), static_cast<SubPage *>(mErrorLogPage),
-                          mCalibrationPage}) {
+                          static_cast<SubPage *>(mSensorsPage), static_cast<SubPage *>(mErrorLogPage)}) {
         addPage(page);
     }
 
@@ -154,12 +240,8 @@ void AppWindow::buildServicePages()
     connect(mServicePage, &ServicePage::deviceRequested, this, [this]() { pushPage(mDevicePage); });
     connect(mServicePage, &ServicePage::sensorsRequested, this, [this]() { pushPage(mSensorsPage); });
     connect(mServicePage, &ServicePage::errorLogRequested, this, [this]() { pushPage(mErrorLogPage); });
-    connect(mServicePage, &ServicePage::calibrationRequested, this, [this]() { pushPage(mCalibrationPage); });
 
     mRestartSheet = new BottomSheet(this);
-    mRestartSheet->setTitle(tr("Khởi động lại thiết bị?"));
-    mRestartSheet->setBody(tr("Việc đo sẽ dừng khoảng 1 phút."));
-    mRestartSheet->setActions(tr("Huỷ"), tr("Khởi động lại"), RaisedButton::Danger);
 
     mDevicePage->setMqttConnected(DemoData::mqttConnected);
     mSensorsPage->setPeriodText(SamplingPage::periodText(mSamplingPage->period()));
@@ -263,6 +345,8 @@ void AppWindow::start()
     mSystemStatus->start();
 
     checkRollback();
+
+    mBootHold->start();
 }
 
 void AppWindow::onCheckForUpdateRequested()
@@ -306,6 +390,7 @@ void AppWindow::onTemperatureUnitRequested(TemperatureUnit unit)
 void AppWindow::onLanguageRequested(const QString &language)
 {
     Stubs::setLanguage(language);
+    Language::instance().setCode(language);
 }
 
 void AppWindow::onLocationRequested(int index)
@@ -328,7 +413,7 @@ void AppWindow::showLocation(int index)
 {
     const Location &location = Locations::all().at(index);
     Locations::apply(location);
-    mLanguagePage->setLocationName(location.name);
+    mLanguagePage->setLocationName(Locations::displayName(location));
 }
 
 void AppWindow::onUpdateAvailable(const QString &current, const QString &available)
@@ -352,7 +437,7 @@ void AppWindow::onOtaStateChanged(OtaState state)
     case OtaState::Idle:
     case OtaState::Checking:
         if (mode() == Mode::Takeover) {
-            leaveTakeover();
+            leaveOverlay();
         }
         return;
     case OtaState::Available:

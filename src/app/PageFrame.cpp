@@ -87,7 +87,7 @@ void PageFrame::showTakeover(QWidget *page)
     showPage(page);
 }
 
-void PageFrame::leaveTakeover()
+void PageFrame::leaveOverlay()
 {
     if (mPageTrail.isEmpty()) {
         showTab(mCurrentTab);

@@ -28,6 +28,7 @@ endif()
 add_library(sensornode-ui-lib STATIC
   src/app/Language.cpp
   src/app/Language.h
+
   src/ipc/DaemonClient.cpp
   src/ipc/DaemonClient.h
   src/ipc/DaemonEndpoints.h

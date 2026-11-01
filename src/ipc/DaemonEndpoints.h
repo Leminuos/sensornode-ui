@@ -41,6 +41,11 @@ inline QString dataMount()
     return qEnvironmentVariable("SENSORNODE_DATA_MOUNT", QStringLiteral("/data"));
 }
 
+inline QString touchCalibrationFile()
+{
+    return qEnvironmentVariable("TSLIB_CALIBFILE", QStringLiteral("/data/config/pointercal"));
+}
+
 inline QString journalctl()
 {
     return qEnvironmentVariable("SENSORNODE_JOURNALCTL", QStringLiteral("journalctl"));
