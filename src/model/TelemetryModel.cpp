@@ -4,6 +4,8 @@
 
 #include <QtNumeric>
 
+static constexpr int kStaleCycles = 3;
+
 static double reading(const QJsonObject &sample, const char *key)
 {
     const QJsonValue v = sample.value(QLatin1String(key));
@@ -22,11 +24,15 @@ TelemetryModel::TelemetryModel(QObject *parent, const QString &socketPath)
         emit onlineChanged(false);
     });
     connect(&mClient, &DaemonClient::messageReceived, this, &TelemetryModel::onMessage);
+
+    mStaleTimer.setSingleShot(true);
+    connect(&mStaleTimer, &QTimer::timeout, this, [this]() { setStale(true); });
 }
 
 void TelemetryModel::start()
 {
     mClient.start();
+    armStaleTimer();
 }
 
 bool TelemetryModel::isOnline() const
@@ -40,6 +46,8 @@ void TelemetryModel::onMessage(const QJsonObject &message)
 
     if (type == QLatin1String("hello")) {
         emit macAddressChanged(message.value(QStringLiteral("mac")).toString().toUpper());
+        mIntervalMs = message.value(QStringLiteral("interval_ms")).toInt(mIntervalMs);
+        armStaleTimer();
     } else if (type == QLatin1String("sample")) {
         emitSample(message);
     } else if (type == QLatin1String("reply")
@@ -49,7 +57,24 @@ void TelemetryModel::onMessage(const QJsonObject &message)
     }
 }
 
+void TelemetryModel::setStale(bool stale)
+{
+    if (stale == mStale) return;
+
+    mStale = stale;
+    emit staleChanged(mStale);
+}
+
+void TelemetryModel::armStaleTimer()
+{
+    mStaleTimer.start(kStaleCycles * mIntervalMs);
+}
+
 void TelemetryModel::emitSample(const QJsonObject &sample)
 {
+    if (!sample.contains(QStringLiteral("ts"))) return;
+
+    setStale(false);
+    armStaleTimer();
     emit sampleReceived(reading(sample, "temp_c"), reading(sample, "humi_rh"), reading(sample, "lux"));
 }

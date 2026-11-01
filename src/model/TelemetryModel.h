@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QString>
+#include <QTimer>
 
 #include "ipc/DaemonClient.h"
 
@@ -15,17 +16,24 @@ public:
 
     void start();
     bool isOnline() const;
+    bool isStale() const { return mStale; }
 
 signals:
     void sampleReceived(double tempC, double humidity, double lux);
     void macAddressChanged(const QString &mac);
     void onlineChanged(bool online);
+    void staleChanged(bool stale);
 
 private:
     void onMessage(const QJsonObject &message);
     void emitSample(const QJsonObject &sample);
+    void setStale(bool stale);
+    void armStaleTimer();
 
     DaemonClient mClient;
+    int mIntervalMs = 5000;
+    bool mStale = true;
+    QTimer mStaleTimer;
 };
 
 #endif // TELEMETRY_MODEL_H
