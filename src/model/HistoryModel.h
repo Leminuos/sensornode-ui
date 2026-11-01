@@ -5,9 +5,17 @@
 #include <QString>
 #include <QVector>
 
+#include "model/Metric.h"
 #include "model/Sample.h"
 
 struct sqlite3;
+
+struct RangeStats
+{
+    double min;
+    double average;
+    double max;
+};
 
 class HistoryModel : public QObject
 {
@@ -18,6 +26,7 @@ public:
     ~HistoryModel();
 
     QVector<Sample> range(int hours, int bucketSec = 0) const;
+    RangeStats stats(int hours, Metric metric) const;
 
 private:
     bool ensureOpen() const;
