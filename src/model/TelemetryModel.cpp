@@ -38,7 +38,9 @@ void TelemetryModel::onMessage(const QJsonObject &message)
 {
     const QString type = message.value(QStringLiteral("type")).toString();
 
-    if (type == QLatin1String("sample")) {
+    if (type == QLatin1String("hello")) {
+        emit macAddressChanged(message.value(QStringLiteral("mac")).toString().toUpper());
+    } else if (type == QLatin1String("sample")) {
         emitSample(message);
     } else if (type == QLatin1String("reply")
                && message.value(QStringLiteral("cmd")).toString() == QLatin1String("get_latest")

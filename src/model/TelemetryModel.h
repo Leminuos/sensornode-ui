@@ -18,6 +18,7 @@ public:
 
 signals:
     void sampleReceived(double tempC, double humidity, double lux);
+    void macAddressChanged(const QString &mac);
     void onlineChanged(bool online);
 
 private:

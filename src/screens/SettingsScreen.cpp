@@ -1,45 +1,12 @@
 #include "screens/SettingsScreen.h"
 #include "ui_SettingsScreen.h"
 
-#include "network/NetworkInfo.h"
-
 #include <QCheckBox>
-#include <QDebug>
 #include <QPushButton>
 #include <QScroller>
 #include <QScrollerProperties>
 #include <QSlider>
 #include <QTimer>
-
-#define BACKLIGHT_PWM_CHIP_PATH     "/sys/class/pwm/pwmchip0"
-#define BACKLIGHT_PWM_CHANNEL       0
-#define BACKLIGHT_PWM_PERIOD_NS     1000000
-#define BACKLIGHT_MIN_PERCENT       10
-
-#define DEVICE_NETWORK_INTERFACE    "eth0"
-
-// Map slider 0..100 -> duty cycle %, theo CIE
-// Precompute: Y = ((L+16)/116)^3 nếu L>8, ngược lại Y = L/903.3.
-static const int kBrightnessLut[101] = {
-     10,  10,  10,  10,  10,  10,  11,  11,  11,  11,  // slider 0..9
-     11,  11,  11,  11,  12,  12,  12,  12,  12,  12,  // slider 10..19
-     13,  13,  13,  13,  14,  14,  14,  15,  15,  15,  // slider 20..29
-     16,  16,  16,  17,  17,  18,  18,  19,  19,  20,  // slider 30..39
-     20,  21,  21,  22,  22,  23,  24,  24,  25,  26,  // slider 40..49
-     27,  27,  28,  29,  30,  31,  32,  32,  33,  34,  // slider 50..59
-     35,  36,  37,  38,  40,  41,  42,  43,  44,  45,  // slider 60..69
-     47,  48,  49,  51,  52,  53,  55,  56,  58,  59,  // slider 70..79
-     61,  63,  64,  66,  68,  69,  71,  73,  75,  77,  // slider 80..89
-     79,  81,  83,  85,  87,  89,  91,  93,  95,  98,  // slider 90..99
-    100,                                               // slider 100
-};
-
-static int sliderToDutyPercent(int sliderValue)
-{
-    if (sliderValue < 0) sliderValue = 0;
-    if (sliderValue > 100) sliderValue = 100;
-    return kBrightnessLut[sliderValue];
-}
 
 SettingsScreen::SettingsScreen(QWidget *parent)
     : QWidget(parent)
@@ -59,31 +26,11 @@ SettingsScreen::SettingsScreen(QWidget *parent)
     scroller->setScrollerProperties(props);
 
     QObject::connect(ui->brightnessSlider, &QSlider::valueChanged, this, &SettingsScreen::onBrightnessChanged);
-    QObject::connect(ui->brightnessSlider, &QSlider::sliderReleased, this, &SettingsScreen::onBrightnessReleased);
     QObject::connect(ui->otaToggle, &QCheckBox::toggled, this, &SettingsScreen::onOtaToggled);
     QObject::connect(ui->checkUpdatesButton, &QPushButton::clicked, this, &SettingsScreen::checkForUpdateRequested);
 
-    /* Init PWM cho backlight */
-    if (mBacklightPwm.init(BACKLIGHT_PWM_CHIP_PATH,
-                           BACKLIGHT_PWM_CHANNEL,
-                           BACKLIGHT_PWM_PERIOD_NS) < 0) {
-        qWarning() << "Failed to init backlight PWM";
-    }
-
-    mAppSettings.load();
-    const int savedBrightness = mAppSettings.brightness();
-    ui->brightnessSlider->blockSignals(true);
-    ui->brightnessSlider->setValue(savedBrightness);
-    ui->brightnessSlider->blockSignals(false);
-    applyBrightness(savedBrightness);
-
-    /* Đọc MAC address của interface và hiển thị */
-    const QString mac = NetworkInfo::readMacAddress(DEVICE_NETWORK_INTERFACE);
-    if (!mac.isEmpty()) {
-        ui->deviceMacValue->setText(mac);
-    } else {
-        ui->deviceMacValue->setText("--");
-    }
+    setSettingsEnabled(false);
+    setMacAddress(QString());
 }
 
 void SettingsScreen::setOtaMode(bool autoMode)
@@ -113,32 +60,39 @@ void SettingsScreen::onCheckFinished(const QString &resultText)
 
 SettingsScreen::~SettingsScreen()
 {
-    mBacklightPwm.deinit();
     delete ui;
 }
 
-void SettingsScreen::applyBrightness(int value)
+void SettingsScreen::setBrightness(int value)
 {
+    ui->brightnessSlider->blockSignals(true);
+    ui->brightnessSlider->setValue(value);
+    ui->brightnessSlider->blockSignals(false);
     ui->brightnessValue->setText(QString("%1%").arg(value));
-    mBacklightPwm.setBrightness(sliderToDutyPercent(value));
+}
+
+void SettingsScreen::setSettingsEnabled(bool enabled)
+{
+    ui->brightnessSlider->setEnabled(enabled);
+    ui->otaToggle->setEnabled(enabled);
+}
+
+void SettingsScreen::setMacAddress(const QString &mac)
+{
+    ui->deviceMacValue->setText(mac.isEmpty() ? QStringLiteral("--") : mac);
 }
 
 void SettingsScreen::onBrightnessChanged(int value)
 {
-    applyBrightness(value);
-}
-
-void SettingsScreen::onBrightnessReleased()
-{
-    mAppSettings.setBrightness(ui->brightnessSlider->value());
-    mAppSettings.save();
+    ui->brightnessValue->setText(QString("%1%").arg(value));
+    emit brightnessChangeRequested(value);
 }
 
 void SettingsScreen::onOtaToggled(bool checked)
 {
     if (checked) {
         ui->otaModeLabel->setText("Automatic");
-        ui->otaDescLabel->setText("Install updates when available");
+        ui->otaDescLabel->setText("Show updates when available");
     } else {
         ui->otaModeLabel->setText("Manual");
         ui->otaDescLabel->setText("Confirm before updating");

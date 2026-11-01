@@ -8,14 +8,13 @@
 
 #include "ipc/DaemonClient.h"
 #include "model/OtaState.h"
-#include "settings/OtaSettings.h"
 
 class OtaModel : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit OtaModel(QObject *parent = nullptr, const QString &socketPath = QString(), const QString &configPath = QString());
+    explicit OtaModel(QObject *parent = nullptr, const QString &socketPath = QString());
 
     void start();
 
@@ -36,7 +35,6 @@ public slots:
 signals:
     void currentVersionChanged(const QString &version);
     void trialBootChanged(bool trialBoot);
-    void autoModeChanged(bool autoMode);
 
     void updateAvailable(const QString &current, const QString &available);
     void upToDate();
@@ -61,7 +59,6 @@ private:
     void announceUpdate();
 
     DaemonClient mClient;
-    OtaSettings mSettings;
     bool mAutoMode = false;
 
     OtaState mState = OtaState::Idle;

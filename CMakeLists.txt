@@ -33,19 +33,12 @@ add_library(sensornode-ui-lib STATIC
   src/model/OtaModel.h
   src/model/OtaState.h
   src/model/Sample.h
+  src/model/DisplayModel.cpp
+  src/model/DisplayModel.h
+  src/model/SettingsModel.cpp
+  src/model/SettingsModel.h
   src/model/TelemetryModel.cpp
   src/model/TelemetryModel.h
-
-  src/drivers/BacklightPwm.cpp
-  src/drivers/BacklightPwm.h
-
-  src/network/NetworkInfo.cpp
-  src/network/NetworkInfo.h
-
-  src/settings/AppSettings.cpp
-  src/settings/AppSettings.h
-  src/settings/OtaSettings.cpp
-  src/settings/OtaSettings.h
 )
 
 target_include_directories(sensornode-ui-lib PUBLIC ${CMAKE_SOURCE_DIR}/src)

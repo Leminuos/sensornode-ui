@@ -16,6 +16,16 @@ inline QString otaSocket()
     return qEnvironmentVariable("SENSORNODE_OTA_SOCKET", QStringLiteral("/run/sensornode/ota.sock"));
 }
 
+inline QString settingsSocket()
+{
+    return qEnvironmentVariable("SENSORNODE_SETTINGS_SOCKET", QStringLiteral("/run/sensornode/settings.sock"));
+}
+
+inline QString displaySocket()
+{
+    return qEnvironmentVariable("SENSORNODE_DISPLAY_SOCKET", QStringLiteral("/run/sensornode/display.sock"));
+}
+
 inline QString telemetryDb()
 {
     return qEnvironmentVariable("SENSORNODE_TELEMETRY_DB", QStringLiteral("/var/lib/sensornode/telemetry.db"));

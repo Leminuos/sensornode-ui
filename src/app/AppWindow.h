@@ -7,10 +7,12 @@
 
 class BottomNavBar;
 class ChartScreen;
+class DisplayModel;
 class HistoryModel;
 class HomeScreen;
 class OtaModel;
 class QStackedWidget;
+class SettingsModel;
 class SettingsScreen;
 class StatusHeader;
 class TelemetryModel;
@@ -37,6 +39,7 @@ private:
     void buildUi();
     void wireNavigation();
     void wireTelemetry();
+    void wireSettings();
     void wireOta();
     void start();
 
@@ -47,6 +50,8 @@ private:
     TelemetryModel *mTelemetry;
     HistoryModel *mHistory;
     OtaModel *mOta;
+    SettingsModel *mSettingsModel;
+    DisplayModel *mDisplayModel;
 
     StatusHeader *mStatusHeader;
     QStackedWidget *mStack;

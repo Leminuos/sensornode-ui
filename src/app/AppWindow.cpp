@@ -2,6 +2,8 @@
 
 #include "model/HistoryModel.h"
 #include "model/OtaModel.h"
+#include "model/DisplayModel.h"
+#include "model/SettingsModel.h"
 #include "model/TelemetryModel.h"
 #include "screens/ChartScreen.h"
 #include "screens/HomeScreen.h"
@@ -20,10 +22,13 @@ AppWindow::AppWindow(QWidget *parent)
     , mTelemetry(new TelemetryModel(this))
     , mHistory(new HistoryModel(this))
     , mOta(new OtaModel(this))
+    , mSettingsModel(new SettingsModel(this))
+    , mDisplayModel(new DisplayModel(this))
 {
     buildUi();
     wireNavigation();
     wireTelemetry();
+    wireSettings();
     wireOta();
     start();
 }
@@ -72,15 +77,25 @@ void AppWindow::wireTelemetry()
     connect(mTelemetry, &TelemetryModel::onlineChanged, mStatusHeader, &StatusHeader::setOnlineStatus);
     connect(mTelemetry, &TelemetryModel::sampleReceived, mHome, &HomeScreen::setValues);
     connect(mTelemetry, &TelemetryModel::sampleReceived, mCharts, &ChartScreen::reload);
+    connect(mTelemetry, &TelemetryModel::macAddressChanged, mSettings, &SettingsScreen::setMacAddress);
+}
+
+void AppWindow::wireSettings()
+{
+    connect(mSettingsModel, &SettingsModel::brightnessChanged, mSettings, &SettingsScreen::setBrightness);
+    connect(mSettingsModel, &SettingsModel::autoModeChanged, mSettings, &SettingsScreen::setOtaMode);
+    connect(mSettingsModel, &SettingsModel::autoModeChanged, mOta, &OtaModel::setAutoMode);
+    connect(mSettingsModel, &SettingsModel::availableChanged, mSettings, &SettingsScreen::setSettingsEnabled);
+    connect(mSettings, &SettingsScreen::brightnessChangeRequested, mDisplayModel, &DisplayModel::setBrightness);
+    connect(mSettings, &SettingsScreen::brightnessChangeRequested, mSettingsModel, &SettingsModel::setBrightness);
+    connect(mSettings, &SettingsScreen::otaAutoModeChanged, mSettingsModel, &SettingsModel::setAutoMode);
 }
 
 void AppWindow::wireOta()
 {
     connect(mOta, &OtaModel::currentVersionChanged, mSettings, &SettingsScreen::setCurrentVersion);
-    connect(mOta, &OtaModel::autoModeChanged, mSettings, &SettingsScreen::setOtaMode);
     connect(mOta, &OtaModel::trialBootChanged, mStatusHeader, &StatusHeader::setVerifying);
     connect(mOta, &OtaModel::trialBootChanged, mPopup, &UpdatePopup::setVerifying);
-    connect(mSettings, &SettingsScreen::otaAutoModeChanged, mOta, &OtaModel::setAutoMode);
     connect(mSettings, &SettingsScreen::checkForUpdateRequested, this, &AppWindow::onCheckForUpdateRequested);
     connect(mOta, &OtaModel::upToDate, this, [this]() {
         mSettings->onCheckFinished("Up to date");
@@ -103,6 +118,8 @@ void AppWindow::start()
     mNavBar->setActive(BottomNavBar::Home);
 
     mTelemetry->start();
+    mSettingsModel->start();
+    mDisplayModel->start();
     mOta->start();
 }
 

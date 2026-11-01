@@ -15,10 +15,9 @@ static bool isTrialBoot(const QJsonObject &system)
         && running == system.value(QStringLiteral("active_slot")).toString();
 }
 
-OtaModel::OtaModel(QObject *parent, const QString &socketPath, const QString &configPath)
+OtaModel::OtaModel(QObject *parent, const QString &socketPath)
     : QObject(parent)
     , mClient(socketPath.isEmpty() ? DaemonEndpoints::otaSocket() : socketPath)
-    , mSettings(configPath)
 {
     connect(&mClient, &DaemonClient::connected, this, &OtaModel::onConnected);
     connect(&mClient, &DaemonClient::disconnected, this, &OtaModel::onDisconnected);
@@ -35,10 +34,6 @@ OtaModel::OtaModel(QObject *parent, const QString &socketPath, const QString &co
 
 void OtaModel::start()
 {
-    mSettings.load();
-    mAutoMode = mSettings.autoMode();
-    emit autoModeChanged(mAutoMode);
-
     mClient.start();
 }
 
@@ -67,9 +62,7 @@ void OtaModel::onMessage(const QJsonObject &message)
     const QString type = message.value(QStringLiteral("type")).toString();
     const QJsonObject ota = message.value(QStringLiteral("ota")).toObject();
 
-    if (type == QLatin1String("hello")) {
-        applyOta(ota, /*live=*/false);
-    } else if (type == QLatin1String("state") || type == QLatin1String("progress") || type == QLatin1String("available")) {
+    if (type == QLatin1String("state") || type == QLatin1String("progress") || type == QLatin1String("available")) {
         applyOta(ota, /*live=*/true);
     } else if (type == QLatin1String("reply")) {
         onReply(message);
@@ -168,12 +161,10 @@ void OtaModel::applyOta(const QJsonObject &ota, bool live)
 
 void OtaModel::setAutoMode(bool autoMode)
 {
-    if (mAutoMode != autoMode) {
-        mAutoMode = autoMode;
-        mSettings.setAutoMode(autoMode);
-        mSettings.save();
-    }
-    if (mAutoMode && !isBusy() && !mAvailableVersion.isEmpty()) {
+    if (autoMode == mAutoMode) return;
+    mAutoMode = autoMode;
+
+    if (mAutoMode && !isBusy() && !mAvailableVersion.isEmpty() && mState != OtaState::Available) {
         announceUpdate();
     }
 }

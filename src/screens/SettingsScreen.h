@@ -3,9 +3,6 @@
 
 #include <QWidget>
 
-#include "drivers/BacklightPwm.h"
-#include "settings/AppSettings.h"
-
 QT_BEGIN_NAMESPACE
 namespace Ui { class SettingsScreen; }
 QT_END_NAMESPACE
@@ -26,21 +23,20 @@ public slots:
     // Phản hồi cho nút "Check for updates" (mode manual).
     void onCheckStarted();
     void onCheckFinished(const QString &resultText);
+    void setBrightness(int value);
+    void setSettingsEnabled(bool enabled);
+    void setMacAddress(const QString &mac);
 
 signals:
+    void brightnessChangeRequested(int value);
     void otaAutoModeChanged(bool autoMode);  // toggle Auto/Manual
     void checkForUpdateRequested();          // nút "Check for updates"
 
 private:
-    // Cập nhật nhãn + duty cycle PWM theo giá trị slider (không ghi file).
-    void applyBrightness(int value);
     void onBrightnessChanged(int value);
-    void onBrightnessReleased();
     void onOtaToggled(bool checked);
 
     Ui::SettingsScreen *ui;
-    BacklightPwm mBacklightPwm;
-    AppSettings mAppSettings;
 };
 
 #endif // SETTINGS_SCREEN_H
