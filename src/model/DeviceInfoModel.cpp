@@ -2,9 +2,7 @@
 
 #include "ipc/DaemonEndpoints.h"
 
-#include <QAbstractSocket>
 #include <QFile>
-#include <QNetworkInterface>
 #include <QRegularExpression>
 #include <QStorageInfo>
 #include <QSysInfo>
@@ -34,12 +32,10 @@ static bool mountIsReadOnly(const QByteArray &mounts, const char *mountPoint)
     return false;
 }
 
-DeviceInfoModel::DeviceInfoModel(QObject *parent, const QString &rootPath, const QString &dataMount,
-                                 const QString &interfaceName)
+DeviceInfoModel::DeviceInfoModel(QObject *parent, const QString &rootPath, const QString &dataMount)
     : QObject(parent)
     , mRoot(rootPath)
     , mDataMount(dataMount.isEmpty() ? DaemonEndpoints::dataMount() : dataMount)
-    , mInterface(interfaceName.isEmpty() ? DaemonEndpoints::networkInterface() : interfaceName)
 {
 }
 
@@ -66,23 +62,6 @@ DeviceInfo DeviceInfoModel::read() const
     if (storage.isValid() && storage.bytesTotal() > 0) {
         const qint64 used = storage.bytesTotal() - storage.bytesAvailable();
         info.dataPercent = static_cast<int>(used * 100 / storage.bytesTotal());
-    }
-
-    const QNetworkInterface iface = QNetworkInterface::interfaceFromName(mInterface);
-    const auto entries = iface.addressEntries();
-    for (const QNetworkAddressEntry &entry : entries) {
-        if (entry.ip().protocol() == QAbstractSocket::IPv4Protocol) {
-            info.ip = entry.ip().toString();
-            break;
-        }
-    }
-
-    const QString sysNet = mRoot + QStringLiteral("/sys/class/net/") + mInterface;
-    info.linkUp = readFile(sysNet + QStringLiteral("/carrier")).trimmed() == "1";
-    bool speedOk = false;
-    const int speed = readFile(sysNet + QStringLiteral("/speed")).trimmed().toInt(&speedOk);
-    if (speedOk && speed > 0) {
-        info.linkMbps = speed;
     }
 
     info.rootReadOnly = mountIsReadOnly(readFile(mRoot + QStringLiteral("/proc/mounts")), "/");

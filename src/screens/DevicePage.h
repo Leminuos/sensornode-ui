@@ -18,8 +18,8 @@ public:
 
 public slots:
     void setDeviceInfo(const DeviceInfo &info);
+    void setNodeId(const QString &nodeId);
     void setMacAddress(const QString &mac);
-    void setMqttConnected(bool connected);
 
 signals:
     void refreshRequested();
@@ -31,16 +31,9 @@ protected:
 private:
     KeyValueList *mList;
     QTimer *mTick;
-    int mUptime;
-    int mKernel;
-    int mRam;
-    int mData;
+    int mNodeId;
     int mMac;
-    int mIp;
-    int mLink;
-    int mMqtt;
-    bool mHasMqtt = false;
-    bool mMqttConnected = false;
+    int mUptime;
 };
 
 #endif // DEVICE_PAGE_H

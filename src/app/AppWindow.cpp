@@ -15,6 +15,7 @@
 #include "model/SystemStatusModel.h"
 #include "model/TelemetryModel.h"
 #include "model/TouchCalibration.h"
+#include "screens/AdvancedPage.h"
 #include "screens/CalibrationIntroPage.h"
 #include "screens/CalibrationPage.h"
 #include "screens/ChartScreen.h"
@@ -25,10 +26,13 @@
 #include "screens/HomeScreen.h"
 #include "screens/LanguageLocationPage.h"
 #include "screens/LocationPage.h"
+#include "screens/NetworkDetailPage.h"
+#include "screens/NetworkPage.h"
 #include "screens/SamplingPage.h"
 #include "screens/SensorsPage.h"
 #include "screens/ServicePage.h"
 #include "screens/SettingsScreen.h"
+#include "screens/SystemPage.h"
 #include "screens/UpdateFlowPage.h"
 #include "screens/UpdatePage.h"
 #include "widgets/BottomNavBar.h"
@@ -98,7 +102,7 @@ void AppWindow::buildCalibration()
     addPage(mCalibrationIntro);
     stack()->addWidget(mCalibration);
 
-    connect(mServicePage, &ServicePage::calibrationRequested, this, [this]() { pushPage(mCalibrationIntro); });
+    connect(mAdvancedPage, &AdvancedPage::calibrationRequested, this, [this]() { pushPage(mCalibrationIntro); });
     connect(mCalibrationIntro, &CalibrationIntroPage::startRequested, this, &AppWindow::startCalibration);
 
     connect(mCalibration, &CalibrationPage::pointsCaptured, this, &AppWindow::onCalibrationPoints);
@@ -125,11 +129,6 @@ void AppWindow::applyLanguageTexts()
     mRestartSheet->setTitle(tr("Khởi động lại thiết bị?"));
     mRestartSheet->setBody(tr("Việc đo sẽ dừng khoảng 1 phút."));
     mRestartSheet->setActions(tr("Huỷ"), tr("Khởi động lại"), RaisedButton::Danger);
-
-    const QString period = SamplingPage::periodText(mSamplingPage->period());
-    mSettings->setSamplingPeriodText(period);
-    mSensorsPage->setPeriodText(period);
-    mLanguagePage->setLocationName(Locations::displayName(Locations::all().at(mLocationPage->selectedIndex())));
 }
 
 void AppWindow::startCalibration()
@@ -225,24 +224,37 @@ void AppWindow::buildSettingsPages()
 
 void AppWindow::buildServicePages()
 {
-    mFirmwarePage = new FirmwarePage(stack());
     mDevicePage = new DevicePage(stack());
+    mSystemPage = new SystemPage(stack());
+    mNetworkPage = new NetworkPage(stack());
+    mEthernetPage = new NetworkDetailPage(NetworkDetailPage::Ethernet, stack());
+    mWifiPage = new NetworkDetailPage(NetworkDetailPage::Wifi, stack());
+    mAdvancedPage = new AdvancedPage(stack());
+    mFirmwarePage = new FirmwarePage(stack());
     mSensorsPage = new SensorsPage(stack());
     mErrorLogPage = new ErrorLogPage(stack());
 
-    for (SubPage *page : {static_cast<SubPage *>(mFirmwarePage), static_cast<SubPage *>(mDevicePage),
-                          static_cast<SubPage *>(mSensorsPage), static_cast<SubPage *>(mErrorLogPage)}) {
+    for (SubPage *page : {static_cast<SubPage *>(mDevicePage), static_cast<SubPage *>(mSystemPage),
+                          static_cast<SubPage *>(mNetworkPage), static_cast<SubPage *>(mEthernetPage),
+                          static_cast<SubPage *>(mWifiPage), static_cast<SubPage *>(mAdvancedPage),
+                          static_cast<SubPage *>(mFirmwarePage), static_cast<SubPage *>(mSensorsPage),
+                          static_cast<SubPage *>(mErrorLogPage)}) {
         addPage(page);
     }
 
-    connect(mServicePage, &ServicePage::firmwareRequested, this, [this]() { pushPage(mFirmwarePage); });
     connect(mServicePage, &ServicePage::deviceRequested, this, [this]() { pushPage(mDevicePage); });
-    connect(mServicePage, &ServicePage::sensorsRequested, this, [this]() { pushPage(mSensorsPage); });
-    connect(mServicePage, &ServicePage::errorLogRequested, this, [this]() { pushPage(mErrorLogPage); });
+    connect(mServicePage, &ServicePage::systemRequested, this, [this]() { pushPage(mSystemPage); });
+    connect(mServicePage, &ServicePage::networkRequested, this, [this]() { pushPage(mNetworkPage); });
+    connect(mServicePage, &ServicePage::advancedRequested, this, [this]() { pushPage(mAdvancedPage); });
+    connect(mNetworkPage, &NetworkPage::ethernetRequested, this, [this]() { pushPage(mEthernetPage); });
+    connect(mNetworkPage, &NetworkPage::wifiRequested, this, [this]() { pushPage(mWifiPage); });
+    connect(mAdvancedPage, &AdvancedPage::firmwareRequested, this, [this]() { pushPage(mFirmwarePage); });
+    connect(mAdvancedPage, &AdvancedPage::sensorsRequested, this, [this]() { pushPage(mSensorsPage); });
+    connect(mAdvancedPage, &AdvancedPage::errorLogRequested, this, [this]() { pushPage(mErrorLogPage); });
 
     mRestartSheet = new BottomSheet(this);
 
-    mDevicePage->setMqttConnected(DemoData::mqttConnected);
+    mNetworkPage->setServerConnected(DemoData::mqttConnected);
     mSensorsPage->setPeriodText(SamplingPage::periodText(mSamplingPage->period()));
 }
 
@@ -251,17 +263,21 @@ void AppWindow::wireService()
     connect(mFirmwarePage, &FirmwarePage::refreshRequested, mOta, &OtaModel::refreshStatus);
     connect(mFirmwarePage, &FirmwarePage::refreshRequested, mDeviceInfo, &DeviceInfoModel::refresh);
     connect(mDevicePage, &DevicePage::refreshRequested, mDeviceInfo, &DeviceInfoModel::refresh);
+    connect(mSystemPage, &SystemPage::refreshRequested, mDeviceInfo, &DeviceInfoModel::refresh);
     connect(mErrorLogPage, &ErrorLogPage::refreshRequested, mErrorLog, &ErrorLogModel::reload);
 
     connect(mOta, &OtaModel::systemInfoChanged, mFirmwarePage, &FirmwarePage::setSystemInfo);
+    connect(mOta, &OtaModel::currentVersionChanged, mSystemPage, &SystemPage::setFirmwareVersion);
     connect(mDeviceInfo, &DeviceInfoModel::infoChanged, mFirmwarePage, &FirmwarePage::setDeviceInfo);
     connect(mDeviceInfo, &DeviceInfoModel::infoChanged, mDevicePage, &DevicePage::setDeviceInfo);
+    connect(mDeviceInfo, &DeviceInfoModel::infoChanged, mSystemPage, &SystemPage::setDeviceInfo);
+    connect(mTelemetry, &TelemetryModel::nodeIdChanged, mDevicePage, &DevicePage::setNodeId);
     connect(mTelemetry, &TelemetryModel::macAddressChanged, mDevicePage, &DevicePage::setMacAddress);
     connect(mTelemetry, &TelemetryModel::reportReceived, mSensorsPage, &SensorsPage::setReport);
     connect(mErrorLog, &ErrorLogModel::entriesChanged, mErrorLogPage, &ErrorLogPage::setEntries);
     connect(mErrorLog, &ErrorLogModel::failed, mErrorLogPage, &ErrorLogPage::showLoadFailed);
 
-    connect(mFirmwarePage, &FirmwarePage::restartRequested, mRestartSheet, &BottomSheet::present);
+    connect(mSystemPage, &SystemPage::restartRequested, mRestartSheet, &BottomSheet::present);
     connect(mRestartSheet, &BottomSheet::accepted, this, []() { Stubs::restartDevice(); });
 }
 
@@ -300,10 +316,17 @@ void AppWindow::wireSettings()
 void AppWindow::wireSystemStatus()
 {
     connect(mSystemStatus, &SystemStatusModel::clockChanged, statusHeader(), &StatusHeader::setClock);
-    connect(mSystemStatus, &SystemStatusModel::clockChanged, mLocationPage, [this](const QString &text) {
+    connect(mSystemStatus, &SystemStatusModel::clockChanged, this, [this](const QString &text) {
         mLocationPage->setClockSynced(!text.isEmpty());
+        mNetworkPage->setTimeSynced(!text.isEmpty());
     });
+
     connect(mNetwork, &NetworkModel::statusChanged, statusHeader(), &StatusHeader::setNetworkStatus);
+    connect(mNetwork, &NetworkModel::statusChanged, mNetworkPage, &NetworkPage::setStatus);
+    connect(mNetwork, &NetworkModel::statusChanged, mEthernetPage, &NetworkDetailPage::setStatus);
+    connect(mNetwork, &NetworkModel::statusChanged, mWifiPage, &NetworkDetailPage::setStatus);
+    connect(mNetworkPage, &NetworkPage::refreshRequested, mNetwork, &NetworkModel::refreshSsid);
+    connect(mWifiPage, &NetworkDetailPage::refreshRequested, mNetwork, &NetworkModel::refreshSsid);
 }
 
 void AppWindow::wireOta()
@@ -345,7 +368,6 @@ void AppWindow::start()
     mNetwork->start();
 
     checkRollback();
-
 }
 
 void AppWindow::onCheckForUpdateRequested()

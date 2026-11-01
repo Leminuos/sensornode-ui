@@ -20,7 +20,6 @@ public slots:
 
 signals:
     void refreshRequested();
-    void restartRequested();
 
 protected:
     void showEvent(QShowEvent *event) override;

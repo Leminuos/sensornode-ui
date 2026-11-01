@@ -8,6 +8,7 @@
 #include <QPointF>
 #include <QVector>
 
+class AdvancedPage;
 class BottomSheet;
 class CalibrationIntroPage;
 class CalibrationPage;
@@ -23,7 +24,9 @@ class HistoryModel;
 class HomeScreen;
 class LanguageLocationPage;
 class LocationPage;
+class NetworkDetailPage;
 class NetworkModel;
+class NetworkPage;
 class OtaModel;
 class SamplingPage;
 class SensorsPage;
@@ -31,6 +34,7 @@ class ServicePage;
 class SettingsModel;
 class SettingsScreen;
 class SubPage;
+class SystemPage;
 class SystemStatusModel;
 class TelemetryModel;
 class QLabel;
@@ -103,8 +107,13 @@ private:
     LocationPage *mLocationPage;
     UpdatePage *mUpdatePage;
     ServicePage *mServicePage;
-    FirmwarePage *mFirmwarePage;
     DevicePage *mDevicePage;
+    SystemPage *mSystemPage;
+    NetworkPage *mNetworkPage;
+    NetworkDetailPage *mEthernetPage;
+    NetworkDetailPage *mWifiPage;
+    AdvancedPage *mAdvancedPage;
+    FirmwarePage *mFirmwarePage;
     SensorsPage *mSensorsPage;
     ErrorLogPage *mErrorLogPage;
     CalibrationIntroPage *mCalibrationIntro;
