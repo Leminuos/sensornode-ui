@@ -1,5 +1,6 @@
 #include "screens/UpdateFlowPage.h"
 
+#include "app/Language.h"
 #include "app/Theme.h"
 #include "widgets/ProgressRing.h"
 #include "widgets/RaisedButton.h"
@@ -23,11 +24,11 @@ UpdateFlowPage::UpdateFlowPage(QWidget *parent)
     , mRing(new ProgressRing(this))
     , mProgressTitle(new QLabel(this))
     , mProgressNote(new QLabel(this))
-    , mPowerWarning(new QLabel(tr("Không tắt nguồn thiết bị"), this))
+    , mPowerWarning(new QLabel(this))
     , mHalo(new QLabel(this))
     , mResultTitle(new QLabel(this))
     , mResultBody(new QLabel(this))
-    , mSteps(new StepBar({tr("Tải về"), tr("Cài đặt"), tr("Khởi động"), tr("Kiểm tra")}, this))
+    , mSteps(new StepBar({QString(), QString(), QString(), QString()}, this))
     , mPrimary(new RaisedButton(QString(), RaisedButton::Primary, this))
     , mSecondary(new RaisedButton(QString(), RaisedButton::Secondary, this))
 {
@@ -43,9 +44,14 @@ UpdateFlowPage::UpdateFlowPage(QWidget *parent)
 
     mPowerWarning->setObjectName(QStringLiteral("powerWarning"));
     mPowerWarning->setAlignment(Qt::AlignCenter);
-    mPowerWarning->ensurePolished();
-    const QSize warning = mPowerWarning->sizeHint();
-    mPowerWarning->setGeometry((kWidth - warning.width()) / 2, 192, warning.width(), warning.height());
+
+    Language::bind(this, [this]() {
+        mPowerWarning->setText(tr("Không tắt nguồn thiết bị"));
+        mPowerWarning->ensurePolished();
+        const QSize warning = mPowerWarning->sizeHint();
+        mPowerWarning->setGeometry((kWidth - warning.width()) / 2, 192, warning.width(), warning.height());
+        mSteps->setLabels({tr("Tải về"), tr("Cài đặt"), tr("Khởi động"), tr("Kiểm tra")});
+    });
 
     mHalo->setGeometry((kWidth - 76) / 2, 8, 76, 75);
 
