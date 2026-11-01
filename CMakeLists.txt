@@ -81,6 +81,7 @@ add_executable(sensornode-ui
   src/widgets/StatusHeader.h
   src/widgets/StatusHeader.ui
 
+  resources/assets.qrc
   resources/resources.qrc
 )
 
