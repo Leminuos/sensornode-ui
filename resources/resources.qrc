@@ -1,6 +1,8 @@
 <!DOCTYPE RCC>
 <RCC version="1.0">
     <qresource prefix="/">
+        <file>theme/tokens.json</file>
+        <file>styles/theme.qss</file>
         <file>styles/dashboard.qss</file>
         <file>styles/settings.qss</file>
         <file>styles/firmware_popup.qss</file>
