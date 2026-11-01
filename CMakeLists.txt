@@ -97,6 +97,8 @@ add_library(sensornode-ui-widgets STATIC
   src/screens/LanguageLocationPage.h
   src/screens/LocationPage.cpp
   src/screens/LocationPage.h
+  src/screens/NetworkDetailPage.cpp
+  src/screens/NetworkDetailPage.h
   src/screens/NetworkPage.cpp
   src/screens/NetworkPage.h
   src/screens/SamplingPage.cpp
