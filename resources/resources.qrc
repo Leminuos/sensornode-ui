@@ -2,6 +2,7 @@
 <RCC version="1.0">
     <qresource prefix="/">
         <file>theme/tokens.json</file>
+        <file>i18n/sensornode_en.qm</file>
         <file>styles/theme.qss</file>
     </qresource>
 </RCC>

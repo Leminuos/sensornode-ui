@@ -15,6 +15,7 @@ build/
 *_pch.h.cpp
 *_resource.rc
 *.qm
+!resources/i18n/*.qm
 .#*
 *.*#
 core
