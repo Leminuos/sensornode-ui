@@ -51,6 +51,8 @@ add_library(sensornode-ui-lib STATIC
   src/model/Locations.cpp
   src/model/Locations.h
   src/model/SystemStatusModel.cpp
+  src/model/TouchCalibration.cpp
+  src/model/TouchCalibration.h
   src/model/SystemStatusModel.h
   src/model/TelemetryModel.cpp
   src/model/TelemetryModel.h
