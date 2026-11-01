@@ -61,6 +61,7 @@ private slots:
     void onUpdateAvailable(const QString &current, const QString &available);
     void onOtaStateChanged(OtaState state);
     void onUpdateClosed();
+    void onFactoryResetAccepted();
 
 private:
     void buildUi();
@@ -80,6 +81,8 @@ private:
     void finishCalibration();
     void applyLanguageTexts();
     void showUpdateSheet();
+    void showFactoryResetSheet();
+    void restoreDefaults();
     void checkRollback();
     int sizeMb() const;
 
@@ -119,6 +122,7 @@ private:
     CalibrationIntroPage *mCalibrationIntro;
     CalibrationPage *mCalibration;
     BottomSheet *mRestartSheet;
+    BottomSheet *mFactoryResetSheet;
     UpdateFlowPage *mUpdateFlow;
 };
 

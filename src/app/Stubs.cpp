@@ -34,6 +34,12 @@ void Stubs::restartDevice()
     qInfo("[STUB] restart device");
 }
 
+bool Stubs::factoryReset()
+{
+    qInfo("[STUB] factory reset");
+    return true;
+}
+
 QString Stubs::rolledBackVersion()
 {
     qInfo("[STUB] check rollback: none");

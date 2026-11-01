@@ -129,6 +129,15 @@ void AppWindow::applyLanguageTexts()
     mRestartSheet->setTitle(tr("Khởi động lại thiết bị?"));
     mRestartSheet->setBody(tr("Việc đo sẽ dừng khoảng 1 phút."));
     mRestartSheet->setActions(tr("Huỷ"), tr("Khởi động lại"), RaisedButton::Danger);
+
+    mFactoryResetSheet->setTitle(tr("Khôi phục cài đặt gốc?"));
+    mFactoryResetSheet->setBody(tr("Mọi cài đặt sẽ về mặc định. Dữ liệu đo được giữ nguyên."));
+    mFactoryResetSheet->setActions(tr("Huỷ"), tr("Khôi phục"), RaisedButton::Danger);
+
+    const QString period = SamplingPage::periodText(mSamplingPage->period());
+    mSettings->setSamplingPeriodText(period);
+    mSensorsPage->setPeriodText(period);
+    mLanguagePage->setLocationName(Locations::displayName(Locations::all().at(mLocationPage->selectedIndex())));
 }
 
 void AppWindow::startCalibration()
@@ -253,6 +262,7 @@ void AppWindow::buildServicePages()
     connect(mAdvancedPage, &AdvancedPage::errorLogRequested, this, [this]() { pushPage(mErrorLogPage); });
 
     mRestartSheet = new BottomSheet(this);
+    mFactoryResetSheet = new BottomSheet(this);
 
     mNetworkPage->setServerConnected(DemoData::mqttConnected);
     mSensorsPage->setPeriodText(SamplingPage::periodText(mSamplingPage->period()));
@@ -279,6 +289,8 @@ void AppWindow::wireService()
 
     connect(mSystemPage, &SystemPage::restartRequested, mRestartSheet, &BottomSheet::present);
     connect(mRestartSheet, &BottomSheet::accepted, this, []() { Stubs::restartDevice(); });
+    connect(mServicePage, &ServicePage::factoryResetRequested, this, &AppWindow::showFactoryResetSheet);
+    connect(mFactoryResetSheet, &BottomSheet::accepted, this, &AppWindow::onFactoryResetAccepted);
 }
 
 void AppWindow::wireTelemetry()
@@ -499,6 +511,43 @@ void AppWindow::showUpdateSheet()
     mUpdateSheet->setBody(size > 0 ? tr("Khoảng %1 MB. Thiết bị khởi động lại sau khi cài.").arg(size)
                                    : tr("Thiết bị khởi động lại sau khi cài."));
     mUpdateSheet->present();
+}
+
+void AppWindow::showFactoryResetSheet()
+{
+    mFactoryResetSheet->setBody(tr("Mọi cài đặt sẽ về mặc định. Dữ liệu đo được giữ nguyên."));
+    mFactoryResetSheet->present();
+}
+
+void AppWindow::onFactoryResetAccepted()
+{
+    if (!Stubs::factoryReset()) {
+        mFactoryResetSheet->setBody(tr("Không khôi phục được cài đặt. Hãy thử lại."));
+        mFactoryResetSheet->present();
+        return;
+    }
+    restoreDefaults();
+}
+
+void AppWindow::restoreDefaults()
+{
+    mDisplayModel->setBrightness(DemoData::brightness);
+    mSettingsModel->setBrightness(DemoData::brightness);
+    mDisplayPage->setBrightness(DemoData::brightness);
+    mSettings->setBrightness(DemoData::brightness);
+
+    mDisplayPage->setAutoDimMinutes(DemoData::autoDimMinutes);
+    Stubs::setAutoDim(DemoData::autoDimMinutes);
+
+    onSamplingPeriodRequested(DemoData::samplingPeriodSec);
+
+    mSettings->setTemperatureUnit(DemoData::temperatureUnit);
+    onTemperatureUnitRequested(DemoData::temperatureUnit);
+
+    mLanguagePage->setLanguage(QLatin1String(DemoData::language));
+    onLanguageRequested(QLatin1String(DemoData::language));
+
+    onLocationRequested(DemoData::locationIndex);
 }
 
 int AppWindow::sizeMb() const
