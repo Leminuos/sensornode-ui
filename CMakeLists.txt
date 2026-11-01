@@ -67,6 +67,8 @@ add_library(sensornode-ui-widgets STATIC
   src/widgets/MetricTile.h
   src/widgets/RaisedButton.cpp
   src/widgets/RaisedButton.h
+  src/widgets/SegmentedControl.cpp
+  src/widgets/SegmentedControl.h
   src/widgets/StatusHeader.cpp
   src/widgets/StatusHeader.h
   src/widgets/SubPage.cpp
