@@ -1,5 +1,6 @@
 #include "widgets/BottomNavBar.h"
 
+#include "app/Language.h"
 #include "app/Theme.h"
 
 #include <QAbstractButton>
@@ -14,12 +15,11 @@ namespace {
 class NavButton : public QAbstractButton
 {
 public:
-    NavButton(const QString &icon, const QString &name, QWidget *parent)
+    NavButton(const QString &icon, QWidget *parent)
         : QAbstractButton(parent)
         , mIcon(icon)
     {
         setCheckable(true);
-        setAccessibleName(name);
     }
 
 protected:
@@ -58,20 +58,26 @@ BottomNavBar::BottomNavBar(QWidget *parent)
 
     setFixedSize(240, Theme::metric(QStringLiteral("size-nav-height")));
 
-    struct Item { Tab tab; const char *icon; QString name; int x; int width; };
+    struct Item { Tab tab; const char *icon; int x; int width; };
     const Item items[] = {
-        {Home, "home", tr("Tổng quan"), 6, 73},
-        {Dashboard, "chart", tr("Biểu đồ"), 83, 74},
-        {Settings, "settings", tr("Cài đặt"), 161, 73},
+        {Home, "home", 6, 73},
+        {Dashboard, "chart", 83, 74},
+        {Settings, "settings", 161, 73},
     };
 
     mGroup->setExclusive(true);
     for (const Item &item : items) {
-        auto *button = new NavButton(QLatin1String(item.icon), item.name, this);
+        auto *button = new NavButton(QLatin1String(item.icon), this);
         button->setGeometry(item.x, 3, item.width, 42);
         mGroup->addButton(button, item.tab);
     }
     mGroup->button(Home)->setChecked(true);
+
+    Language::bind(this, [this]() {
+        mGroup->button(Home)->setAccessibleName(tr("Tổng quan"));
+        mGroup->button(Dashboard)->setAccessibleName(tr("Biểu đồ"));
+        mGroup->button(Settings)->setAccessibleName(tr("Cài đặt"));
+    });
 
     QObject::connect(mGroup, &QButtonGroup::idClicked, this, &BottomNavBar::navRequested);
 }

@@ -76,6 +76,11 @@ void KeyValueList::place(int x, int y)
     setGeometry(QRect(x, y, kCardWidth, mBottom - shadow.top()).marginsAdded(shadow));
 }
 
+void KeyValueList::setLabel(int row, const QString &text)
+{
+    mRows.at(row).label->setText(text);
+}
+
 void KeyValueList::setValue(int row, const QString &text, Tone tone)
 {
     QLabel *value = mRows.at(row).value;

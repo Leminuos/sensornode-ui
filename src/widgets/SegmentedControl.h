@@ -13,6 +13,7 @@ class SegmentedControl : public QWidget
 public:
     explicit SegmentedControl(const QStringList &labels, QWidget *parent = nullptr);
 
+    void setLabels(const QStringList &labels);
     int currentIndex() const;
     void setCurrentIndex(int index);
 

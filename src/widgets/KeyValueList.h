@@ -22,6 +22,7 @@ public:
 
     void place(int x, int y);
 
+    void setLabel(int row, const QString &text);
     void setValue(int row, const QString &text, Tone tone = Normal);
     void setChip(int row, const QString &text, const char *kind);
     void setBar(int row, int percent);

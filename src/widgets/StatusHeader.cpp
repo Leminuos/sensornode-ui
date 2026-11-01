@@ -1,5 +1,6 @@
 #include "widgets/StatusHeader.h"
 
+#include "app/Language.h"
 #include "app/Theme.h"
 
 #include <QLabel>
@@ -11,7 +12,7 @@ static constexpr int kNetworkIconSize = 15;
 StatusHeader::StatusHeader(QWidget *parent)
     : QWidget(parent)
     , mClock(new QLabel(this))
-    , mChip(new QLabel(tr("Kiểm tra hệ thống"), this))
+    , mChip(new QLabel(this))
     , mNetwork(new QLabel(this))
 {
     const int height = Theme::metric(QStringLiteral("size-status-height"));
@@ -29,7 +30,11 @@ StatusHeader::StatusHeader(QWidget *parent)
 
     setClock(QString());
     setNetworkUp(false);
-    setVerifying(false);
+
+    Language::bind(this, [this]() {
+        mChip->setText(tr("Kiểm tra hệ thống"));
+        setVerifying(mVerifying);
+    });
 }
 
 void StatusHeader::setClock(const QString &text)
@@ -47,6 +52,7 @@ void StatusHeader::setNetworkUp(bool up)
 
 void StatusHeader::setVerifying(bool verifying)
 {
+    mVerifying = verifying;
     if (verifying) {
         mChip->ensurePolished();
         const QSize hint = mChip->sizeHint();

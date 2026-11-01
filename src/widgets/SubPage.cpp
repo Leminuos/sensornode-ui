@@ -1,5 +1,6 @@
 #include "widgets/SubPage.h"
 
+#include "app/Language.h"
 #include "app/Theme.h"
 
 #include <QIcon>
@@ -28,7 +29,7 @@ SubPage::SubPage(const QString &title, QWidget *parent)
     back->setFocusPolicy(Qt::NoFocus);
     back->setIcon(Theme::icon(QStringLiteral("back"), kBackIconSize, QStringLiteral("text")));
     back->setIconSize(QSize(kBackIconSize, kBackIconSize));
-    back->setAccessibleName(tr("Quay lại"));
+    Language::bind(back, [back]() { back->setAccessibleName(tr("Quay lại")); });
     connect(back, &QPushButton::clicked, this, &SubPage::backRequested);
 }
 

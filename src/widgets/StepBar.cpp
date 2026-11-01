@@ -18,6 +18,12 @@ StepBar::StepBar(const QStringList &labels, QWidget *parent)
     setFixedHeight(kLabelY + 14);
 }
 
+void StepBar::setLabels(const QStringList &labels)
+{
+    mLabels = labels;
+    update();
+}
+
 void StepBar::setStates(const QVector<StepState> &states)
 {
     mStates = states;
