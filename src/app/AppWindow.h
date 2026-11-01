@@ -1,25 +1,22 @@
 #ifndef APP_WINDOW_H
 #define APP_WINDOW_H
 
-#include <QWidget>
-
+#include "app/PageFrame.h"
 #include "model/OtaState.h"
 
-class BottomNavBar;
 class ChartScreen;
 class DisplayModel;
 class HistoryModel;
 class HomeScreen;
 class OtaModel;
-class QStackedWidget;
 class SettingsModel;
 class SettingsScreen;
-class StatusHeader;
+class SystemStatusModel;
 class TelemetryModel;
 class UpdatePopup;
 class UpdateProgressScreen;
 
-class AppWindow : public QWidget
+class AppWindow : public PageFrame
 {
     Q_OBJECT
 
@@ -28,7 +25,6 @@ public:
     ~AppWindow();
 
 private slots:
-    void onNavRequested(int tab);
     void onCheckForUpdateRequested();
     void onCheckFailed(const QString &reason);
     void onUpdateAvailable(const QString &current, const QString &available);
@@ -37,9 +33,9 @@ private slots:
 
 private:
     void buildUi();
-    void wireNavigation();
     void wireTelemetry();
     void wireSettings();
+    void wireSystemStatus();
     void wireOta();
     void start();
 
@@ -52,10 +48,8 @@ private:
     OtaModel *mOta;
     SettingsModel *mSettingsModel;
     DisplayModel *mDisplayModel;
+    SystemStatusModel *mSystemStatus;
 
-    StatusHeader *mStatusHeader;
-    QStackedWidget *mStack;
-    BottomNavBar *mNavBar;
     UpdatePopup *mPopup;
 
     HomeScreen *mHome;
