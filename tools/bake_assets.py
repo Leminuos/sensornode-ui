@@ -310,6 +310,9 @@ def bake_surfaces():
         layer.save(RES / "surfaces" / f"{name}.png")
 
 
+WIFI_ARCS = '<path d="M2.5 9a14 14 0 0 1 19 0"/><path d="M6 13a9 9 0 0 1 12 0"/>'
+WIFI_INNER = '<path d="M9.5 16.6a4 4 0 0 1 5 0"/><path d="M12 20h.01"/>'
+
 # Hình vector từ mockup, viewBox 24×24, nét 2.
 ICONS = {
     "network": ('<rect x="9" y="3" width="6" height="5"/><rect x="3" y="16" width="6" height="5"/>'
@@ -317,14 +320,21 @@ ICONS = {
     "network_off": ('<rect x="9" y="3" width="6" height="5"/><rect x="3" y="16" width="6" height="5"/>'
                     '<rect x="15" y="16" width="6" height="5"/><path d="M12 8v4M6 16v-4h12v4"/>'
                     '<path d="M3 3l18 18"/>', (15,)),
+    "wifi": (WIFI_ARCS + WIFI_INNER, (15, 16)),
+    "wifi_weak": (WIFI_ARCS.replace('<path ', '<path opacity=".3" ') + WIFI_INNER, (15,)),
+    "wifi_off": (WIFI_ARCS + WIFI_INNER + '<path d="M3 3l18 18"/>', (15,)),
     "thermometer": ('<path d="M10 4a2 2 0 0 1 4 0v10a4 4 0 1 1-4 0z"/>', (16,)),
     "droplet": ('<path d="M12 3s7 7.5 7 12a7 7 0 0 1-14 0c0-4.5 7-12 7-12z"/>', (16,)),
     "sun": ('<circle cx="12" cy="12" r="4"/>'
             '<path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/>', (16,)),
     "home": ('<path d="M3 11 12 4l9 7"/><path d="M6 10v10h12V10"/>', (22,)),
     "chart": ('<path d="M4 20V4"/><path d="M4 20h16"/><path d="m7 15 4-5 3 3 5-7"/>', (22,)),
-    "settings": ('<circle cx="12" cy="12" r="3.2"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3'
-                 'M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/>', (22,)),
+    "settings": ('<path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.7'
+                 '3l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2'
+                 '.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a'
+                 '2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 '
+                 '0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.3'
+                 '8a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/>', (22,)),
     "chevron": ('<path d="m9 6 6 6-6 6"/>', (14,)),
     "back": ('<path d="m15 5-7 7 7 7"/>', (18,)),
     "clock": ('<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>', (16, 34)),
@@ -340,6 +350,10 @@ ICONS = {
     "crosshair": ('<path d="M12 3v18M3 12h18"/><circle cx="12" cy="12" r="5"/>', (16, 34)),
     "log": ('<path d="M6 3h12v18H6z"/><path d="M9 8h6M9 12h6M9 16h4"/>', (16,)),
     "close": ('<path d="M6 6l12 12M18 6 6 18"/>', (12, 34)),
+    "device": ('<rect x="4" y="5" width="16" height="11" rx="1.5"/><path d="M9 20h6M12 16v4"/>', (16,)),
+    "system": ('<rect x="3" y="7" width="18" height="10" rx="1"/><path d="M7 7v10M12 7v10M17 7v10"/>', (16,)),
+    "code": ('<path d="m8 7-5 5 5 5M16 7l5 5-5 5"/>', (16,)),
+    "restore": ('<path d="M4 5v5h5"/><path d="M4.6 10A8 8 0 1 1 4 13"/>', (16,)),
 }
 
 
@@ -441,6 +455,7 @@ def bake_icon(name, svg, size):
             c.close_path()
         else:
             svg_path(c, a["d"])
+        c.set_source_rgba(0, 0, 0, float(a.get("opacity", 1)))
         c.stroke()
     s.flush()
     alpha = bytes(s.get_data())[3::4]

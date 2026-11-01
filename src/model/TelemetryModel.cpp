@@ -48,6 +48,7 @@ void TelemetryModel::onMessage(const QJsonObject &message)
 
     if (type == QLatin1String("hello")) {
         emit macAddressChanged(message.value(QStringLiteral("mac")).toString().toUpper());
+        emit nodeIdChanged(message.value(QStringLiteral("node")).toString());
         const int interval = message.value(QStringLiteral("interval_ms")).toInt(mIntervalMs);
         if (interval != mIntervalMs) {
             mIntervalMs = interval;

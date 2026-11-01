@@ -8,7 +8,7 @@
 #include <QPointF>
 #include <QVector>
 
-class BootHoldDetector;
+class AdvancedPage;
 class BottomSheet;
 class CalibrationIntroPage;
 class CalibrationPage;
@@ -24,6 +24,9 @@ class HistoryModel;
 class HomeScreen;
 class LanguageLocationPage;
 class LocationPage;
+class NetworkDetailPage;
+class NetworkModel;
+class NetworkPage;
 class OtaModel;
 class SamplingPage;
 class SensorsPage;
@@ -31,6 +34,7 @@ class ServicePage;
 class SettingsModel;
 class SettingsScreen;
 class SubPage;
+class SystemPage;
 class SystemStatusModel;
 class TelemetryModel;
 class QLabel;
@@ -57,6 +61,7 @@ private slots:
     void onUpdateAvailable(const QString &current, const QString &available);
     void onOtaStateChanged(OtaState state);
     void onUpdateClosed();
+    void onFactoryResetAccepted();
 
 private:
     void buildUi();
@@ -76,6 +81,8 @@ private:
     void finishCalibration();
     void applyLanguageTexts();
     void showUpdateSheet();
+    void showFactoryResetSheet();
+    void restoreDefaults();
     void checkRollback();
     int sizeMb() const;
 
@@ -85,6 +92,7 @@ private:
     SettingsModel *mSettingsModel;
     DisplayModel *mDisplayModel;
     SystemStatusModel *mSystemStatus;
+    NetworkModel *mNetwork;
     DeviceInfoModel *mDeviceInfo;
     ErrorLogModel *mErrorLog;
 
@@ -102,14 +110,19 @@ private:
     LocationPage *mLocationPage;
     UpdatePage *mUpdatePage;
     ServicePage *mServicePage;
-    FirmwarePage *mFirmwarePage;
     DevicePage *mDevicePage;
+    SystemPage *mSystemPage;
+    NetworkPage *mNetworkPage;
+    NetworkDetailPage *mEthernetPage;
+    NetworkDetailPage *mWifiPage;
+    AdvancedPage *mAdvancedPage;
+    FirmwarePage *mFirmwarePage;
     SensorsPage *mSensorsPage;
     ErrorLogPage *mErrorLogPage;
     CalibrationIntroPage *mCalibrationIntro;
     CalibrationPage *mCalibration;
-    BootHoldDetector *mBootHold;
     BottomSheet *mRestartSheet;
+    BottomSheet *mFactoryResetSheet;
     UpdateFlowPage *mUpdateFlow;
 };
 

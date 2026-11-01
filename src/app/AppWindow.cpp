@@ -1,6 +1,5 @@
 #include "app/AppWindow.h"
 
-#include "app/BootHoldDetector.h"
 #include "app/DemoData.h"
 #include "app/Language.h"
 #include "app/Stubs.h"
@@ -8,6 +7,7 @@
 #include "model/ErrorLogModel.h"
 #include "model/HistoryModel.h"
 #include "model/Locations.h"
+#include "model/NetworkModel.h"
 #include "model/OtaModel.h"
 #include "model/DisplayModel.h"
 #include "ipc/DaemonEndpoints.h"
@@ -15,6 +15,7 @@
 #include "model/SystemStatusModel.h"
 #include "model/TelemetryModel.h"
 #include "model/TouchCalibration.h"
+#include "screens/AdvancedPage.h"
 #include "screens/CalibrationIntroPage.h"
 #include "screens/CalibrationPage.h"
 #include "screens/ChartScreen.h"
@@ -25,10 +26,13 @@
 #include "screens/HomeScreen.h"
 #include "screens/LanguageLocationPage.h"
 #include "screens/LocationPage.h"
+#include "screens/NetworkDetailPage.h"
+#include "screens/NetworkPage.h"
 #include "screens/SamplingPage.h"
 #include "screens/SensorsPage.h"
 #include "screens/ServicePage.h"
 #include "screens/SettingsScreen.h"
+#include "screens/SystemPage.h"
 #include "screens/UpdateFlowPage.h"
 #include "screens/UpdatePage.h"
 #include "widgets/BottomNavBar.h"
@@ -51,6 +55,7 @@ AppWindow::AppWindow(QWidget *parent)
     , mSettingsModel(new SettingsModel(this))
     , mDisplayModel(new DisplayModel(this))
     , mSystemStatus(new SystemStatusModel(this))
+    , mNetwork(new NetworkModel(this))
     , mDeviceInfo(new DeviceInfoModel(this))
     , mErrorLog(new ErrorLogModel(this))
 {
@@ -93,14 +98,12 @@ void AppWindow::buildCalibration()
 {
     mCalibrationIntro = new CalibrationIntroPage(stack());
     mCalibration = new CalibrationPage(stack());
-    mBootHold = new BootHoldDetector(this);
 
     addPage(mCalibrationIntro);
     stack()->addWidget(mCalibration);
 
-    connect(mServicePage, &ServicePage::calibrationRequested, this, [this]() { pushPage(mCalibrationIntro); });
+    connect(mAdvancedPage, &AdvancedPage::calibrationRequested, this, [this]() { pushPage(mCalibrationIntro); });
     connect(mCalibrationIntro, &CalibrationIntroPage::startRequested, this, &AppWindow::startCalibration);
-    connect(mBootHold, &BootHoldDetector::triggered, this, &AppWindow::startCalibration);
 
     connect(mCalibration, &CalibrationPage::pointsCaptured, this, &AppWindow::onCalibrationPoints);
     connect(mCalibration, &CalibrationPage::cancelled, this, &AppWindow::finishCalibration);
@@ -126,6 +129,10 @@ void AppWindow::applyLanguageTexts()
     mRestartSheet->setTitle(tr("Khởi động lại thiết bị?"));
     mRestartSheet->setBody(tr("Việc đo sẽ dừng khoảng 1 phút."));
     mRestartSheet->setActions(tr("Huỷ"), tr("Khởi động lại"), RaisedButton::Danger);
+
+    mFactoryResetSheet->setTitle(tr("Khôi phục cài đặt gốc?"));
+    mFactoryResetSheet->setBody(tr("Mọi cài đặt sẽ về mặc định. Dữ liệu đo được giữ nguyên."));
+    mFactoryResetSheet->setActions(tr("Huỷ"), tr("Khôi phục"), RaisedButton::Danger);
 
     const QString period = SamplingPage::periodText(mSamplingPage->period());
     mSettings->setSamplingPeriodText(period);
@@ -226,24 +233,38 @@ void AppWindow::buildSettingsPages()
 
 void AppWindow::buildServicePages()
 {
-    mFirmwarePage = new FirmwarePage(stack());
     mDevicePage = new DevicePage(stack());
+    mSystemPage = new SystemPage(stack());
+    mNetworkPage = new NetworkPage(stack());
+    mEthernetPage = new NetworkDetailPage(NetworkDetailPage::Ethernet, stack());
+    mWifiPage = new NetworkDetailPage(NetworkDetailPage::Wifi, stack());
+    mAdvancedPage = new AdvancedPage(stack());
+    mFirmwarePage = new FirmwarePage(stack());
     mSensorsPage = new SensorsPage(stack());
     mErrorLogPage = new ErrorLogPage(stack());
 
-    for (SubPage *page : {static_cast<SubPage *>(mFirmwarePage), static_cast<SubPage *>(mDevicePage),
-                          static_cast<SubPage *>(mSensorsPage), static_cast<SubPage *>(mErrorLogPage)}) {
+    for (SubPage *page : {static_cast<SubPage *>(mDevicePage), static_cast<SubPage *>(mSystemPage),
+                          static_cast<SubPage *>(mNetworkPage), static_cast<SubPage *>(mEthernetPage),
+                          static_cast<SubPage *>(mWifiPage), static_cast<SubPage *>(mAdvancedPage),
+                          static_cast<SubPage *>(mFirmwarePage), static_cast<SubPage *>(mSensorsPage),
+                          static_cast<SubPage *>(mErrorLogPage)}) {
         addPage(page);
     }
 
-    connect(mServicePage, &ServicePage::firmwareRequested, this, [this]() { pushPage(mFirmwarePage); });
     connect(mServicePage, &ServicePage::deviceRequested, this, [this]() { pushPage(mDevicePage); });
-    connect(mServicePage, &ServicePage::sensorsRequested, this, [this]() { pushPage(mSensorsPage); });
-    connect(mServicePage, &ServicePage::errorLogRequested, this, [this]() { pushPage(mErrorLogPage); });
+    connect(mServicePage, &ServicePage::systemRequested, this, [this]() { pushPage(mSystemPage); });
+    connect(mServicePage, &ServicePage::networkRequested, this, [this]() { pushPage(mNetworkPage); });
+    connect(mServicePage, &ServicePage::advancedRequested, this, [this]() { pushPage(mAdvancedPage); });
+    connect(mNetworkPage, &NetworkPage::ethernetRequested, this, [this]() { pushPage(mEthernetPage); });
+    connect(mNetworkPage, &NetworkPage::wifiRequested, this, [this]() { pushPage(mWifiPage); });
+    connect(mAdvancedPage, &AdvancedPage::firmwareRequested, this, [this]() { pushPage(mFirmwarePage); });
+    connect(mAdvancedPage, &AdvancedPage::sensorsRequested, this, [this]() { pushPage(mSensorsPage); });
+    connect(mAdvancedPage, &AdvancedPage::errorLogRequested, this, [this]() { pushPage(mErrorLogPage); });
 
     mRestartSheet = new BottomSheet(this);
+    mFactoryResetSheet = new BottomSheet(this);
 
-    mDevicePage->setMqttConnected(DemoData::mqttConnected);
+    mNetworkPage->setServerConnected(DemoData::mqttConnected);
     mSensorsPage->setPeriodText(SamplingPage::periodText(mSamplingPage->period()));
 }
 
@@ -252,18 +273,24 @@ void AppWindow::wireService()
     connect(mFirmwarePage, &FirmwarePage::refreshRequested, mOta, &OtaModel::refreshStatus);
     connect(mFirmwarePage, &FirmwarePage::refreshRequested, mDeviceInfo, &DeviceInfoModel::refresh);
     connect(mDevicePage, &DevicePage::refreshRequested, mDeviceInfo, &DeviceInfoModel::refresh);
+    connect(mSystemPage, &SystemPage::refreshRequested, mDeviceInfo, &DeviceInfoModel::refresh);
     connect(mErrorLogPage, &ErrorLogPage::refreshRequested, mErrorLog, &ErrorLogModel::reload);
 
     connect(mOta, &OtaModel::systemInfoChanged, mFirmwarePage, &FirmwarePage::setSystemInfo);
+    connect(mOta, &OtaModel::currentVersionChanged, mSystemPage, &SystemPage::setFirmwareVersion);
     connect(mDeviceInfo, &DeviceInfoModel::infoChanged, mFirmwarePage, &FirmwarePage::setDeviceInfo);
     connect(mDeviceInfo, &DeviceInfoModel::infoChanged, mDevicePage, &DevicePage::setDeviceInfo);
+    connect(mDeviceInfo, &DeviceInfoModel::infoChanged, mSystemPage, &SystemPage::setDeviceInfo);
+    connect(mTelemetry, &TelemetryModel::nodeIdChanged, mDevicePage, &DevicePage::setNodeId);
     connect(mTelemetry, &TelemetryModel::macAddressChanged, mDevicePage, &DevicePage::setMacAddress);
     connect(mTelemetry, &TelemetryModel::reportReceived, mSensorsPage, &SensorsPage::setReport);
     connect(mErrorLog, &ErrorLogModel::entriesChanged, mErrorLogPage, &ErrorLogPage::setEntries);
     connect(mErrorLog, &ErrorLogModel::failed, mErrorLogPage, &ErrorLogPage::showLoadFailed);
 
-    connect(mFirmwarePage, &FirmwarePage::restartRequested, mRestartSheet, &BottomSheet::present);
+    connect(mSystemPage, &SystemPage::restartRequested, mRestartSheet, &BottomSheet::present);
     connect(mRestartSheet, &BottomSheet::accepted, this, []() { Stubs::restartDevice(); });
+    connect(mServicePage, &ServicePage::factoryResetRequested, this, &AppWindow::showFactoryResetSheet);
+    connect(mFactoryResetSheet, &BottomSheet::accepted, this, &AppWindow::onFactoryResetAccepted);
 }
 
 void AppWindow::wireTelemetry()
@@ -301,10 +328,17 @@ void AppWindow::wireSettings()
 void AppWindow::wireSystemStatus()
 {
     connect(mSystemStatus, &SystemStatusModel::clockChanged, statusHeader(), &StatusHeader::setClock);
-    connect(mSystemStatus, &SystemStatusModel::networkChanged, statusHeader(), &StatusHeader::setNetworkUp);
-    connect(mSystemStatus, &SystemStatusModel::clockChanged, mLocationPage, [this](const QString &text) {
+    connect(mSystemStatus, &SystemStatusModel::clockChanged, this, [this](const QString &text) {
         mLocationPage->setClockSynced(!text.isEmpty());
+        mNetworkPage->setTimeSynced(!text.isEmpty());
     });
+
+    connect(mNetwork, &NetworkModel::statusChanged, statusHeader(), &StatusHeader::setNetworkStatus);
+    connect(mNetwork, &NetworkModel::statusChanged, mNetworkPage, &NetworkPage::setStatus);
+    connect(mNetwork, &NetworkModel::statusChanged, mEthernetPage, &NetworkDetailPage::setStatus);
+    connect(mNetwork, &NetworkModel::statusChanged, mWifiPage, &NetworkDetailPage::setStatus);
+    connect(mNetworkPage, &NetworkPage::refreshRequested, mNetwork, &NetworkModel::refreshSsid);
+    connect(mWifiPage, &NetworkDetailPage::refreshRequested, mNetwork, &NetworkModel::refreshSsid);
 }
 
 void AppWindow::wireOta()
@@ -343,10 +377,9 @@ void AppWindow::start()
     mDisplayModel->start();
     mOta->start();
     mSystemStatus->start();
+    mNetwork->start();
 
     checkRollback();
-
-    mBootHold->start();
 }
 
 void AppWindow::onCheckForUpdateRequested()
@@ -478,6 +511,43 @@ void AppWindow::showUpdateSheet()
     mUpdateSheet->setBody(size > 0 ? tr("Khoảng %1 MB. Thiết bị khởi động lại sau khi cài.").arg(size)
                                    : tr("Thiết bị khởi động lại sau khi cài."));
     mUpdateSheet->present();
+}
+
+void AppWindow::showFactoryResetSheet()
+{
+    mFactoryResetSheet->setBody(tr("Mọi cài đặt sẽ về mặc định. Dữ liệu đo được giữ nguyên."));
+    mFactoryResetSheet->present();
+}
+
+void AppWindow::onFactoryResetAccepted()
+{
+    if (!Stubs::factoryReset()) {
+        mFactoryResetSheet->setBody(tr("Không khôi phục được cài đặt. Hãy thử lại."));
+        mFactoryResetSheet->present();
+        return;
+    }
+    restoreDefaults();
+}
+
+void AppWindow::restoreDefaults()
+{
+    mDisplayModel->setBrightness(DemoData::brightness);
+    mSettingsModel->setBrightness(DemoData::brightness);
+    mDisplayPage->setBrightness(DemoData::brightness);
+    mSettings->setBrightness(DemoData::brightness);
+
+    mDisplayPage->setAutoDimMinutes(DemoData::autoDimMinutes);
+    Stubs::setAutoDim(DemoData::autoDimMinutes);
+
+    onSamplingPeriodRequested(DemoData::samplingPeriodSec);
+
+    mSettings->setTemperatureUnit(DemoData::temperatureUnit);
+    onTemperatureUnitRequested(DemoData::temperatureUnit);
+
+    mLanguagePage->setLanguage(QLatin1String(DemoData::language));
+    onLanguageRequested(QLatin1String(DemoData::language));
+
+    onLocationRequested(DemoData::locationIndex);
 }
 
 int AppWindow::sizeMb() const

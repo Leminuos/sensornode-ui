@@ -56,6 +56,16 @@ inline QString networkInterface()
     return qEnvironmentVariable("SENSORNODE_NET_INTERFACE", QStringLiteral("eth0"));
 }
 
+inline QString wifiInterface()
+{
+    return qEnvironmentVariable("SENSORNODE_WIFI_INTERFACE", QStringLiteral("wlan0"));
+}
+
+inline QString wpaCli()
+{
+    return qEnvironmentVariable("SENSORNODE_WPA_CLI", QStringLiteral("wpa_cli"));
+}
+
 } // namespace DaemonEndpoints
 
 #endif // DAEMON_ENDPOINTS_H

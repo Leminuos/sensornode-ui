@@ -47,6 +47,8 @@ add_library(sensornode-ui-lib STATIC
   src/model/ErrorLogModel.cpp
   src/model/ErrorLogModel.h
   src/model/Metric.h
+  src/model/NetworkModel.cpp
+  src/model/NetworkModel.h
   src/model/SettingsModel.cpp
   src/model/SettingsModel.h
   src/model/Locations.cpp
@@ -67,8 +69,6 @@ target_link_libraries(sensornode-ui-lib PUBLIC
 )
 
 add_library(sensornode-ui-widgets STATIC
-  src/app/BootHoldDetector.cpp
-  src/app/BootHoldDetector.h
   src/app/DemoData.h
   src/app/PageFrame.cpp
   src/app/PageFrame.h
@@ -77,6 +77,8 @@ add_library(sensornode-ui-widgets STATIC
   src/app/Theme.cpp
   src/app/Theme.h
 
+  src/screens/AdvancedPage.cpp
+  src/screens/AdvancedPage.h
   src/screens/CalibrationIntroPage.cpp
   src/screens/CalibrationIntroPage.h
   src/screens/CalibrationPage.cpp
@@ -95,6 +97,10 @@ add_library(sensornode-ui-widgets STATIC
   src/screens/LanguageLocationPage.h
   src/screens/LocationPage.cpp
   src/screens/LocationPage.h
+  src/screens/NetworkDetailPage.cpp
+  src/screens/NetworkDetailPage.h
+  src/screens/NetworkPage.cpp
+  src/screens/NetworkPage.h
   src/screens/SamplingPage.cpp
   src/screens/SamplingPage.h
   src/screens/SensorsPage.cpp
@@ -103,6 +109,8 @@ add_library(sensornode-ui-widgets STATIC
   src/screens/ServicePage.h
   src/screens/SettingsScreen.cpp
   src/screens/SettingsScreen.h
+  src/screens/SystemPage.cpp
+  src/screens/SystemPage.h
   src/screens/UpdateFlowPage.cpp
   src/screens/UpdateFlowPage.h
   src/screens/UpdatePage.cpp
@@ -114,6 +122,8 @@ add_library(sensornode-ui-widgets STATIC
   src/widgets/BottomSheet.h
   src/widgets/KeyValueList.cpp
   src/widgets/KeyValueList.h
+  src/widgets/ListCard.cpp
+  src/widgets/ListCard.h
   src/widgets/ListRow.cpp
   src/widgets/ListRow.h
   src/widgets/MetricTile.cpp

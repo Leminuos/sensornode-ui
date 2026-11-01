@@ -22,6 +22,9 @@ public:
     void setClockText(const QString &text);
     void setSeparator(bool visible);
     void setPressable(bool pressable);
+    void setDanger(bool danger);
+    // Dòng đứng riêng thành một thẻ: lề 10 px, tiêu đề Bold, nền nhấn bo theo thẻ.
+    void setCardStyle(bool card);
 
     QString title() const { return text(); }
     QString value() const { return mValue; }
@@ -40,6 +43,8 @@ private:
     bool mSelected = false;
     bool mSeparator = true;
     bool mPressable = true;
+    bool mDanger = false;
+    bool mCard = false;
 };
 
 #endif // LIST_ROW_H

@@ -24,6 +24,8 @@ public:
 
     void setLabel(int row, const QString &text);
     void setValue(int row, const QString &text, Tone tone = Normal);
+    // Cắt bằng dấu ba chấm để không đè lên nhãn.
+    void setElidedValue(int row, const QString &text, Tone tone = Normal);
     void setChip(int row, const QString &text, const char *kind);
     void setBar(int row, int percent);
 

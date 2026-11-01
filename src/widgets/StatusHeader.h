@@ -1,6 +1,8 @@
 #ifndef STATUS_HEADER_H
 #define STATUS_HEADER_H
 
+#include "model/NetworkModel.h"
+
 #include <QWidget>
 
 class QLabel;
@@ -15,13 +17,14 @@ public:
 public slots:
     // Chuỗi rỗng nghĩa là giờ chưa đồng bộ.
     void setClock(const QString &text);
-    void setNetworkUp(bool up);
+    void setNetworkStatus(const NetworkStatus &status);
     void setVerifying(bool verifying);
 
 private:
     QLabel *mClock;
     QLabel *mChip;
-    QLabel *mNetwork;
+    QLabel *mEthernet;
+    QLabel *mWifi;
     bool mVerifying = false;
 };
 

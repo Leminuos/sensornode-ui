@@ -47,9 +47,11 @@
         <file>icons/clock_34.png</file>
         <file>icons/close_12.png</file>
         <file>icons/close_34.png</file>
+        <file>icons/code_16.png</file>
         <file>icons/cpu_16.png</file>
         <file>icons/crosshair_16.png</file>
         <file>icons/crosshair_34.png</file>
+        <file>icons/device_16.png</file>
         <file>icons/download_16.png</file>
         <file>icons/droplet_16.png</file>
         <file>icons/globe_16.png</file>
@@ -59,10 +61,16 @@
         <file>icons/network_16.png</file>
         <file>icons/network_off_15.png</file>
         <file>icons/pin_16.png</file>
+        <file>icons/restore_16.png</file>
         <file>icons/sensor_16.png</file>
         <file>icons/settings_22.png</file>
         <file>icons/sun_16.png</file>
+        <file>icons/system_16.png</file>
         <file>icons/thermometer_16.png</file>
+        <file>icons/wifi_15.png</file>
+        <file>icons/wifi_16.png</file>
+        <file>icons/wifi_off_15.png</file>
+        <file>icons/wifi_weak_15.png</file>
         <file>icons/wrench_16.png</file>
     </qresource>
 </RCC>

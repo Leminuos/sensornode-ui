@@ -3,6 +3,9 @@
 
 #include "widgets/SubPage.h"
 
+class ListCard;
+class ListRow;
+
 class ServicePage : public SubPage
 {
     Q_OBJECT
@@ -10,12 +13,18 @@ class ServicePage : public SubPage
 public:
     explicit ServicePage(QWidget *parent = nullptr);
 
+    void setAdvancedVisible(bool visible);
+
 signals:
-    void firmwareRequested();
     void deviceRequested();
-    void sensorsRequested();
-    void calibrationRequested();
-    void errorLogRequested();
+    void systemRequested();
+    void networkRequested();
+    void advancedRequested();
+    void factoryResetRequested();
+
+private:
+    ListCard *mCard;
+    ListRow *mAdvanced;
 };
 
 #endif // SERVICE_PAGE_H

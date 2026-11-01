@@ -1,50 +1,38 @@
 #include "screens/ServicePage.h"
 
 #include "app/Language.h"
-#include "app/Theme.h"
+#include "widgets/ListCard.h"
 #include "widgets/ListRow.h"
-
-#include <QFrame>
-#include <QVariant>
-#include <QVector>
-
-static constexpr int kRowHeight = 44;
 
 ServicePage::ServicePage(QWidget *parent)
     : SubPage(QString(), parent)
+    , mCard(new ListCard(content()))
 {
-    QWidget *body = content();
+    ListRow *device = mCard->addRow(QStringLiteral("device"), QStringLiteral("blue"));
+    ListRow *system = mCard->addRow(QStringLiteral("system"), QStringLiteral("aqua"));
+    ListRow *network = mCard->addRow(QStringLiteral("network"), QStringLiteral("green"));
+    mAdvanced = mCard->addRow(QStringLiteral("code"), QStringLiteral("default"));
+    ListRow *factoryReset = mCard->addRow(QStringLiteral("restore"), QStringLiteral("red"));
+    factoryReset->setDanger(true);
+    mCard->place(8, 6);
 
-    auto *card = new QFrame(body);
-    card->setProperty("surface", "card");
-    card->setGeometry(QRect(8, 6, 224, 5 * kRowHeight).marginsAdded(Theme::shadowMargins()));
+    connect(device, &QAbstractButton::clicked, this, &ServicePage::deviceRequested);
+    connect(system, &QAbstractButton::clicked, this, &ServicePage::systemRequested);
+    connect(network, &QAbstractButton::clicked, this, &ServicePage::networkRequested);
+    connect(mAdvanced, &QAbstractButton::clicked, this, &ServicePage::advancedRequested);
+    connect(factoryReset, &QAbstractButton::clicked, this, &ServicePage::factoryResetRequested);
 
-    const struct { const char *glyph; const char *tile; void (ServicePage::*signal)(); } items[] = {
-        {"cpu", "aqua", &ServicePage::firmwareRequested},
-        {"network", "blue", &ServicePage::deviceRequested},
-        {"sensor", "red", &ServicePage::sensorsRequested},
-        {"crosshair", "yellow", &ServicePage::calibrationRequested},
-        {"log", "default", &ServicePage::errorLogRequested},
-    };
-
-    int y = 6;
-    QVector<ListRow *> rows;
-    for (const auto &item : items) {
-        auto *row = new ListRow(QString(), body);
-        row->setLeadingIcon(QLatin1String(item.glyph), QLatin1String(item.tile));
-        row->setGeometry(8, y, 224, kRowHeight);
-        row->setSeparator(y != 6);
-        connect(row, &QAbstractButton::clicked, this, item.signal);
-        rows.append(row);
-        y += kRowHeight;
-    }
-
-    Language::bind(this, [this, rows]() {
+    Language::bind(this, [=]() {
         setTitle(tr("Bảo trì"));
-        rows.at(0)->setTitle(tr("Firmware & khởi động"));
-        rows.at(1)->setTitle(tr("Thiết bị & mạng"));
-        rows.at(2)->setTitle(tr("Cảm biến"));
-        rows.at(3)->setTitle(tr("Hiệu chỉnh cảm ứng"));
-        rows.at(4)->setTitle(tr("Nhật ký lỗi"));
+        device->setTitle(tr("Thiết bị"));
+        system->setTitle(tr("Hệ thống"));
+        network->setTitle(tr("Mạng"));
+        mAdvanced->setTitle(tr("Nâng cao"));
+        factoryReset->setTitle(tr("Khôi phục cài đặt gốc"));
     });
+}
+
+void ServicePage::setAdvancedVisible(bool visible)
+{
+    mCard->setRowHidden(mAdvanced, !visible);
 }
