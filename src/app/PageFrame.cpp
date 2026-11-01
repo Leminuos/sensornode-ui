@@ -87,6 +87,16 @@ void PageFrame::showTakeover(QWidget *page)
     showPage(page);
 }
 
+void PageFrame::leaveTakeover()
+{
+    if (mPageTrail.isEmpty()) {
+        showTab(mCurrentTab);
+    } else {
+        setMode(Mode::SubPage);
+        showPage(mPageTrail.last());
+    }
+}
+
 void PageFrame::showFullScreenPage(QWidget *page)
 {
     setMode(Mode::FullScreen);

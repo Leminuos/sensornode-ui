@@ -12,6 +12,7 @@ static constexpr int kPadBottom = 12;
 static constexpr int kGap = 10;
 static constexpr int kActionGap = 6;
 static constexpr int kButtonHeight = 42;
+static constexpr int kTitleHeight = 21;
 static constexpr int kInnerWidth = 240 - 2 * kPadX;
 
 BottomSheet::BottomSheet(QWidget *parent)
@@ -62,6 +63,22 @@ void BottomSheet::setActions(const QString &rejectText, const QString &acceptTex
     Theme::repolish(mAccept);
 }
 
+void BottomSheet::setAcceptEnabled(bool enabled)
+{
+    mAccept->setEnabled(enabled);
+}
+
+void BottomSheet::setExtra(QWidget *widget, int height)
+{
+    mExtra = widget;
+    mExtraHeight = height;
+}
+
+void BottomSheet::dismiss()
+{
+    hide();
+}
+
 void BottomSheet::present()
 {
     const int statusHeight = Theme::metric(QStringLiteral("size-status-height"));
@@ -69,12 +86,15 @@ void BottomSheet::present()
 
     mTitle->ensurePolished();
     mBody->ensurePolished();
-    const int titleHeight = mTitle->sizeHint().height();
     const int bodyHeight = mBody->heightForWidth(kInnerWidth);
 
     int y = kPanelShadow + kPadTop;
-    mTitle->setGeometry(kPadX, y, kInnerWidth, titleHeight);
-    y += titleHeight + kGap;
+    mTitle->setGeometry(kPadX, y, kInnerWidth, kTitleHeight);
+    y += kTitleHeight + kGap;
+    if (mExtra) {
+        mExtra->setGeometry(kPadX, y, kInnerWidth, mExtraHeight);
+        y += mExtraHeight + kGap;
+    }
     mBody->setGeometry(kPadX, y, kInnerWidth, bodyHeight);
     y += bodyHeight + kGap;
 

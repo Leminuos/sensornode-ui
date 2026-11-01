@@ -33,3 +33,9 @@ void Stubs::restartDevice()
 {
     qInfo("[STUB] restart device");
 }
+
+QString Stubs::rolledBackVersion()
+{
+    qInfo("[STUB] check rollback: none");
+    return QString();
+}

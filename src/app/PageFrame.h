@@ -38,6 +38,7 @@ public:
     void popPage();
 
     void showTakeover(QWidget *page);
+    void leaveTakeover();
     void showFullScreenPage(QWidget *page);
 
 private:

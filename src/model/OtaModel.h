@@ -22,6 +22,9 @@ public:
     QString availableVersion() const { return mAvailableVersion; }
     OtaState state() const { return mState; }
     QString lastError() const { return mLastError; }
+    OtaState failedPhase() const { return mFailedPhase; }
+    bool rebootFailed() const { return mRebootFailed; }
+    qint64 availableSize() const { return mAvailableSize; }
     bool trialBoot() const { return mTrialBoot; }
 
 public slots:
@@ -67,6 +70,9 @@ private:
     QString mCurrentVersion;
     QString mAvailableVersion;
     QString mLastError;
+    OtaState mFailedPhase = OtaState::Downloading;
+    bool mRebootFailed = false;
+    qint64 mAvailableSize = -1;
     int mCheckId = -1;
     bool mTrialBoot = false;
     QTimer mTrialPoll;

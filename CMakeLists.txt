@@ -92,6 +92,8 @@ add_library(sensornode-ui-widgets STATIC
   src/screens/ServicePage.h
   src/screens/SettingsScreen.cpp
   src/screens/SettingsScreen.h
+  src/screens/UpdateFlowPage.cpp
+  src/screens/UpdateFlowPage.h
   src/screens/UpdatePage.cpp
   src/screens/UpdatePage.h
 
@@ -107,12 +109,16 @@ add_library(sensornode-ui-widgets STATIC
   src/widgets/MetricTile.h
   src/widgets/MiniSegment.cpp
   src/widgets/MiniSegment.h
+  src/widgets/ProgressRing.cpp
+  src/widgets/ProgressRing.h
   src/widgets/RaisedButton.cpp
   src/widgets/RaisedButton.h
   src/widgets/ScrollList.cpp
   src/widgets/ScrollList.h
   src/widgets/SegmentedControl.cpp
   src/widgets/SegmentedControl.h
+  src/widgets/StepBar.cpp
+  src/widgets/StepBar.h
   src/widgets/StatusHeader.cpp
   src/widgets/StatusHeader.h
   src/widgets/SubPage.cpp
@@ -138,12 +144,6 @@ if(SENSORNODE_BUILD_APP)
 
     src/screens/ChartScreen.cpp
     src/screens/ChartScreen.h
-    src/screens/UpdatePopup.cpp
-    src/screens/UpdatePopup.h
-    src/screens/UpdatePopup.ui
-    src/screens/UpdateProgressScreen.cpp
-    src/screens/UpdateProgressScreen.h
-    src/screens/UpdateProgressScreen.ui
   )
 
   target_link_libraries(sensornode-ui PRIVATE

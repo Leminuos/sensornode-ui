@@ -12,6 +12,8 @@
         <file>surfaces/btn_secondary.png</file>
         <file>surfaces/btn_secondary_pressed.png</file>
         <file>surfaces/card.png</file>
+        <file>surfaces/halo_danger.png</file>
+        <file>surfaces/halo_primary.png</file>
         <file>surfaces/icon_tile_aqua.png</file>
         <file>surfaces/icon_tile_blue.png</file>
         <file>surfaces/icon_tile_default.png</file>
@@ -32,6 +34,7 @@
         <file>surfaces/tile_temp.png</file>
         <file>surfaces/toggle_off.png</file>
         <file>surfaces/toggle_on.png</file>
+        <file>surfaces/version_track.png</file>
         <file>icons/back_18.png</file>
         <file>icons/chart_22.png</file>
         <file>icons/check_12.png</file>

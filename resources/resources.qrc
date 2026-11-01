@@ -3,7 +3,5 @@
     <qresource prefix="/">
         <file>theme/tokens.json</file>
         <file>styles/theme.qss</file>
-        <file>styles/firmware_popup.qss</file>
-        <file>styles/firmware_progress.qss</file>
     </qresource>
 </RCC>

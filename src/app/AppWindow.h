@@ -27,9 +27,9 @@ class SettingsScreen;
 class SubPage;
 class SystemStatusModel;
 class TelemetryModel;
+class QLabel;
+class UpdateFlowPage;
 class UpdatePage;
-class UpdatePopup;
-class UpdateProgressScreen;
 
 class AppWindow : public PageFrame
 {
@@ -49,7 +49,7 @@ private slots:
     void onLocationRequested(int index);
     void onUpdateAvailable(const QString &current, const QString &available);
     void onOtaStateChanged(OtaState state);
-    void onUpdateCancelled();
+    void onUpdateClosed();
 
 private:
     void buildUi();
@@ -63,9 +63,10 @@ private:
     void buildSettingsPages();
     void buildServicePages();
     void showLocation(int index);
-    void showUpdatePopup();
-    void enterUpdateMode();
-    void exitUpdateMode();
+    void buildUpdateFlow();
+    void showUpdateSheet();
+    void checkRollback();
+    int sizeMb() const;
 
     TelemetryModel *mTelemetry;
     HistoryModel *mHistory;
@@ -76,7 +77,10 @@ private:
     DeviceInfoModel *mDeviceInfo;
     ErrorLogModel *mErrorLog;
 
-    UpdatePopup *mPopup;
+    BottomSheet *mUpdateSheet;
+    QLabel *mSheetCurrent;
+    QLabel *mSheetNext;
+    QString mUpdateVersion;
 
     HomeScreen *mHome;
     ChartScreen *mCharts;
@@ -93,7 +97,7 @@ private:
     ErrorLogPage *mErrorLogPage;
     SubPage *mCalibrationPage;
     BottomSheet *mRestartSheet;
-    UpdateProgressScreen *mProgress;
+    UpdateFlowPage *mUpdateFlow;
 };
 
 #endif // APP_WINDOW_H
