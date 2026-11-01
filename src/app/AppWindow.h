@@ -8,7 +8,6 @@
 #include <QPointF>
 #include <QVector>
 
-class BootHoldDetector;
 class BottomSheet;
 class CalibrationIntroPage;
 class CalibrationPage;
@@ -108,7 +107,6 @@ private:
     ErrorLogPage *mErrorLogPage;
     CalibrationIntroPage *mCalibrationIntro;
     CalibrationPage *mCalibration;
-    BootHoldDetector *mBootHold;
     BottomSheet *mRestartSheet;
     UpdateFlowPage *mUpdateFlow;
 };

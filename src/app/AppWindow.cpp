@@ -1,6 +1,5 @@
 #include "app/AppWindow.h"
 
-#include "app/BootHoldDetector.h"
 #include "app/DemoData.h"
 #include "app/Language.h"
 #include "app/Stubs.h"
@@ -93,14 +92,12 @@ void AppWindow::buildCalibration()
 {
     mCalibrationIntro = new CalibrationIntroPage(stack());
     mCalibration = new CalibrationPage(stack());
-    mBootHold = new BootHoldDetector(this);
 
     addPage(mCalibrationIntro);
     stack()->addWidget(mCalibration);
 
     connect(mServicePage, &ServicePage::calibrationRequested, this, [this]() { pushPage(mCalibrationIntro); });
     connect(mCalibrationIntro, &CalibrationIntroPage::startRequested, this, &AppWindow::startCalibration);
-    connect(mBootHold, &BootHoldDetector::triggered, this, &AppWindow::startCalibration);
 
     connect(mCalibration, &CalibrationPage::pointsCaptured, this, &AppWindow::onCalibrationPoints);
     connect(mCalibration, &CalibrationPage::cancelled, this, &AppWindow::finishCalibration);
@@ -346,7 +343,6 @@ void AppWindow::start()
 
     checkRollback();
 
-    mBootHold->start();
 }
 
 void AppWindow::onCheckForUpdateRequested()
