@@ -272,6 +272,11 @@ def bake_surfaces():
     surface("mini_on", 2 * mini_on + TILE_W, 28, (0, 0, 2 * mini_on + TILE_W, 28), (mini_on,),
             vertical("pri-top", "pri-bottom", 0, 28), highlight="seg-highlight")
 
+    for name in ("default", "yellow", "aqua", "red", "blue", "green"):
+        surface(f"icon_tile_{name}", 30, 30, (2, 1, 26, 26), (R["seg"],),
+                vertical(f"icon-tile-{name}-top", f"icon-tile-{name}-bottom", 1, 26),
+                (1, 3, "icon-tile-shadow"), "icon-tile-highlight")
+
     inset_small = (1, 2, "shadow-inset")
     surface("slider_track", 24, 8, (0, 0, 24, 8), (4,), rgba("track"), inset=inset_small)
     surface("slider_fill", 24, 8, (0, 0, 24, 8), (4,), vertical("pri-top", "pri-bottom", 0, 8))

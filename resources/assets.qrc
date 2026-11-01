@@ -12,6 +12,12 @@
         <file>surfaces/btn_secondary.png</file>
         <file>surfaces/btn_secondary_pressed.png</file>
         <file>surfaces/card.png</file>
+        <file>surfaces/icon_tile_aqua.png</file>
+        <file>surfaces/icon_tile_blue.png</file>
+        <file>surfaces/icon_tile_default.png</file>
+        <file>surfaces/icon_tile_green.png</file>
+        <file>surfaces/icon_tile_red.png</file>
+        <file>surfaces/icon_tile_yellow.png</file>
         <file>surfaces/mini_on.png</file>
         <file>surfaces/mini_track.png</file>
         <file>surfaces/nav.png</file>
