@@ -76,6 +76,8 @@ add_library(sensornode-ui-widgets STATIC
   src/screens/LocationPage.h
   src/screens/SamplingPage.cpp
   src/screens/SamplingPage.h
+  src/screens/UpdatePage.cpp
+  src/screens/UpdatePage.h
 
   src/widgets/BottomNavBar.cpp
   src/widgets/BottomNavBar.h
