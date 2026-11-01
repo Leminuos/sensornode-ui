@@ -114,6 +114,8 @@ add_library(sensornode-ui-widgets STATIC
   src/widgets/BottomSheet.h
   src/widgets/KeyValueList.cpp
   src/widgets/KeyValueList.h
+  src/widgets/ListCard.cpp
+  src/widgets/ListCard.h
   src/widgets/ListRow.cpp
   src/widgets/ListRow.h
   src/widgets/MetricTile.cpp
