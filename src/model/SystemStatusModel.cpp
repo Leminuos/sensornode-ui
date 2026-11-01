@@ -31,16 +31,16 @@ SystemStatusModel::SystemStatusModel(QObject *parent, const QString &timeSyncFla
     , mInterfaceName(interfaceName.isEmpty() ? DaemonEndpoints::networkInterface() : interfaceName)
 {
     mPoll.setInterval(kPollMs);
-    connect(&mPoll, &QTimer::timeout, this, &SystemStatusModel::poll);
+    connect(&mPoll, &QTimer::timeout, this, &SystemStatusModel::refresh);
 }
 
 void SystemStatusModel::start()
 {
-    poll();
+    refresh();
     mPoll.start();
 }
 
-void SystemStatusModel::poll()
+void SystemStatusModel::refresh()
 {
     const QString clock = QFileInfo::exists(mTimeSyncFlag)
         ? QTime::currentTime().toString(QStringLiteral("HH:mm"))
