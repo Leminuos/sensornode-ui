@@ -78,7 +78,6 @@ add_executable(sensornode-ui
 
   src/widgets/BottomNavBar.cpp
   src/widgets/BottomNavBar.h
-  src/widgets/BottomNavBar.ui
   src/widgets/RaisedButton.cpp
   src/widgets/RaisedButton.h
   src/widgets/StatusHeader.cpp
