@@ -2,6 +2,29 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="en" sourcelanguage="vi">
 <context>
+    <name>AdvancedPage</name>
+    <message>
+        <source>Nâng cao</source>
+        <translation>Advanced</translation>
+    </message>
+    <message>
+        <source>Firmware &amp; khởi động</source>
+        <translation>Firmware &amp; boot</translation>
+    </message>
+    <message>
+        <source>Cảm biến</source>
+        <translation>Sensors</translation>
+    </message>
+    <message>
+        <source>Hiệu chỉnh cảm ứng</source>
+        <translation>Touch calibration</translation>
+    </message>
+    <message>
+        <source>Nhật ký lỗi</source>
+        <translation>Error log</translation>
+    </message>
+</context>
+<context>
     <name>AppWindow</name>
     <message>
         <source>Có bản mới</source>
@@ -38,6 +61,22 @@
     <message>
         <source>Thiết bị khởi động lại sau khi cài.</source>
         <translation>The device restarts after installing.</translation>
+    </message>
+    <message>
+        <source>Khôi phục cài đặt gốc?</source>
+        <translation>Factory reset?</translation>
+    </message>
+    <message>
+        <source>Mọi cài đặt sẽ về mặc định. Dữ liệu đo được giữ nguyên.</source>
+        <translation>All settings return to defaults. Measurements are kept.</translation>
+    </message>
+    <message>
+        <source>Khôi phục</source>
+        <translation>Reset</translation>
+    </message>
+    <message>
+        <source>Không khôi phục được cài đặt. Hãy thử lại.</source>
+        <translation>Could not reset settings. Try again.</translation>
     </message>
 </context>
 <context>
@@ -142,36 +181,12 @@
         <translation>%1d %2</translation>
     </message>
     <message>
-        <source>Thiết bị &amp; mạng</source>
-        <translation>Device &amp; network</translation>
-    </message>
-    <message>
         <source>Thời gian chạy</source>
         <translation>Uptime</translation>
     </message>
     <message>
-        <source>RAM đã dùng</source>
-        <translation>RAM used</translation>
-    </message>
-    <message>
-        <source>Bộ nhớ /data</source>
-        <translation>/data storage</translation>
-    </message>
-    <message>
-        <source>Liên kết eth0</source>
-        <translation>eth0 link</translation>
-    </message>
-    <message>
-        <source>Mất liên kết</source>
-        <translation>Link down</translation>
-    </message>
-    <message>
-        <source>Đã kết nối</source>
-        <translation>Connected</translation>
-    </message>
-    <message>
-        <source>Mất kết nối</source>
-        <translation>Disconnected</translation>
+        <source>Thiết bị</source>
+        <translation>Device</translation>
     </message>
 </context>
 <context>
@@ -255,10 +270,6 @@
         <translation>Rootfs</translation>
     </message>
     <message>
-        <source>Khởi động lại</source>
-        <translation>Restart</translation>
-    </message>
-    <message>
         <source>Chưa bật</source>
         <translation>Off</translation>
     </message>
@@ -322,6 +333,72 @@
     <message>
         <source>Không đổi được vị trí.</source>
         <translation>Couldn&apos;t change the location.</translation>
+    </message>
+</context>
+<context>
+    <name>NetworkDetailPage</name>
+    <message>
+        <source>Liên kết</source>
+        <translation>Link</translation>
+    </message>
+    <message>
+        <source>Tên mạng</source>
+        <translation>Network name</translation>
+    </message>
+    <message>
+        <source>Tốc độ</source>
+        <translation>Speed</translation>
+    </message>
+    <message>
+        <source>Tín hiệu</source>
+        <translation>Signal</translation>
+    </message>
+    <message>
+        <source>Địa chỉ IP</source>
+        <translation>IP address</translation>
+    </message>
+    <message>
+        <source>Đã nối</source>
+        <translation>Connected</translation>
+    </message>
+</context>
+<context>
+    <name>NetworkPage</name>
+    <message>
+        <source>Mạng</source>
+        <translation>Network</translation>
+    </message>
+    <message>
+        <source>Máy chủ</source>
+        <translation>Server</translation>
+    </message>
+    <message>
+        <source>Đồng bộ giờ</source>
+        <translation>Time sync</translation>
+    </message>
+    <message>
+        <source>Chưa cắm cáp mạng</source>
+        <translation>Cable not plugged in</translation>
+    </message>
+    <message>
+        <source>Chưa kết nối mạng nào</source>
+        <translation>Not connected</translation>
+    </message>
+    <message>
+        <source>Đã kết nối</source>
+        <translation>Connected</translation>
+    </message>
+    <message>
+        <source>Mất kết nối</source>
+        <translation>Disconnected</translation>
+    </message>
+    <message>
+        <source>Đã đồng bộ</source>
+        <translation>Synced</translation>
+    </message>
+    <message>
+        <source>Chưa đồng bộ</source>
+        <translation>Not synced</translation>
     </message>
 </context>
 <context>
@@ -393,24 +470,24 @@
         <translation>Service</translation>
     </message>
     <message>
-        <source>Firmware &amp; khởi động</source>
-        <translation>Firmware &amp; boot</translation>
+        <source>Thiết bị</source>
+        <translation>Device</translation>
     </message>
     <message>
-        <source>Thiết bị &amp; mạng</source>
-        <translation>Device &amp; network</translation>
+        <source>Hệ thống</source>
+        <translation>System</translation>
     </message>
     <message>
-        <source>Cảm biến</source>
-        <translation>Sensors</translation>
+        <source>Mạng</source>
+        <translation>Network</translation>
     </message>
     <message>
-        <source>Hiệu chỉnh cảm ứng</source>
-        <translation>Touch calibration</translation>
+        <source>Nâng cao</source>
+        <translation>Advanced</translation>
     </message>
     <message>
-        <source>Nhật ký lỗi</source>
-        <translation>Error log</translation>
+        <source>Khôi phục cài đặt gốc</source>
+        <translation>Factory reset</translation>
     </message>
 </context>
 <context>
@@ -452,6 +529,29 @@
     <message>
         <source>Quay lại</source>
         <translation>Back</translation>
+    </message>
+</context>
+<context>
+    <name>SystemPage</name>
+    <message>
+        <source>Hệ thống</source>
+        <translation>System</translation>
+    </message>
+    <message>
+        <source>Phiên bản firmware</source>
+        <translation>Firmware version</translation>
+    </message>
+    <message>
+        <source>RAM đã dùng</source>
+        <translation>RAM used</translation>
+    </message>
+    <message>
+        <source>Bộ nhớ /data</source>
+        <translation>/data storage</translation>
+    </message>
+    <message>
+        <source>Khởi động lại</source>
+        <translation>Restart</translation>
     </message>
 </context>
 <context>
