@@ -75,6 +75,8 @@ add_library(sensornode-ui-widgets STATIC
   src/widgets/ListRow.h
   src/widgets/MetricTile.cpp
   src/widgets/MetricTile.h
+  src/widgets/MiniSegment.cpp
+  src/widgets/MiniSegment.h
   src/widgets/RaisedButton.cpp
   src/widgets/RaisedButton.h
   src/widgets/SegmentedControl.cpp
@@ -83,6 +85,8 @@ add_library(sensornode-ui-widgets STATIC
   src/widgets/StatusHeader.h
   src/widgets/SubPage.cpp
   src/widgets/SubPage.h
+  src/widgets/TouchSlider.cpp
+  src/widgets/TouchSlider.h
 
   resources/assets.qrc
   resources/resources.qrc
