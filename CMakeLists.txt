@@ -66,6 +66,8 @@ target_link_libraries(sensornode-ui-lib PUBLIC
 )
 
 add_library(sensornode-ui-widgets STATIC
+  src/app/BootHoldDetector.cpp
+  src/app/BootHoldDetector.h
   src/app/DemoData.h
   src/app/PageFrame.cpp
   src/app/PageFrame.h
