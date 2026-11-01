@@ -115,6 +115,8 @@ add_library(sensornode-ui-widgets STATIC
   src/widgets/ScrollList.h
   src/widgets/SegmentedControl.cpp
   src/widgets/SegmentedControl.h
+  src/widgets/StepBar.cpp
+  src/widgets/StepBar.h
   src/widgets/StatusHeader.cpp
   src/widgets/StatusHeader.h
   src/widgets/SubPage.cpp
