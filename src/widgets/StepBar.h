@@ -14,6 +14,7 @@ public:
 
     explicit StepBar(const QStringList &labels, QWidget *parent = nullptr);
 
+    void setLabels(const QStringList &labels);
     void setStates(const QVector<StepState> &states);
     StepState state(int step) const { return mStates.at(step); }
 

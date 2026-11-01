@@ -1,5 +1,6 @@
 #include "screens/ErrorLogPage.h"
 
+#include "app/Language.h"
 #include "app/Theme.h"
 #include "widgets/ScrollList.h"
 
@@ -84,7 +85,7 @@ private:
 } // namespace
 
 ErrorLogPage::ErrorLogPage(QWidget *parent)
-    : SubPage(tr("Nhật ký lỗi"), parent)
+    : SubPage(QString(), parent)
     , mCard(new QFrame(content()))
     , mList(new ScrollList(content()))
     , mMessage(new QLabel(content()))
@@ -96,6 +97,8 @@ ErrorLogPage::ErrorLogPage(QWidget *parent)
     mMessage->setObjectName(QStringLiteral("logEmpty"));
     mMessage->setAlignment(Qt::AlignCenter);
     mMessage->setGeometry(kPageX, kPageY, kPageWidth, kMaxHeight);
+
+    Language::bind(this, [this]() { setTitle(tr("Nhật ký lỗi")); });
 }
 
 QString ErrorLogPage::timeLabel(const QDateTime &time, const QDateTime &now)

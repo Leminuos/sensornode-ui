@@ -36,6 +36,13 @@ SegmentedControl::SegmentedControl(const QStringList &labels, QWidget *parent)
     connect(mGroup, &QButtonGroup::idClicked, this, &SegmentedControl::currentChanged);
 }
 
+void SegmentedControl::setLabels(const QStringList &labels)
+{
+    for (int i = 0; i < labels.size(); ++i) {
+        mGroup->button(i)->setText(labels.at(i));
+    }
+}
+
 int SegmentedControl::currentIndex() const
 {
     return mGroup->checkedId();

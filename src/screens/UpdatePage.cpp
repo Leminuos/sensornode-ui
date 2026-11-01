@@ -1,5 +1,6 @@
 #include "screens/UpdatePage.h"
 
+#include "app/Language.h"
 #include "app/Theme.h"
 #include "widgets/RaisedButton.h"
 
@@ -12,7 +13,7 @@
 static constexpr int kResultMs = 2500;
 
 UpdatePage::UpdatePage(QWidget *parent)
-    : SubPage(tr("Cập nhật"), parent)
+    : SubPage(QString(), parent)
     , mResultTimer(new QTimer(this))
 {
     QWidget *body = content();
@@ -22,7 +23,7 @@ UpdatePage::UpdatePage(QWidget *parent)
     versionCard->setProperty("surface", "card");
     versionCard->setGeometry(QRect(8, 6, 224, 75).marginsAdded(shadow));
 
-    auto *caption = new QLabel(tr("Phiên bản hiện tại"), body);
+    auto *caption = new QLabel(body);
     caption->setObjectName(QStringLiteral("fieldCaption"));
     caption->setGeometry(18, 16, 204, 16);
 
@@ -34,7 +35,7 @@ UpdatePage::UpdatePage(QWidget *parent)
     notifyCard->setProperty("surface", "card");
     notifyCard->setGeometry(QRect(8, 88, 224, 66).marginsAdded(shadow));
 
-    auto *title = new QLabel(tr("Tự báo bản mới"), body);
+    auto *title = new QLabel(body);
     title->setObjectName(QStringLiteral("fieldTitle"));
     title->setGeometry(18, 98, 150, 26);
 
@@ -43,7 +44,7 @@ UpdatePage::UpdatePage(QWidget *parent)
     mToggle->setFocusPolicy(Qt::NoFocus);
     mToggle->setGeometry(170, 91, 62, 40);
 
-    auto *note = new QLabel(tr("Luôn hỏi trước khi cài."), body);
+    auto *note = new QLabel(body);
     note->setObjectName(QStringLiteral("fieldNote"));
     note->setGeometry(18, 130, 204, 14);
 
@@ -60,7 +61,13 @@ UpdatePage::UpdatePage(QWidget *parent)
     connect(mToggle, &QCheckBox::clicked, this, &UpdatePage::autoNotifyRequested);
     connect(mCheck, &QPushButton::clicked, this, &UpdatePage::checkRequested);
 
-    refreshButton();
+    Language::bind(this, [=]() {
+        setTitle(tr("Cập nhật"));
+        caption->setText(tr("Phiên bản hiện tại"));
+        title->setText(tr("Tự báo bản mới"));
+        note->setText(tr("Luôn hỏi trước khi cài."));
+        refreshButton();
+    });
 }
 
 void UpdatePage::setCurrentVersion(const QString &version)

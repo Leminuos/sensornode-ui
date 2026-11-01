@@ -413,3 +413,28 @@ BottomSheet #versionRow {
 RaisedButton[compact="true"] {
     font-size: @font-small;
 }
+
+/* ----- Hiệu chỉnh cảm ứng ----- */
+RaisedButton[variant="primary"][big="true"] {
+    border-image: url(:/surfaces/btn_big.png) 4 16 7 16 repeat stretch;
+    font-size: @font-title;
+}
+
+RaisedButton[variant="primary"][big="true"]:pressed {
+    border-image: url(:/surfaces/btn_big_pressed.png) 4 16 7 16 repeat stretch;
+}
+
+CalibrationPage {
+    background-color: @calib-bg;
+}
+
+#calibrationQuestion {
+    color: @calib-fg;
+    font-size: @font-body;
+    font-weight: bold;
+}
+
+#calibrationCountdown {
+    color: @calib-muted;
+    font-size: @font-small;
+}

@@ -1,5 +1,6 @@
 #include "screens/ChartScreen.h"
 
+#include "app/Language.h"
 #include "app/Theme.h"
 #include "model/ChartScale.h"
 #include "model/HistoryModel.h"
@@ -203,13 +204,13 @@ ChartScreen::ChartScreen(const HistoryModel *history, QWidget *parent)
     tabLine->setObjectName(QStringLiteral("metricTabLine"));
     tabLine->setGeometry(8, 41, 224, 1);
 
-    const struct { Metric metric; const char *property; QString label; int x; int width; } tabs[] = {
-        {Metric::Temperature, "temperature", tr("Nhiệt độ"), 8, 75},
-        {Metric::Humidity, "humidity", tr("Độ ẩm"), 83, 74},
-        {Metric::Light, "light", tr("Ánh sáng"), 157, 75},
+    const struct { Metric metric; const char *property; int x; int width; } tabs[] = {
+        {Metric::Temperature, "temperature", 8, 75},
+        {Metric::Humidity, "humidity", 83, 74},
+        {Metric::Light, "light", 157, 75},
     };
     for (const auto &tab : tabs) {
-        auto *button = new QPushButton(tab.label, this);
+        auto *button = new QPushButton(this);
         button->setCheckable(true);
         button->setFocusPolicy(Qt::NoFocus);
         button->setProperty("metricTab", tab.property);
@@ -233,13 +234,14 @@ ChartScreen::ChartScreen(const HistoryModel *history, QWidget *parent)
     mCanvas = new ChartCanvas(card);
     mCanvas->move(face + QPoint(6, 6));
 
-    const struct { QString caption; QLabel *&value; int x; int width; } stats[] = {
-        {tr("Thấp nhất"), mMin, 6, 71},
-        {tr("Trung bình"), mAverage, 77, 70},
-        {tr("Cao nhất"), mMax, 147, 71},
+    const struct { QLabel *&caption; QLabel *&value; int x; int width; } stats[] = {
+        {mMinCaption, mMin, 6, 71},
+        {mAverageCaption, mAverage, 77, 70},
+        {mMaxCaption, mMax, 147, 71},
     };
     for (const auto &stat : stats) {
-        auto *caption = new QLabel(stat.caption, card);
+        auto *caption = new QLabel(card);
+        stat.caption = caption;
         caption->setObjectName(QStringLiteral("statCaption"));
         caption->setAlignment(Qt::AlignCenter);
         caption->setGeometry(face.x() + stat.x, face.y() + 110, stat.width, 15);
@@ -251,6 +253,16 @@ ChartScreen::ChartScreen(const HistoryModel *history, QWidget *parent)
     }
 
     mCanvas->setMetric(mMetric);
+
+    Language::bind(this, [this]() {
+        mMetricTabs->button(static_cast<int>(Metric::Temperature))->setText(tr("Nhiệt độ"));
+        mMetricTabs->button(static_cast<int>(Metric::Humidity))->setText(tr("Độ ẩm"));
+        mMetricTabs->button(static_cast<int>(Metric::Light))->setText(tr("Ánh sáng"));
+        mMinCaption->setText(tr("Thấp nhất"));
+        mAverageCaption->setText(tr("Trung bình"));
+        mMaxCaption->setText(tr("Cao nhất"));
+        mCanvas->viewport()->update();
+    });
 }
 
 void ChartScreen::showMetric(Metric metric)

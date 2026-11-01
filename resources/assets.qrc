@@ -4,6 +4,8 @@
         <file>surfaces/back.png</file>
         <file>surfaces/back_pressed.png</file>
         <file>surfaces/background.png</file>
+        <file>surfaces/btn_big.png</file>
+        <file>surfaces/btn_big_pressed.png</file>
         <file>surfaces/btn_danger.png</file>
         <file>surfaces/btn_danger_pressed.png</file>
         <file>surfaces/btn_disabled.png</file>

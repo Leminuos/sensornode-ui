@@ -26,6 +26,9 @@ if(PRODUCTION_BUILD)
 endif()
 
 add_library(sensornode-ui-lib STATIC
+  src/app/Language.cpp
+  src/app/Language.h
+
   src/ipc/DaemonClient.cpp
   src/ipc/DaemonClient.h
   src/ipc/DaemonEndpoints.h
@@ -49,6 +52,8 @@ add_library(sensornode-ui-lib STATIC
   src/model/Locations.cpp
   src/model/Locations.h
   src/model/SystemStatusModel.cpp
+  src/model/TouchCalibration.cpp
+  src/model/TouchCalibration.h
   src/model/SystemStatusModel.h
   src/model/TelemetryModel.cpp
   src/model/TelemetryModel.h
@@ -62,6 +67,8 @@ target_link_libraries(sensornode-ui-lib PUBLIC
 )
 
 add_library(sensornode-ui-widgets STATIC
+  src/app/BootHoldDetector.cpp
+  src/app/BootHoldDetector.h
   src/app/DemoData.h
   src/app/PageFrame.cpp
   src/app/PageFrame.h
@@ -70,6 +77,10 @@ add_library(sensornode-ui-widgets STATIC
   src/app/Theme.cpp
   src/app/Theme.h
 
+  src/screens/CalibrationIntroPage.cpp
+  src/screens/CalibrationIntroPage.h
+  src/screens/CalibrationPage.cpp
+  src/screens/CalibrationPage.h
   src/screens/DevicePage.cpp
   src/screens/DevicePage.h
   src/screens/DisplayPage.cpp

@@ -57,10 +57,7 @@ void BottomSheet::setActions(const QString &rejectText, const QString &acceptTex
 {
     mReject->setText(rejectText);
     mAccept->setText(acceptText);
-    mAccept->setProperty("variant", acceptVariant == RaisedButton::Danger    ? "danger"
-                                    : acceptVariant == RaisedButton::Primary ? "primary"
-                                                                             : "secondary");
-    Theme::repolish(mAccept);
+    mAccept->setVariant(acceptVariant);
 }
 
 void BottomSheet::setAcceptEnabled(bool enabled)

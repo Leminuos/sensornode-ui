@@ -1,5 +1,6 @@
 #include "screens/LocationPage.h"
 
+#include "app/Language.h"
 #include "app/Theme.h"
 #include "model/Locations.h"
 #include "widgets/ListRow.h"
@@ -15,9 +16,9 @@ static constexpr int kListHeight = 244;
 static constexpr int kErrorHeight = 20;
 
 LocationPage::LocationPage(QWidget *parent)
-    : SubPage(tr("Vị trí"), parent)
+    : SubPage(QString(), parent)
     , mList(new ScrollList(content()))
-    , mError(new QLabel(tr("Không đổi được vị trí."), content()))
+    , mError(new QLabel(content()))
 {
     mList->setGeometry(kListX, kListY, kListWidth, kListHeight);
 
@@ -26,7 +27,7 @@ LocationPage::LocationPage(QWidget *parent)
     list->setFixedSize(kListWidth, locations.size() * kRowHeight);
 
     for (int i = 0; i < locations.size(); ++i) {
-        auto *row = new ListRow(locations.at(i).name, list);
+        auto *row = new ListRow(QString(), list);
         row->setTrailing(ListRow::CheckMark);
         row->setGeometry(0, i * kRowHeight, kListWidth, kRowHeight);
         row->setSeparator(i != 0);
@@ -42,6 +43,15 @@ LocationPage::LocationPage(QWidget *parent)
     mError->setObjectName(QStringLiteral("inlineError"));
     mError->setGeometry(kListX + 2, kListY + kListHeight - kErrorHeight, kListWidth - 4, kErrorHeight);
     mError->hide();
+
+    Language::bind(this, [this]() {
+        setTitle(tr("Vị trí"));
+        mError->setText(tr("Không đổi được vị trí."));
+        const QVector<Location> &all = Locations::all();
+        for (int i = 0; i < mRows.size(); ++i) {
+            mRows.at(i)->setTitle(Locations::displayName(all.at(i)));
+        }
+    });
 
     setSelectedIndex(0);
     refreshTimes();

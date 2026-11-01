@@ -1,5 +1,6 @@
 #include "screens/HomeScreen.h"
 
+#include "app/Language.h"
 #include "model/HistoryModel.h"
 #include "widgets/MetricTile.h"
 
@@ -18,9 +19,9 @@ static QString reading(double value, int decimals)
 HomeScreen::HomeScreen(const HistoryModel *history, QWidget *parent)
     : QWidget(parent)
     , mHistory(history)
-    , mTemperature(new MetricTile(Metric::Temperature, tr("Nhiệt độ"), this))
-    , mHumidity(new MetricTile(Metric::Humidity, tr("Độ ẩm"), this))
-    , mLight(new MetricTile(Metric::Light, tr("Ánh sáng"), this))
+    , mTemperature(new MetricTile(Metric::Temperature, QString(), this))
+    , mHumidity(new MetricTile(Metric::Humidity, QString(), this))
+    , mLight(new MetricTile(Metric::Light, QString(), this))
     , mTempC(qQNaN())
     , mHumidityValue(qQNaN())
     , mLux(qQNaN())
@@ -28,6 +29,12 @@ HomeScreen::HomeScreen(const HistoryModel *history, QWidget *parent)
     mTemperature->setVisualGeometry(QRect(8, 6, 224, 128));
     mHumidity->setVisualGeometry(QRect(8, 141, 108, 99));
     mLight->setVisualGeometry(QRect(124, 141, 108, 99));
+
+    Language::bind(this, [this]() {
+        mTemperature->setText(tr("Nhiệt độ"));
+        mHumidity->setText(tr("Độ ẩm"));
+        mLight->setText(tr("Ánh sáng"));
+    });
 
     connect(mTemperature, &QAbstractButton::clicked, this, [this]() { emit metricRequested(Metric::Temperature); });
     connect(mHumidity, &QAbstractButton::clicked, this, [this]() { emit metricRequested(Metric::Humidity); });

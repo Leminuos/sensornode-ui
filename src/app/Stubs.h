@@ -13,6 +13,9 @@ void setTemperatureUnit(TemperatureUnit unit);
 void setAutoDim(int minutes);
 void setLanguage(const QString &language);
 void restartDevice();
+void applyTouchCalibration(const QString &pointercal);
+void keepTouchCalibration();
+void restoreTouchCalibration();
 QString rolledBackVersion();
 
 } // namespace Stubs

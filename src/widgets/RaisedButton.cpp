@@ -7,10 +7,16 @@
 RaisedButton::RaisedButton(const QString &text, Variant variant, QWidget *parent)
     : QPushButton(text, parent)
 {
+    setFocusPolicy(Qt::NoFocus);
+    setVariant(variant);
+}
+
+void RaisedButton::setVariant(Variant variant)
+{
     setProperty("variant", variant == Primary   ? "primary"
                            : variant == Danger ? "danger"
                                                : "secondary");
-    setFocusPolicy(Qt::NoFocus);
+    Theme::repolish(this);
 }
 
 void RaisedButton::setVisualGeometry(const QRect &rect)

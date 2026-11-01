@@ -1,5 +1,7 @@
 #include "model/Locations.h"
 
+#include "app/Language.h"
+
 #include <QDateTime>
 #include <QTimeZone>
 
@@ -24,6 +26,11 @@ const QVector<Location> &Locations::all()
         {QStringLiteral("UTC"), QStringLiteral("UTC"), QStringLiteral("Etc/UTC"), 0},
     };
     return locations;
+}
+
+QString Locations::displayName(const Location &location)
+{
+    return Language::instance().code() == QLatin1String("en") ? location.nameEn : location.name;
 }
 
 static bool hasZoneData(const Location &location)

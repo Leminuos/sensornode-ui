@@ -1,5 +1,6 @@
 #include "screens/SettingsScreen.h"
 
+#include "app/Language.h"
 #include "app/Theme.h"
 #include "widgets/ListRow.h"
 #include "widgets/MiniSegment.h"
@@ -12,18 +13,18 @@ static constexpr int kCardY = 3;
 
 SettingsScreen::SettingsScreen(QWidget *parent)
     : QWidget(parent)
-    , mBrightness(new ListRow(tr("Độ sáng"), this))
-    , mSampling(new ListRow(tr("Chu kỳ lấy mẫu"), this))
-    , mUpdate(new ListRow(tr("Cập nhật"), this))
+    , mBrightness(new ListRow(QString(), this))
+    , mSampling(new ListRow(QString(), this))
+    , mUpdate(new ListRow(QString(), this))
 {
     auto *card = new QFrame(this);
     card->setProperty("surface", "card");
     card->setGeometry(QRect(8, kCardY, 224, 6 * kRowHeight).marginsAdded(Theme::shadowMargins()));
     card->lower();
 
-    auto *unitRow = new ListRow(tr("Đơn vị nhiệt độ"), this);
-    auto *languageRow = new ListRow(tr("Ngôn ngữ & vị trí"), this);
-    auto *serviceRow = new ListRow(tr("Bảo trì"), this);
+    auto *unitRow = new ListRow(QString(), this);
+    auto *languageRow = new ListRow(QString(), this);
+    auto *serviceRow = new ListRow(QString(), this);
 
     mBrightness->setLeadingIcon(QStringLiteral("sun"), QStringLiteral("yellow"));
     mSampling->setLeadingIcon(QStringLiteral("clock"), QStringLiteral("aqua"));
@@ -44,6 +45,15 @@ SettingsScreen::SettingsScreen(QWidget *parent)
 
     mUnit = new MiniSegment(QStringLiteral("°C"), QStringLiteral("°F"), unitRow);
     mUnit->move(unitRow->width() - mUnit->width(), 0);
+
+    Language::bind(this, [=]() {
+        mBrightness->setTitle(tr("Độ sáng"));
+        mSampling->setTitle(tr("Chu kỳ lấy mẫu"));
+        unitRow->setTitle(tr("Đơn vị nhiệt độ"));
+        languageRow->setTitle(tr("Ngôn ngữ & vị trí"));
+        mUpdate->setTitle(tr("Cập nhật"));
+        serviceRow->setTitle(tr("Bảo trì"));
+    });
 
     connect(mBrightness, &QAbstractButton::clicked, this, &SettingsScreen::displayRequested);
     connect(mSampling, &QAbstractButton::clicked, this, &SettingsScreen::samplingRequested);

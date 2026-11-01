@@ -1,5 +1,6 @@
 #include "screens/DisplayPage.h"
 
+#include "app/Language.h"
 #include "app/Theme.h"
 #include "widgets/SegmentedControl.h"
 #include "widgets/TouchSlider.h"
@@ -11,7 +12,7 @@
 static const int kAutoDimMinutes[] = {0, 1, 5, 15};
 
 DisplayPage::DisplayPage(QWidget *parent)
-    : SubPage(tr("Màn hình"), parent)
+    : SubPage(QString(), parent)
 {
     QWidget *body = content();
 
@@ -19,7 +20,7 @@ DisplayPage::DisplayPage(QWidget *parent)
     card->setProperty("surface", "card");
     card->setGeometry(QRect(8, 6, 224, 115).marginsAdded(Theme::shadowMargins()));
 
-    auto *caption = new QLabel(tr("Độ sáng"), body);
+    auto *caption = new QLabel(body);
     caption->setObjectName(QStringLiteral("fieldCaption"));
     caption->setGeometry(18, 16, 204, 16);
 
@@ -31,11 +32,11 @@ DisplayPage::DisplayPage(QWidget *parent)
     mSlider->setRange(0, 100);
     mSlider->setGeometry(18, 75, 204, 40);
 
-    auto *section = new QLabel(tr("Tự giảm sáng khi không dùng"), body);
+    auto *section = new QLabel(body);
     section->setObjectName(QStringLiteral("sectionLabel"));
     section->setGeometry(10, 132, 220, 16);
 
-    mAutoDim = new SegmentedControl({tr("Tắt"), tr("1 phút"), tr("5 phút"), tr("15 phút")}, body);
+    mAutoDim = new SegmentedControl({QString(), QString(), QString(), QString()}, body);
     mAutoDim->setGeometry(8, 155, 224, 36);
 
     connect(mSlider, &QSlider::valueChanged, this, [this](int value) {
@@ -47,6 +48,13 @@ DisplayPage::DisplayPage(QWidget *parent)
     });
     connect(mAutoDim, &SegmentedControl::currentChanged, this, [this](int index) {
         emit autoDimRequested(kAutoDimMinutes[index]);
+    });
+
+    Language::bind(this, [=]() {
+        setTitle(tr("Màn hình"));
+        caption->setText(tr("Độ sáng"));
+        section->setText(tr("Tự giảm sáng khi không dùng"));
+        mAutoDim->setLabels({tr("Tắt"), tr("1 phút"), tr("5 phút"), tr("15 phút")});
     });
 
     setBrightness(0);

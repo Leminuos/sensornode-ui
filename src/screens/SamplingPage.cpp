@@ -1,5 +1,6 @@
 #include "screens/SamplingPage.h"
 
+#include "app/Language.h"
 #include "app/Theme.h"
 #include "widgets/ListRow.h"
 
@@ -19,7 +20,7 @@ QString SamplingPage::periodText(int seconds)
 }
 
 SamplingPage::SamplingPage(QWidget *parent)
-    : SubPage(tr("Chu kỳ lấy mẫu"), parent)
+    : SubPage(QString(), parent)
 {
     QWidget *body = content();
 
@@ -29,7 +30,7 @@ SamplingPage::SamplingPage(QWidget *parent)
 
     int y = 6;
     for (int seconds : kPeriods) {
-        auto *row = new ListRow(periodText(seconds), body);
+        auto *row = new ListRow(QString(), body);
         row->setTrailing(ListRow::CheckMark);
         row->setGeometry(8, y, 224, kRowHeight);
         row->setSeparator(y != 6);
@@ -42,13 +43,20 @@ SamplingPage::SamplingPage(QWidget *parent)
         y += kRowHeight;
     }
 
-    mError = new QLabel(tr("Không đổi được chu kỳ. Dịch vụ đo không phản hồi."), body);
+    mError = new QLabel(body);
     mError->setObjectName(QStringLiteral("inlineError"));
     mError->setWordWrap(true);
-    mError->setGeometry(10, y + 7, 220, 34);
+    mError->setGeometry(10, y + 7, 220, 48);
     mError->hide();
 
-    refreshRows();
+    Language::bind(this, [this]() {
+        setTitle(tr("Chu kỳ lấy mẫu"));
+        mError->setText(tr("Không đổi được chu kỳ. Dịch vụ đo không phản hồi."));
+        for (int i = 0; i < mRows.size(); ++i) {
+            mRows.at(i)->setTitle(periodText(kPeriods[i]));
+        }
+        refreshRows();
+    });
 }
 
 void SamplingPage::setPeriod(int seconds)

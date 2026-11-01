@@ -14,6 +14,7 @@ public:
 
     // Nhận hình chữ nhật của mặt nút, không gồm vùng bóng. Dùng thay cho setGeometry().
     void setVisualGeometry(const QRect &rect);
+    void setVariant(Variant variant);
 
 protected:
     bool hitButton(const QPoint &pos) const override;

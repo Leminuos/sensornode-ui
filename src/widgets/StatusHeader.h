@@ -22,6 +22,7 @@ private:
     QLabel *mClock;
     QLabel *mChip;
     QLabel *mNetwork;
+    bool mVerifying = false;
 };
 
 #endif // STATUS_HEADER_H
