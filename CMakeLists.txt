@@ -61,6 +61,8 @@ add_library(sensornode-ui-widgets STATIC
   src/app/Theme.cpp
   src/app/Theme.h
 
+  src/screens/HomeScreen.cpp
+  src/screens/HomeScreen.h
   src/widgets/BottomNavBar.cpp
   src/widgets/BottomNavBar.h
   src/widgets/MetricTile.cpp
@@ -93,9 +95,6 @@ if(SENSORNODE_BUILD_APP)
     src/screens/ChartScreen.cpp
     src/screens/ChartScreen.h
     src/screens/ChartScreen.ui
-    src/screens/HomeScreen.cpp
-    src/screens/HomeScreen.h
-    src/screens/HomeScreen.ui
     src/screens/SettingsScreen.cpp
     src/screens/SettingsScreen.h
     src/screens/SettingsScreen.ui

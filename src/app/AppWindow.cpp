@@ -40,7 +40,7 @@ void AppWindow::buildUi()
 {
     setWindowTitle("SensorNode");
 
-    mHome = new HomeScreen(stack());
+    mHome = new HomeScreen(mHistory, stack());
     mCharts = new ChartScreen(mHistory, stack());
     mSettings = new SettingsScreen(stack());
     mProgress = new UpdateProgressScreen(stack());
@@ -57,6 +57,7 @@ void AppWindow::buildUi()
 void AppWindow::wireTelemetry()
 {
     connect(mTelemetry, &TelemetryModel::sampleReceived, mHome, &HomeScreen::setValues);
+    connect(mTelemetry, &TelemetryModel::staleChanged, mHome, &HomeScreen::setStale);
     connect(mTelemetry, &TelemetryModel::sampleReceived, mCharts, &ChartScreen::reload);
     connect(mTelemetry, &TelemetryModel::macAddressChanged, mSettings, &SettingsScreen::setMacAddress);
 }
