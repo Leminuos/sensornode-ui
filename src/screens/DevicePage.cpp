@@ -1,5 +1,6 @@
 #include "screens/DevicePage.h"
 
+#include "app/Language.h"
 #include "widgets/KeyValueList.h"
 
 #include <QTimer>
@@ -18,19 +19,34 @@ QString DevicePage::uptimeText(qint64 seconds)
 }
 
 DevicePage::DevicePage(QWidget *parent)
-    : SubPage(tr("Thiết bị & mạng"), parent)
+    : SubPage(QString(), parent)
     , mList(new KeyValueList(content()))
     , mTick(new QTimer(this))
 {
-    mUptime = mList->addRow(tr("Thời gian chạy"));
-    mKernel = mList->addRow(tr("Kernel"));
-    mRam = mList->addRow(tr("RAM đã dùng"));
-    mData = mList->addBarRow(tr("Bộ nhớ /data"));
-    mMac = mList->addRow(tr("MAC"));
-    mIp = mList->addRow(tr("IP"));
-    mLink = mList->addRow(tr("Liên kết eth0"));
-    mMqtt = mList->addRow(tr("MQTT"));
+    mUptime = mList->addRow(QString());
+    mKernel = mList->addRow(QString());
+    mRam = mList->addRow(QString());
+    mData = mList->addBarRow(QString());
+    mMac = mList->addRow(QString());
+    mIp = mList->addRow(QString());
+    mLink = mList->addRow(QString());
+    mMqtt = mList->addRow(QString());
     mList->place(8, 6);
+
+    Language::bind(this, [this]() {
+        setTitle(tr("Thiết bị & mạng"));
+        mList->setLabel(mUptime, tr("Thời gian chạy"));
+        mList->setLabel(mKernel, QStringLiteral("Kernel"));
+        mList->setLabel(mRam, tr("RAM đã dùng"));
+        mList->setLabel(mData, tr("Bộ nhớ /data"));
+        mList->setLabel(mMac, QStringLiteral("MAC"));
+        mList->setLabel(mIp, QStringLiteral("IP"));
+        mList->setLabel(mLink, tr("Liên kết eth0"));
+        mList->setLabel(mMqtt, QStringLiteral("MQTT"));
+        if (mHasMqtt) {
+            setMqttConnected(mMqttConnected);
+        }
+    });
 
     mTick->setInterval(kTickMs);
     connect(mTick, &QTimer::timeout, this, &DevicePage::refreshRequested);
@@ -62,6 +78,8 @@ void DevicePage::setMacAddress(const QString &mac)
 
 void DevicePage::setMqttConnected(bool connected)
 {
+    mHasMqtt = true;
+    mMqttConnected = connected;
     if (connected) {
         mList->setValue(mMqtt, tr("Đã kết nối"), KeyValueList::Good);
     } else {

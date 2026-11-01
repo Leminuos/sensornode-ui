@@ -1,5 +1,6 @@
 #include "screens/SensorsPage.h"
 
+#include "app/Language.h"
 #include "app/Theme.h"
 
 #include <QDateTime>
@@ -14,7 +15,7 @@ static constexpr int kCardHeight = 52;
 static constexpr int kTickMs = 1000;
 
 SensorsPage::SensorsPage(QWidget *parent)
-    : SubPage(tr("Cảm biến"), parent)
+    : SubPage(QString(), parent)
     , mTick(new QTimer(this))
 {
     mSht30 = makeCard(6, QStringLiteral("SHT30"), QStringLiteral("thermometer"), QStringLiteral("red"));
@@ -26,7 +27,7 @@ SensorsPage::SensorsPage(QWidget *parent)
     card->setProperty("surface", "card");
     card->setGeometry(QRect(8, 124, 224, 36).marginsAdded(Theme::shadowMargins()));
 
-    auto *caption = new QLabel(tr("Chu kỳ đang chạy"), body);
+    auto *caption = new QLabel(body);
     caption->setObjectName(QStringLiteral("fieldCaption"));
     caption->setGeometry(18, 134, 130, 16);
 
@@ -38,7 +39,11 @@ SensorsPage::SensorsPage(QWidget *parent)
     mTick->setInterval(kTickMs);
     connect(mTick, &QTimer::timeout, this, &SensorsPage::refresh);
 
-    refresh();
+    Language::bind(this, [=]() {
+        setTitle(tr("Cảm biến"));
+        caption->setText(tr("Chu kỳ đang chạy"));
+        refresh();
+    });
 }
 
 SensorsPage::Card SensorsPage::makeCard(int y, const QString &name, const QString &glyph, const QString &tile)

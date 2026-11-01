@@ -39,6 +39,8 @@ private:
     int mIp;
     int mLink;
     int mMqtt;
+    bool mHasMqtt = false;
+    bool mMqttConnected = false;
 };
 
 #endif // DEVICE_PAGE_H

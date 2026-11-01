@@ -1,25 +1,37 @@
 #include "screens/FirmwarePage.h"
 
+#include "app/Language.h"
 #include "widgets/KeyValueList.h"
 #include "widgets/RaisedButton.h"
 
 FirmwarePage::FirmwarePage(QWidget *parent)
-    : SubPage(tr("Firmware"), parent)
+    : SubPage(QString(), parent)
     , mList(new KeyValueList(content()))
 {
-    mVersion = mList->addRow(tr("Phiên bản"));
-    mRunningSlot = mList->addRow(tr("Slot đang chạy"));
-    mNextSlot = mList->addRow(tr("Slot lần boot tới"));
-    mBootState = mList->addRow(tr("Trạng thái boot"));
-    mAttempts = mList->addRow(tr("Số lần thử"));
-    mRootfs = mList->addRow(tr("Rootfs"));
-    mVerity = mList->addChipRow(tr("dm-verity"));
+    mVersion = mList->addRow(QString());
+    mRunningSlot = mList->addRow(QString());
+    mNextSlot = mList->addRow(QString());
+    mBootState = mList->addRow(QString());
+    mAttempts = mList->addRow(QString());
+    mRootfs = mList->addRow(QString());
+    mVerity = mList->addChipRow(QStringLiteral("dm-verity"));
     mList->place(8, 6);
-    mList->setChip(mVerity, tr("Chưa bật"), "neutral");
 
-    auto *restart = new RaisedButton(tr("Khởi động lại"), RaisedButton::Secondary, content());
+    auto *restart = new RaisedButton(QString(), RaisedButton::Secondary, content());
     restart->setVisualGeometry(QRect(8, 208, 224, 42));
     connect(restart, &QPushButton::clicked, this, &FirmwarePage::restartRequested);
+
+    Language::bind(this, [=]() {
+        setTitle(tr("Firmware"));
+        mList->setLabel(mVersion, tr("Phiên bản"));
+        mList->setLabel(mRunningSlot, tr("Slot đang chạy"));
+        mList->setLabel(mNextSlot, tr("Slot lần boot tới"));
+        mList->setLabel(mBootState, tr("Trạng thái boot"));
+        mList->setLabel(mAttempts, tr("Số lần thử"));
+        mList->setLabel(mRootfs, tr("Rootfs"));
+        restart->setText(tr("Khởi động lại"));
+        mList->setChip(mVerity, tr("Chưa bật"), "neutral");
+    });
 }
 
 static QString orDash(const QString &text)
