@@ -107,6 +107,8 @@ add_library(sensornode-ui-widgets STATIC
   src/widgets/MetricTile.h
   src/widgets/MiniSegment.cpp
   src/widgets/MiniSegment.h
+  src/widgets/ProgressRing.cpp
+  src/widgets/ProgressRing.h
   src/widgets/RaisedButton.cpp
   src/widgets/RaisedButton.h
   src/widgets/ScrollList.cpp
