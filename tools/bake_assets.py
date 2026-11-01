@@ -350,6 +350,10 @@ ICONS = {
     "crosshair": ('<path d="M12 3v18M3 12h18"/><circle cx="12" cy="12" r="5"/>', (16, 34)),
     "log": ('<path d="M6 3h12v18H6z"/><path d="M9 8h6M9 12h6M9 16h4"/>', (16,)),
     "close": ('<path d="M6 6l12 12M18 6 6 18"/>', (12, 34)),
+    "device": ('<rect x="4" y="5" width="16" height="11" rx="1.5"/><path d="M9 20h6M12 16v4"/>', (16,)),
+    "system": ('<rect x="3" y="7" width="18" height="10" rx="1"/><path d="M7 7v10M12 7v10M17 7v10"/>', (16,)),
+    "code": ('<path d="m8 7-5 5 5 5M16 7l5 5-5 5"/>', (16,)),
+    "restore": ('<path d="M4 5v5h5"/><path d="M4.6 10A8 8 0 1 1 4 13"/>', (16,)),
 }
 
 
