@@ -23,6 +23,7 @@ class HistoryModel;
 class HomeScreen;
 class LanguageLocationPage;
 class LocationPage;
+class NetworkModel;
 class OtaModel;
 class SamplingPage;
 class SensorsPage;
@@ -84,6 +85,7 @@ private:
     SettingsModel *mSettingsModel;
     DisplayModel *mDisplayModel;
     SystemStatusModel *mSystemStatus;
+    NetworkModel *mNetwork;
     DeviceInfoModel *mDeviceInfo;
     ErrorLogModel *mErrorLog;
 

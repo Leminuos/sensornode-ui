@@ -7,6 +7,7 @@
 #include "model/ErrorLogModel.h"
 #include "model/HistoryModel.h"
 #include "model/Locations.h"
+#include "model/NetworkModel.h"
 #include "model/OtaModel.h"
 #include "model/DisplayModel.h"
 #include "ipc/DaemonEndpoints.h"
@@ -50,6 +51,7 @@ AppWindow::AppWindow(QWidget *parent)
     , mSettingsModel(new SettingsModel(this))
     , mDisplayModel(new DisplayModel(this))
     , mSystemStatus(new SystemStatusModel(this))
+    , mNetwork(new NetworkModel(this))
     , mDeviceInfo(new DeviceInfoModel(this))
     , mErrorLog(new ErrorLogModel(this))
 {
@@ -298,10 +300,10 @@ void AppWindow::wireSettings()
 void AppWindow::wireSystemStatus()
 {
     connect(mSystemStatus, &SystemStatusModel::clockChanged, statusHeader(), &StatusHeader::setClock);
-    connect(mSystemStatus, &SystemStatusModel::networkChanged, statusHeader(), &StatusHeader::setNetworkUp);
     connect(mSystemStatus, &SystemStatusModel::clockChanged, mLocationPage, [this](const QString &text) {
         mLocationPage->setClockSynced(!text.isEmpty());
     });
+    connect(mNetwork, &NetworkModel::statusChanged, statusHeader(), &StatusHeader::setNetworkStatus);
 }
 
 void AppWindow::wireOta()
@@ -340,6 +342,7 @@ void AppWindow::start()
     mDisplayModel->start();
     mOta->start();
     mSystemStatus->start();
+    mNetwork->start();
 
     checkRollback();
 
