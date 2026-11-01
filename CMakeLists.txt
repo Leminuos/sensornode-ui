@@ -76,6 +76,8 @@ add_library(sensornode-ui-widgets STATIC
   src/screens/LocationPage.h
   src/screens/SamplingPage.cpp
   src/screens/SamplingPage.h
+  src/screens/SettingsScreen.cpp
+  src/screens/SettingsScreen.h
   src/screens/UpdatePage.cpp
   src/screens/UpdatePage.h
 
@@ -116,9 +118,6 @@ if(SENSORNODE_BUILD_APP)
 
     src/screens/ChartScreen.cpp
     src/screens/ChartScreen.h
-    src/screens/SettingsScreen.cpp
-    src/screens/SettingsScreen.h
-    src/screens/SettingsScreen.ui
     src/screens/UpdatePopup.cpp
     src/screens/UpdatePopup.h
     src/screens/UpdatePopup.ui
