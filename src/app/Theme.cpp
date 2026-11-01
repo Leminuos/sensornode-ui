@@ -11,7 +11,6 @@
 #include <QStringList>
 #include <QTextStream>
 
-// Resource nằm trong thư viện tĩnh nên phải kéo vào tường minh, và macro không dùng được trong namespace.
 static void initResources()
 {
     Q_INIT_RESOURCE(resources);
@@ -87,9 +86,8 @@ QString resolve(const QString &css)
 QString Theme::load()
 {
     static const QStringList sheets = {
-        ":/styles/dashboard.qss", ":/styles/settings.qss",
-        ":/styles/firmware_popup.qss", ":/styles/firmware_progress.qss",
-        ":/styles/chart.qss", ":/styles/theme.qss",
+        ":/styles/settings.qss", ":/styles/firmware_popup.qss",
+        ":/styles/firmware_progress.qss", ":/styles/theme.qss",
     };
 
     tokens();

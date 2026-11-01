@@ -3,13 +3,8 @@
     <qresource prefix="/">
         <file>theme/tokens.json</file>
         <file>styles/theme.qss</file>
-        <file>styles/dashboard.qss</file>
         <file>styles/settings.qss</file>
         <file>styles/firmware_popup.qss</file>
         <file>styles/firmware_progress.qss</file>
-        <file>styles/chart.qss</file>
-        <file>icons/temperature.png</file>
-        <file>icons/humidity.png</file>
-        <file>icons/sun.png</file>
     </qresource>
 </RCC>

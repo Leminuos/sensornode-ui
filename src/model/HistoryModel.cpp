@@ -16,6 +16,12 @@ static const char *kBucketSql =
     "SELECT ts / ?3 * ?3 AS b, AVG(temp_c), AVG(humi_rh), AVG(lux) FROM samples"
     " WHERE ts >= ?1 AND ts <= ?2 GROUP BY b ORDER BY b";
 
+static const char *kStatsSql[] = {
+    "SELECT MIN(temp_c), AVG(temp_c), MAX(temp_c) FROM samples WHERE ts >= ?1 AND ts <= ?2",
+    "SELECT MIN(humi_rh), AVG(humi_rh), MAX(humi_rh) FROM samples WHERE ts >= ?1 AND ts <= ?2",
+    "SELECT MIN(lux), AVG(lux), MAX(lux) FROM samples WHERE ts >= ?1 AND ts <= ?2",
+};
+
 static double column(sqlite3_stmt *stmt, int col)
 {
     return sqlite3_column_type(stmt, col) == SQLITE_NULL ? qQNaN() : sqlite3_column_double(stmt, col);
@@ -80,6 +86,32 @@ QVector<Sample> HistoryModel::range(int hours, int bucketSec) const
     
     if (rc != SQLITE_DONE) {
         qWarning() << "HistoryModel: read failed" << sqlite3_errmsg(mDb);
+    }
+
+    sqlite3_finalize(stmt);
+    return out;
+}
+
+RangeStats HistoryModel::stats(int hours, Metric metric) const
+{
+    RangeStats out{qQNaN(), qQNaN(), qQNaN()};
+    if (!ensureOpen()) return out;
+
+    const qint64 nowMs = QDateTime::currentMSecsSinceEpoch();
+    const qint64 fromMs = nowMs - (qint64)hours * 3600 * 1000;
+
+    sqlite3_stmt *stmt = nullptr;
+    if (sqlite3_prepare_v2(mDb, kStatsSql[static_cast<int>(metric)], -1, &stmt, nullptr) != SQLITE_OK) {
+        qWarning() << "HistoryModel: query failed" << sqlite3_errmsg(mDb);
+        close();
+        return out;
+    }
+
+    sqlite3_bind_int64(stmt, 1, fromMs);
+    sqlite3_bind_int64(stmt, 2, nowMs);
+
+    if (sqlite3_step(stmt) == SQLITE_ROW) {
+        out = RangeStats{column(stmt, 0), column(stmt, 1), column(stmt, 2)};
     }
 
     sqlite3_finalize(stmt);
