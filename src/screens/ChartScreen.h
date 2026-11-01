@@ -34,6 +34,9 @@ private:
     QButtonGroup *mMetricTabs;
     SegmentedControl *mRange;
     ChartCanvas *mCanvas;
+    QLabel *mMinCaption;
+    QLabel *mAverageCaption;
+    QLabel *mMaxCaption;
     QLabel *mMin;
     QLabel *mAverage;
     QLabel *mMax;
