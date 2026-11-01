@@ -277,6 +277,13 @@ def bake_surfaces():
                 vertical(f"icon-tile-{name}-top", f"icon-tile-{name}-bottom", 1, 26),
                 (1, 3, "icon-tile-shadow"), "icon-tile-highlight")
 
+    surface("halo_primary", 76, 75, (6, 4, 64, 64), (32,), vertical("pri-top", "pri-bottom", 4, 64),
+            (3, 8, "pri-shadow"))
+    surface("halo_danger", 76, 75, (6, 4, 64, 64), (32,), vertical("dng-top", "dng-bottom", 4, 64),
+            (3, 8, "dng-shadow"))
+    surface("version_track", 2 * seg_r + TILE_W, 39, (0, 0, 2 * seg_r + TILE_W, 39), (seg_r,), rgba("track"),
+            inset=inset)
+
     inset_small = (1, 2, "shadow-inset")
     surface("slider_track", 24, 8, (0, 0, 24, 8), (4,), rgba("track"), inset=inset_small)
     surface("slider_fill", 24, 8, (0, 0, 24, 8), (4,), vertical("pri-top", "pri-bottom", 0, 8))
