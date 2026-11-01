@@ -310,6 +310,9 @@ def bake_surfaces():
         layer.save(RES / "surfaces" / f"{name}.png")
 
 
+WIFI_ARCS = '<path d="M2.5 9a14 14 0 0 1 19 0"/><path d="M6 13a9 9 0 0 1 12 0"/>'
+WIFI_INNER = '<path d="M9.5 16.6a4 4 0 0 1 5 0"/><path d="M12 20h.01"/>'
+
 # Hình vector từ mockup, viewBox 24×24, nét 2.
 ICONS = {
     "network": ('<rect x="9" y="3" width="6" height="5"/><rect x="3" y="16" width="6" height="5"/>'
@@ -317,6 +320,9 @@ ICONS = {
     "network_off": ('<rect x="9" y="3" width="6" height="5"/><rect x="3" y="16" width="6" height="5"/>'
                     '<rect x="15" y="16" width="6" height="5"/><path d="M12 8v4M6 16v-4h12v4"/>'
                     '<path d="M3 3l18 18"/>', (15,)),
+    "wifi": (WIFI_ARCS + WIFI_INNER, (15, 16)),
+    "wifi_weak": (WIFI_ARCS.replace('<path ', '<path opacity=".3" ') + WIFI_INNER, (15,)),
+    "wifi_off": (WIFI_ARCS + WIFI_INNER + '<path d="M3 3l18 18"/>', (15,)),
     "thermometer": ('<path d="M10 4a2 2 0 0 1 4 0v10a4 4 0 1 1-4 0z"/>', (16,)),
     "droplet": ('<path d="M12 3s7 7.5 7 12a7 7 0 0 1-14 0c0-4.5 7-12 7-12z"/>', (16,)),
     "sun": ('<circle cx="12" cy="12" r="4"/>'
@@ -445,6 +451,7 @@ def bake_icon(name, svg, size):
             c.close_path()
         else:
             svg_path(c, a["d"])
+        c.set_source_rgba(0, 0, 0, float(a.get("opacity", 1)))
         c.stroke()
     s.flush()
     alpha = bytes(s.get_data())[3::4]

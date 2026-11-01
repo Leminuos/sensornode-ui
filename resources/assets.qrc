@@ -63,6 +63,10 @@
         <file>icons/settings_22.png</file>
         <file>icons/sun_16.png</file>
         <file>icons/thermometer_16.png</file>
+        <file>icons/wifi_15.png</file>
+        <file>icons/wifi_16.png</file>
+        <file>icons/wifi_off_15.png</file>
+        <file>icons/wifi_weak_15.png</file>
         <file>icons/wrench_16.png</file>
     </qresource>
 </RCC>
