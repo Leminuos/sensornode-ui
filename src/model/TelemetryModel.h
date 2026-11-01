@@ -24,6 +24,7 @@ signals:
     void sampleReceived(double tempC, double humidity, double lux);
     void reportReceived(const SensorReport &report);
     void macAddressChanged(const QString &mac);
+    void nodeIdChanged(const QString &nodeId);
     void onlineChanged(bool online);
     void intervalChanged(int intervalMs);
     void staleChanged(bool stale);
