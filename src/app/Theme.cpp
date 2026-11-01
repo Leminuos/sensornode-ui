@@ -11,7 +11,6 @@
 #include <QStringList>
 #include <QTextStream>
 
-// Resource nằm trong thư viện tĩnh nên phải kéo vào tường minh, và macro không dùng được trong namespace.
 static void initResources()
 {
     Q_INIT_RESOURCE(resources);

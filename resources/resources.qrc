@@ -6,6 +6,5 @@
         <file>styles/settings.qss</file>
         <file>styles/firmware_popup.qss</file>
         <file>styles/firmware_progress.qss</file>
-        <file>styles/chart.qss</file>
     </qresource>
 </RCC>

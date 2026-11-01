@@ -91,6 +91,70 @@ RaisedButton[variant]:disabled {
     color: @text-muted;
 }
 
+/* ----- Thẻ đại lượng ở S1 ----- */
+MetricTile[metric="temperature"] {
+    border-image: url(:/surfaces/tile_temp.png) 0 0 0 0 stretch stretch;
+}
+
+MetricTile[metric="humidity"] {
+    border-image: url(:/surfaces/tile_humi.png) 0 0 0 0 stretch stretch;
+}
+
+MetricTile[metric="light"] {
+    border-image: url(:/surfaces/tile_light.png) 0 0 0 0 stretch stretch;
+}
+
+MetricTile[dead="true"] {
+    border-width: 16px 18px 19px 18px;
+    border-image: url(:/surfaces/card.png) 16 18 19 18 repeat stretch;
+}
+
+/* ----- Biểu đồ S2 ----- */
+#metricTabLine {
+    background-color: @divider;
+}
+
+QPushButton[metricTab] {
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: @text-muted;
+    font-size: @font-small;
+}
+
+QPushButton[metricTab]:checked {
+    color: @text;
+    font-weight: bold;
+}
+
+QPushButton[metricTab="temperature"]:checked {
+    border-bottom-color: @chart-temp;
+}
+
+QPushButton[metricTab="humidity"]:checked {
+    border-bottom-color: @chart-humi;
+}
+
+QPushButton[metricTab="light"]:checked {
+    border-bottom-color: @chart-light;
+}
+
+ChartCanvas {
+    background: transparent;
+    border: none;
+}
+
+#statCaption {
+    color: @text-muted;
+    font-size: @font-caption;
+}
+
+#statValue {
+    color: @text;
+    font-size: @font-stat;
+    font-weight: bold;
+}
+
 /* ----- Thẻ ----- */
 QFrame[surface="card"] {
     border-width: 16px 18px 19px 18px;

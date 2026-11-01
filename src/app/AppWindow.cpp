@@ -58,6 +58,10 @@ void AppWindow::wireTelemetry()
 {
     connect(mTelemetry, &TelemetryModel::sampleReceived, mHome, &HomeScreen::setValues);
     connect(mTelemetry, &TelemetryModel::staleChanged, mHome, &HomeScreen::setStale);
+    connect(mHome, &HomeScreen::metricRequested, this, [this](Metric metric) {
+        mCharts->showMetric(metric);
+        showTab(BottomNavBar::Dashboard);
+    });
     connect(mTelemetry, &TelemetryModel::sampleReceived, mCharts, &ChartScreen::reload);
     connect(mTelemetry, &TelemetryModel::macAddressChanged, mSettings, &SettingsScreen::setMacAddress);
 }
