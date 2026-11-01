@@ -74,7 +74,6 @@ void AppWindow::wireNavigation()
 
 void AppWindow::wireTelemetry()
 {
-    connect(mTelemetry, &TelemetryModel::onlineChanged, mStatusHeader, &StatusHeader::setOnlineStatus);
     connect(mTelemetry, &TelemetryModel::sampleReceived, mHome, &HomeScreen::setValues);
     connect(mTelemetry, &TelemetryModel::sampleReceived, mCharts, &ChartScreen::reload);
     connect(mTelemetry, &TelemetryModel::macAddressChanged, mSettings, &SettingsScreen::setMacAddress);

@@ -83,7 +83,6 @@ add_executable(sensornode-ui
   src/widgets/RaisedButton.h
   src/widgets/StatusHeader.cpp
   src/widgets/StatusHeader.h
-  src/widgets/StatusHeader.ui
   src/widgets/SubPage.cpp
   src/widgets/SubPage.h
 
