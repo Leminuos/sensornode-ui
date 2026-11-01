@@ -41,6 +41,8 @@ add_library(sensornode-ui-lib STATIC
   src/model/ChartScale.h
   src/model/DeviceInfoModel.cpp
   src/model/DeviceInfoModel.h
+  src/model/ErrorLogModel.cpp
+  src/model/ErrorLogModel.h
   src/model/Metric.h
   src/model/SettingsModel.cpp
   src/model/SettingsModel.h
