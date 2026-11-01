@@ -16,6 +16,8 @@ namespace Locations {
 
 const QVector<Location> &all();
 
+QString displayName(const Location &location);
+
 int offsetMinutes(const Location &location);
 QString offsetText(const Location &location);
 QString timeText(const Location &location);

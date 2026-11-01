@@ -1,5 +1,6 @@
 #include "screens/LanguageLocationPage.h"
 
+#include "app/Language.h"
 #include "app/Theme.h"
 #include "widgets/ListRow.h"
 #include "widgets/SegmentedControl.h"
@@ -11,11 +12,11 @@
 static constexpr int kRowHeight = 44;
 
 LanguageLocationPage::LanguageLocationPage(QWidget *parent)
-    : SubPage(tr("Ngôn ngữ & vị trí"), parent)
+    : SubPage(QString(), parent)
 {
     QWidget *body = content();
 
-    auto *section = new QLabel(tr("Ngôn ngữ"), body);
+    auto *section = new QLabel(body);
     section->setObjectName(QStringLiteral("sectionLabel"));
     section->setGeometry(10, 10, 220, 16);
 
@@ -26,10 +27,16 @@ LanguageLocationPage::LanguageLocationPage(QWidget *parent)
     card->setProperty("surface", "card");
     card->setGeometry(QRect(8, 76, 224, kRowHeight).marginsAdded(Theme::shadowMargins()));
 
-    mLocation = new ListRow(tr("Vị trí"), body);
+    mLocation = new ListRow(QString(), body);
     mLocation->setLeadingIcon(QStringLiteral("pin"), QStringLiteral("red"));
     mLocation->setSeparator(false);
     mLocation->setGeometry(8, 76, 224, kRowHeight);
+
+    Language::bind(this, [=]() {
+        setTitle(tr("Ngôn ngữ & vị trí"));
+        section->setText(tr("Ngôn ngữ"));
+        mLocation->setTitle(tr("Vị trí"));
+    });
 
     connect(mLanguage, &SegmentedControl::currentChanged, this, [this](int index) {
         emit languageRequested(index == 1 ? QStringLiteral("en") : QStringLiteral("vi"));
