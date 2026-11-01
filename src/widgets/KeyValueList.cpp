@@ -11,6 +11,7 @@ static constexpr int kPadX = 10;
 static constexpr int kRowHeight = 27;
 static constexpr int kBarRowHeight = 35;
 static constexpr int kBarHeight = 6;
+static constexpr int kValueGap = 6;
 
 KeyValueList::KeyValueList(QWidget *parent)
     : QFrame(parent)
@@ -87,6 +88,16 @@ void KeyValueList::setValue(int row, const QString &text, Tone tone)
     value->setText(text);
     value->setProperty("tone", tone == Good ? "good" : tone == Bad ? "bad" : "normal");
     Theme::repolish(value);
+}
+
+void KeyValueList::setElidedValue(int row, const QString &text, Tone tone)
+{
+    const Row &entry = mRows.at(row);
+    entry.label->ensurePolished();
+    entry.value->ensurePolished();
+    const int room = kCardWidth - 2 * kPadX - kValueGap
+        - entry.label->fontMetrics().horizontalAdvance(entry.label->text());
+    setValue(row, entry.value->fontMetrics().elidedText(text, Qt::ElideRight, room), tone);
 }
 
 void KeyValueList::setChip(int row, const QString &text, const char *kind)
