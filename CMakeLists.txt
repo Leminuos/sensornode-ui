@@ -70,6 +70,8 @@ add_library(sensornode-ui-widgets STATIC
   src/app/Theme.cpp
   src/app/Theme.h
 
+  src/screens/DevicePage.cpp
+  src/screens/DevicePage.h
   src/screens/DisplayPage.cpp
   src/screens/DisplayPage.h
   src/screens/FirmwarePage.cpp
