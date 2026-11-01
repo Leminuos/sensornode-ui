@@ -87,6 +87,8 @@ add_library(sensornode-ui-widgets STATIC
 
   src/widgets/BottomNavBar.cpp
   src/widgets/BottomNavBar.h
+  src/widgets/BottomSheet.cpp
+  src/widgets/BottomSheet.h
   src/widgets/KeyValueList.cpp
   src/widgets/KeyValueList.h
   src/widgets/ListRow.cpp
