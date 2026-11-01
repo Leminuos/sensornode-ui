@@ -84,6 +84,8 @@ add_library(sensornode-ui-widgets STATIC
   src/screens/LocationPage.h
   src/screens/SamplingPage.cpp
   src/screens/SamplingPage.h
+  src/screens/SensorsPage.cpp
+  src/screens/SensorsPage.h
   src/screens/SettingsScreen.cpp
   src/screens/SettingsScreen.h
   src/screens/UpdatePage.cpp
