@@ -47,6 +47,8 @@ add_library(sensornode-ui-lib STATIC
   src/model/ErrorLogModel.cpp
   src/model/ErrorLogModel.h
   src/model/Metric.h
+  src/model/NetworkModel.cpp
+  src/model/NetworkModel.h
   src/model/SettingsModel.cpp
   src/model/SettingsModel.h
   src/model/Locations.cpp
