@@ -5,9 +5,9 @@
 #include <QPainter>
 
 static constexpr int kPadding = 8;
+static constexpr int kCardPadding = 10;
 static constexpr int kGap = 8;
 static constexpr int kTileSize = 26;
-static constexpr int kTileTextX = 42;
 static constexpr int kOptionTextX = 12;
 static constexpr int kChevronSize = 14;
 static constexpr int kCheckSize = 18;
@@ -74,16 +74,40 @@ void ListRow::setPressable(bool pressable)
     update();
 }
 
+void ListRow::setDanger(bool danger)
+{
+    mDanger = danger;
+    update();
+}
+
+void ListRow::setCardStyle(bool card)
+{
+    mCard = card;
+    update();
+}
+
 void ListRow::paintEvent(QPaintEvent *)
 {
     QPainter painter(this);
 
+    const int padding = mCard ? kCardPadding : kPadding;
+
     if (isDown() && mPressable) {
-        painter.fillRect(rect(), Theme::color(QStringLiteral("track")));
+        const QColor pressed = Theme::color(QStringLiteral("track"));
+        if (mCard) {
+            const int radius = Theme::metric(QStringLiteral("radius-card"));
+            painter.setRenderHint(QPainter::Antialiasing);
+            painter.setPen(Qt::NoPen);
+            painter.setBrush(pressed);
+            painter.drawRoundedRect(rect(), radius, radius);
+            painter.setRenderHint(QPainter::Antialiasing, false);
+        } else {
+            painter.fillRect(rect(), pressed);
+        }
     }
 
     const bool hasTile = !mTile.isEmpty();
-    const int textX = hasTile ? kTileTextX : kOptionTextX;
+    const int textX = hasTile ? padding + kTileSize + kGap : kOptionTextX;
 
     if (mSeparator) {
         painter.fillRect(QRect(textX, 0, width() - textX, 1), Theme::color(QStringLiteral("divider")));
@@ -92,20 +116,23 @@ void ListRow::paintEvent(QPaintEvent *)
     if (hasTile) {
         const QPixmap tile(QStringLiteral(":/surfaces/icon_tile_%1.png").arg(mTile));
         const int tileY = (height() - tile.height()) / 2;
-        painter.drawPixmap(kPadding - 2, tileY, tile);
+        painter.drawPixmap(padding - 2, tileY, tile);
 
         const QString tint = mTile == QLatin1String("yellow") || mTile == QLatin1String("aqua")
                                      || mTile == QLatin1String("green")
                                  ? QStringLiteral("on-icon-tile-") + mTile
                                  : QStringLiteral("on-icon-tile");
-        painter.drawPixmap(kPadding + (kTileSize - 16) / 2, tileY + 1 + (kTileSize - 16) / 2,
+        painter.drawPixmap(padding + (kTileSize - 16) / 2, tileY + 1 + (kTileSize - 16) / 2,
                            Theme::icon(mGlyph, 16, tint));
     }
 
     const bool muted = !isEnabled();
-    const QColor textColor = Theme::color(muted ? QStringLiteral("text-muted") : QStringLiteral("text"));
+    const QColor textColor = Theme::color(muted     ? QStringLiteral("text-muted")
+                                          : mDanger ? QStringLiteral("error")
+                                                    : QStringLiteral("text"));
+    const bool bold = mSelected || mCard;
 
-    int right = width() - kPadding;
+    int right = width() - padding;
     if (mTrailing == Chevron) {
         right -= kChevronSize;
         painter.drawPixmap(right, (height() - kChevronSize) / 2,
@@ -139,7 +166,7 @@ void ListRow::paintEvent(QPaintEvent *)
         right -= valueWidth + kGap;
     }
 
-    painter.setFont(Theme::font(QStringLiteral("body"), mSelected));
+    painter.setFont(Theme::font(QStringLiteral("body"), bold));
     painter.setPen(textColor);
     if (mSubtitle.isEmpty()) {
         painter.drawText(QRect(textX, 0, right - textX, height()), Qt::AlignVCenter, text());
@@ -150,9 +177,11 @@ void ListRow::paintEvent(QPaintEvent *)
         const int top = (height() - titleHeight - subtitleHeight) / 2;
 
         painter.setPen(Theme::color(QStringLiteral("text-muted")));
-        painter.drawText(QRect(textX, top + titleHeight, right - textX, subtitleHeight), Qt::AlignVCenter, mSubtitle);
+        const int subtitleWidth = right - textX;
+        painter.drawText(QRect(textX, top + titleHeight, subtitleWidth, subtitleHeight), Qt::AlignVCenter,
+                         painter.fontMetrics().elidedText(mSubtitle, Qt::ElideRight, subtitleWidth));
 
-        painter.setFont(Theme::font(QStringLiteral("body"), mSelected));
+        painter.setFont(Theme::font(QStringLiteral("body"), bold));
         painter.setPen(textColor);
         painter.drawText(QRect(textX, top, right - textX, titleHeight), Qt::AlignVCenter, text());
     }
