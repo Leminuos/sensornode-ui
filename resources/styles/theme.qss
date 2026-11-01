@@ -368,3 +368,48 @@ BottomSheet {
 BottomSheet RaisedButton {
     font-size: @font-small;
 }
+
+BottomSheet #versionRow {
+    border-width: 0 10px;
+    border-image: url(:/surfaces/version_track.png) 0 10 0 10 repeat stretch;
+}
+
+#versionCurrent {
+    color: @text-muted;
+    font-size: @font-unit;
+}
+
+#versionNext {
+    color: @primary;
+    font-size: @font-unit;
+    font-weight: bold;
+}
+
+/* ----- OTA ----- */
+#flowTitle {
+    color: @text;
+    font-size: @font-title;
+    font-weight: bold;
+}
+
+#flowBody {
+    color: @text-muted;
+    font-size: @font-small;
+}
+
+#flowBody[tone="bad"] {
+    color: @error;
+}
+
+#powerWarning {
+    background-color: @warn;
+    border-radius: @radius-seg;
+    color: @on-warn;
+    font-size: @font-small;
+    font-weight: bold;
+    padding: 2px 8px;
+}
+
+RaisedButton[compact="true"] {
+    font-size: @font-small;
+}

@@ -23,16 +23,18 @@
 #include "screens/SensorsPage.h"
 #include "screens/ServicePage.h"
 #include "screens/SettingsScreen.h"
+#include "screens/UpdateFlowPage.h"
 #include "screens/UpdatePage.h"
-#include "screens/UpdatePopup.h"
-#include "screens/UpdateProgressScreen.h"
 #include "widgets/BottomNavBar.h"
 #include "widgets/BottomSheet.h"
 #include "widgets/StatusHeader.h"
 #include "widgets/SubPage.h"
 
 #include <QDebug>
+#include <QHBoxLayout>
+#include <QLabel>
 #include <QStackedWidget>
+#include <QVariant>
 
 AppWindow::AppWindow(QWidget *parent)
     : PageFrame(parent)
@@ -63,18 +65,45 @@ void AppWindow::buildUi()
     mHome = new HomeScreen(mHistory, stack());
     mCharts = new ChartScreen(mHistory, stack());
     mSettings = new SettingsScreen(stack());
-    mProgress = new UpdateProgressScreen(stack());
+    mUpdateFlow = new UpdateFlowPage(stack());
 
     addTab(BottomNavBar::Home, mHome);
     addTab(BottomNavBar::Dashboard, mCharts);
     addTab(BottomNavBar::Settings, mSettings);
-    stack()->addWidget(mProgress);
+    stack()->addWidget(mUpdateFlow);
 
     buildSettingsPages();
     buildServicePages();
+    buildUpdateFlow();
+}
 
-    mPopup = new UpdatePopup(this);
-    mPopup->hide();
+void AppWindow::buildUpdateFlow()
+{
+    mUpdateSheet = new BottomSheet(this);
+    mUpdateSheet->setTitle(tr("Có bản mới"));
+    mUpdateSheet->setActions(tr("Để sau"), tr("Cập nhật"), RaisedButton::Primary);
+
+    auto *versions = new QWidget(mUpdateSheet->panel());
+    versions->setObjectName(QStringLiteral("versionRow"));
+    versions->setAttribute(Qt::WA_StyledBackground);
+
+    mSheetCurrent = new QLabel(versions);
+    mSheetCurrent->setObjectName(QStringLiteral("versionCurrent"));
+    auto *arrow = new QLabel(QStringLiteral("→"), versions);
+    arrow->setObjectName(QStringLiteral("versionCurrent"));
+    mSheetNext = new QLabel(versions);
+    mSheetNext->setObjectName(QStringLiteral("versionNext"));
+
+    auto *row = new QHBoxLayout(versions);
+    row->setContentsMargins(0, 0, 0, 0);
+    row->setSpacing(10);
+    row->addStretch();
+    row->addWidget(mSheetCurrent);
+    row->addWidget(arrow);
+    row->addWidget(mSheetNext);
+    row->addStretch();
+
+    mUpdateSheet->setExtra(versions, 39);
 }
 
 void AppWindow::buildSettingsPages()
@@ -202,19 +231,25 @@ void AppWindow::wireOta()
     connect(mOta, &OtaModel::currentVersionChanged, mUpdatePage, &UpdatePage::setCurrentVersion);
     connect(mOta, &OtaModel::trialBootChanged, mUpdatePage, &UpdatePage::setVerifying);
     connect(mOta, &OtaModel::trialBootChanged, statusHeader(), &StatusHeader::setVerifying);
-    connect(mOta, &OtaModel::trialBootChanged, mPopup, &UpdatePopup::setVerifying);
+    connect(mOta, &OtaModel::trialBootChanged, this, [this](bool trialBoot) {
+        mUpdateSheet->setAcceptEnabled(!trialBoot);
+    });
     connect(mUpdatePage, &UpdatePage::checkRequested, this, &AppWindow::onCheckForUpdateRequested);
     connect(mOta, &OtaModel::upToDate, mUpdatePage, &UpdatePage::onUpToDate);
     connect(mOta, &OtaModel::checkFailed, this, &AppWindow::onCheckFailed);
 
     connect(mOta, &OtaModel::updateAvailable, this, &AppWindow::onUpdateAvailable);
     connect(mOta, &OtaModel::stateChanged, this, &AppWindow::onOtaStateChanged);
-    connect(mOta, &OtaModel::progressChanged, mProgress, &UpdateProgressScreen::setProgress);
-    connect(mPopup, &UpdatePopup::updateConfirmed, mOta, &OtaModel::confirmUpdate);
-    connect(mPopup, &UpdatePopup::cancelled, mOta, &OtaModel::dismissUpdate);
+    connect(mOta, &OtaModel::progressChanged, mUpdateFlow, &UpdateFlowPage::setProgress);
+    connect(mUpdateSheet, &BottomSheet::accepted, mOta, &OtaModel::confirmUpdate);
+    connect(mUpdateSheet, &BottomSheet::rejected, mOta, &OtaModel::dismissUpdate);
 
-    connect(mProgress, &UpdateProgressScreen::cancelled, this, &AppWindow::onUpdateCancelled);
-    connect(mProgress, &UpdateProgressScreen::rebootRequested, mOta, &OtaModel::reboot);
+    connect(mUpdateFlow, &UpdateFlowPage::closeRequested, this, &AppWindow::onUpdateClosed);
+    connect(mUpdateFlow, &UpdateFlowPage::retryRequested, mOta, &OtaModel::confirmUpdate);
+    connect(mUpdateFlow, &UpdateFlowPage::rebootRequested, mOta, &OtaModel::reboot);
+    connect(mUpdateFlow, &UpdateFlowPage::rollbackAcknowledged, this, [this]() {
+        showTab(BottomNavBar::Home);
+    });
 }
 
 void AppWindow::start()
@@ -226,6 +261,8 @@ void AppWindow::start()
     mDisplayModel->start();
     mOta->start();
     mSystemStatus->start();
+
+    checkRollback();
 }
 
 void AppWindow::onCheckForUpdateRequested()
@@ -297,49 +334,78 @@ void AppWindow::showLocation(int index)
 void AppWindow::onUpdateAvailable(const QString &current, const QString &available)
 {
     mUpdatePage->onUpdateFound();
-    mPopup->setVersions(current, available);
+    mSheetCurrent->setText(current);
+    mSheetNext->setText(available);
 }
 
 void AppWindow::onOtaStateChanged(OtaState state)
 {
+    if (state != OtaState::Available) {
+        mUpdateSheet->dismiss();
+    }
+
+    if (!mOta->availableVersion().isEmpty()) {
+        mUpdateVersion = mOta->availableVersion();
+    }
+
     switch (state) {
+    case OtaState::Idle:
+    case OtaState::Checking:
+        if (mode() == Mode::Takeover) {
+            leaveTakeover();
+        }
+        return;
     case OtaState::Available:
-        showUpdatePopup();
-        break;
+        showUpdateSheet();
+        return;
     case OtaState::Downloading:
-        mPopup->hide();
-        mProgress->setTargetVersion(mOta->availableVersion());
-        enterUpdateMode();
+        mUpdateFlow->showDownloading(mUpdateVersion, sizeMb());
+        break;
+    case OtaState::Flashing:
+        mUpdateFlow->showInstalling();
+        break;
+    case OtaState::Done:
+        mUpdateFlow->showInstalled(mUpdateVersion, mOta->rebootFailed());
+        break;
+    case OtaState::Rebooting:
+        mUpdateFlow->showRebooting();
         break;
     case OtaState::Failed:
-        mProgress->setFailureReason(mOta->lastError());
-        enterUpdateMode();
-        break;
-    default:
+        if (mOta->failedPhase() == OtaState::Flashing) {
+            mUpdateFlow->showInstallFailed(mOta->currentVersion());
+        } else {
+            mUpdateFlow->showDownloadFailed();
+        }
         break;
     }
-    mProgress->setState(state);
+
+    showTakeover(mUpdateFlow);
 }
 
-void AppWindow::onUpdateCancelled()
+void AppWindow::onUpdateClosed()
 {
     mOta->dismissFailure();
-    exitUpdateMode();
 }
 
-void AppWindow::showUpdatePopup()
+void AppWindow::showUpdateSheet()
 {
-    mPopup->setGeometry(rect());
-    mPopup->raise();
-    mPopup->show();
+    const int size = sizeMb();
+    mUpdateSheet->setBody(size > 0 ? tr("Khoảng %1 MB. Thiết bị khởi động lại sau khi cài.").arg(size)
+                                   : tr("Thiết bị khởi động lại sau khi cài."));
+    mUpdateSheet->present();
 }
 
-void AppWindow::enterUpdateMode()
+int AppWindow::sizeMb() const
 {
-    showTakeover(mProgress);
+    const qint64 bytes = mOta->availableSize();
+    return bytes > 0 ? static_cast<int>(qMax<qint64>(1, bytes / (1000 * 1000))) : 0;
 }
 
-void AppWindow::exitUpdateMode()
+void AppWindow::checkRollback()
 {
-    showTab(BottomNavBar::Settings);
+    const QString failed = Stubs::rolledBackVersion();
+    if (!failed.isEmpty()) {
+        mUpdateFlow->showRolledBack(mOta->currentVersion(), failed);
+        showTakeover(mUpdateFlow);
+    }
 }

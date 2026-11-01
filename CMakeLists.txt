@@ -144,12 +144,6 @@ if(SENSORNODE_BUILD_APP)
 
     src/screens/ChartScreen.cpp
     src/screens/ChartScreen.h
-    src/screens/UpdatePopup.cpp
-    src/screens/UpdatePopup.h
-    src/screens/UpdatePopup.ui
-    src/screens/UpdateProgressScreen.cpp
-    src/screens/UpdateProgressScreen.h
-    src/screens/UpdateProgressScreen.ui
   )
 
   target_link_libraries(sensornode-ui PRIVATE

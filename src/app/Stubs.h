@@ -13,6 +13,7 @@ void setTemperatureUnit(TemperatureUnit unit);
 void setAutoDim(int minutes);
 void setLanguage(const QString &language);
 void restartDevice();
+QString rolledBackVersion();
 
 } // namespace Stubs
 
