@@ -70,6 +70,8 @@ add_library(sensornode-ui-widgets STATIC
   src/screens/DisplayPage.h
   src/screens/HomeScreen.cpp
   src/screens/HomeScreen.h
+  src/screens/SamplingPage.cpp
+  src/screens/SamplingPage.h
 
   src/widgets/BottomNavBar.cpp
   src/widgets/BottomNavBar.h
