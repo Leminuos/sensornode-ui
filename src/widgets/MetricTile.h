@@ -17,6 +17,7 @@ public:
 
     void setVisualGeometry(const QRect &rect);
     void setReading(const QString &value);
+    void setUnit(const QString &unit);
     QString reading() const { return mValue; }
 
     void setTrend(const QVector<QPointF> &points);
@@ -32,6 +33,7 @@ private:
 
     Metric mMetric;
     QString mValue;
+    QString mUnit;
     QVector<QPointF> mTrend;
     QPainterPath mLine;
     QPainterPath mFill;

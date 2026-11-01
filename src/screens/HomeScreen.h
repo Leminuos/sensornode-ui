@@ -18,6 +18,7 @@ public:
 public slots:
     void setValues(double tempC, double humidity, double lux);
     void setStale(bool stale);
+    void setTemperatureUnit(TemperatureUnit unit);
 
 signals:
     void metricRequested(Metric metric);
@@ -38,6 +39,7 @@ private:
     double mHumidityValue;
     double mLux;
     bool mStale = true;
+    TemperatureUnit mUnit = TemperatureUnit::Celsius;
     qint64 mTrendLoadedAtSec = 0;
 };
 
