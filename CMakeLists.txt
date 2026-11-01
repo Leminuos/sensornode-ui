@@ -58,8 +58,11 @@ target_link_libraries(sensornode-ui-lib PUBLIC
 )
 
 add_library(sensornode-ui-widgets STATIC
+  src/app/DemoData.h
   src/app/PageFrame.cpp
   src/app/PageFrame.h
+  src/app/Stubs.cpp
+  src/app/Stubs.h
   src/app/Theme.cpp
   src/app/Theme.h
 
