@@ -42,6 +42,8 @@ add_library(sensornode-ui-lib STATIC
   src/model/Metric.h
   src/model/SettingsModel.cpp
   src/model/SettingsModel.h
+  src/model/Locations.cpp
+  src/model/Locations.h
   src/model/SystemStatusModel.cpp
   src/model/SystemStatusModel.h
   src/model/TelemetryModel.cpp
