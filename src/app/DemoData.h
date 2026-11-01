@@ -9,6 +9,7 @@ constexpr int autoDimMinutes = 5;
 constexpr int locationIndex = 0;
 constexpr TemperatureUnit temperatureUnit = TemperatureUnit::Celsius;
 constexpr const char *language = "vi";
+constexpr bool mqttConnected = true;
 
 } // namespace DemoData
 

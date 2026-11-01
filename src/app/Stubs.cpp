@@ -28,3 +28,8 @@ void Stubs::setLanguage(const QString &language)
 {
     qInfo("[STUB] set language: %s", qUtf8Printable(language));
 }
+
+void Stubs::restartDevice()
+{
+    qInfo("[STUB] restart device");
+}
