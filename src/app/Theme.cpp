@@ -86,8 +86,8 @@ QString resolve(const QString &css)
 QString Theme::load()
 {
     static const QStringList sheets = {
-        ":/styles/settings.qss", ":/styles/firmware_popup.qss",
-        ":/styles/firmware_progress.qss", ":/styles/theme.qss",
+        ":/styles/firmware_popup.qss", ":/styles/firmware_progress.qss",
+        ":/styles/theme.qss",
     };
 
     tokens();

@@ -42,6 +42,8 @@ add_library(sensornode-ui-lib STATIC
   src/model/Metric.h
   src/model/SettingsModel.cpp
   src/model/SettingsModel.h
+  src/model/Locations.cpp
+  src/model/Locations.h
   src/model/SystemStatusModel.cpp
   src/model/SystemStatusModel.h
   src/model/TelemetryModel.cpp
@@ -56,18 +58,37 @@ target_link_libraries(sensornode-ui-lib PUBLIC
 )
 
 add_library(sensornode-ui-widgets STATIC
+  src/app/DemoData.h
   src/app/PageFrame.cpp
   src/app/PageFrame.h
+  src/app/Stubs.cpp
+  src/app/Stubs.h
   src/app/Theme.cpp
   src/app/Theme.h
 
+  src/screens/DisplayPage.cpp
+  src/screens/DisplayPage.h
   src/screens/HomeScreen.cpp
   src/screens/HomeScreen.h
+  src/screens/LanguageLocationPage.cpp
+  src/screens/LanguageLocationPage.h
+  src/screens/LocationPage.cpp
+  src/screens/LocationPage.h
+  src/screens/SamplingPage.cpp
+  src/screens/SamplingPage.h
+  src/screens/SettingsScreen.cpp
+  src/screens/SettingsScreen.h
+  src/screens/UpdatePage.cpp
+  src/screens/UpdatePage.h
 
   src/widgets/BottomNavBar.cpp
   src/widgets/BottomNavBar.h
+  src/widgets/ListRow.cpp
+  src/widgets/ListRow.h
   src/widgets/MetricTile.cpp
   src/widgets/MetricTile.h
+  src/widgets/MiniSegment.cpp
+  src/widgets/MiniSegment.h
   src/widgets/RaisedButton.cpp
   src/widgets/RaisedButton.h
   src/widgets/SegmentedControl.cpp
@@ -76,6 +97,8 @@ add_library(sensornode-ui-widgets STATIC
   src/widgets/StatusHeader.h
   src/widgets/SubPage.cpp
   src/widgets/SubPage.h
+  src/widgets/TouchSlider.cpp
+  src/widgets/TouchSlider.h
 
   resources/assets.qrc
   resources/resources.qrc
@@ -95,9 +118,6 @@ if(SENSORNODE_BUILD_APP)
 
     src/screens/ChartScreen.cpp
     src/screens/ChartScreen.h
-    src/screens/SettingsScreen.cpp
-    src/screens/SettingsScreen.h
-    src/screens/SettingsScreen.ui
     src/screens/UpdatePopup.cpp
     src/screens/UpdatePopup.h
     src/screens/UpdatePopup.ui

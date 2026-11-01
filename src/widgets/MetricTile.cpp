@@ -16,7 +16,6 @@ struct Style
 {
     const char *property;
     const char *icon;
-    const char *unit;
     const char *text;
     const char *muted;
     const char *line;
@@ -25,9 +24,9 @@ struct Style
 
 const Style &styleFor(Metric metric)
 {
-    static const Style temperature{"temperature", "thermometer", "°C", "on-temp", "on-temp", "temp-line", "temp-fill"};
-    static const Style humidity{"humidity", "droplet", "%", "on-humi", "on-humi", "humi-line", "humi-fill"};
-    static const Style light{"light", "sun", "lx", "on-light", "on-light-muted", "light-line", "light-fill"};
+    static const Style temperature{"temperature", "thermometer", "on-temp", "on-temp", "temp-line", "temp-fill"};
+    static const Style humidity{"humidity", "droplet", "on-humi", "on-humi", "humi-line", "humi-fill"};
+    static const Style light{"light", "sun", "on-light", "on-light-muted", "light-line", "light-fill"};
 
     switch (metric) {
     case Metric::Temperature: return temperature;
@@ -47,6 +46,15 @@ MetricTile::MetricTile(Metric metric, const QString &label, QWidget *parent)
     setFocusPolicy(Qt::NoFocus);
     setProperty("metric", styleFor(metric).property);
     setProperty("dead", true);
+    mUnit = metric == Metric::Temperature ? QStringLiteral("°C")
+          : metric == Metric::Humidity    ? QStringLiteral("%")
+                                          : QStringLiteral("lx");
+}
+
+void MetricTile::setUnit(const QString &unit)
+{
+    mUnit = unit;
+    update();
 }
 
 void MetricTile::setVisualGeometry(const QRect &rect)
@@ -182,6 +190,5 @@ void MetricTile::paintEvent(QPaintEvent *)
 
     painter.setPen(muted);
     painter.setFont(Theme::font(hero ? QStringLiteral("unit") : QStringLiteral("caption"), true));
-    painter.drawText(numberRow.left() + numberMetrics.horizontalAdvance(shown) + (hero ? 3 : 2), baseline,
-                     QString::fromUtf8(tile.unit));
+    painter.drawText(numberRow.left() + numberMetrics.horizontalAdvance(shown) + (hero ? 3 : 2), baseline, mUnit);
 }

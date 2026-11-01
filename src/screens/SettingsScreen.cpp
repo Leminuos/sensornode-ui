@@ -1,101 +1,76 @@
 #include "screens/SettingsScreen.h"
-#include "ui_SettingsScreen.h"
 
-#include <QCheckBox>
-#include <QPushButton>
-#include <QScroller>
-#include <QScrollerProperties>
-#include <QSlider>
-#include <QTimer>
+#include "app/Theme.h"
+#include "widgets/ListRow.h"
+#include "widgets/MiniSegment.h"
+
+#include <QFrame>
+#include <QVariant>
+
+static constexpr int kRowHeight = 40;
+static constexpr int kCardY = 3;
 
 SettingsScreen::SettingsScreen(QWidget *parent)
     : QWidget(parent)
-    , ui(new Ui::SettingsScreen)
+    , mBrightness(new ListRow(tr("Độ sáng"), this))
+    , mSampling(new ListRow(tr("Chu kỳ lấy mẫu"), this))
+    , mUpdate(new ListRow(tr("Cập nhật"), this))
 {
-    ui->setupUi(this);
+    auto *card = new QFrame(this);
+    card->setProperty("surface", "card");
+    card->setGeometry(QRect(8, kCardY, 224, 6 * kRowHeight).marginsAdded(Theme::shadowMargins()));
+    card->lower();
 
-    QScroller::grabGesture(ui->settingsScroll->viewport(), QScroller::LeftMouseButtonGesture);
-    QScroller *scroller = QScroller::scroller(ui->settingsScroll->viewport());
-    QScrollerProperties props = scroller->scrollerProperties();
+    auto *unitRow = new ListRow(tr("Đơn vị nhiệt độ"), this);
+    auto *languageRow = new ListRow(tr("Ngôn ngữ & vị trí"), this);
+    auto *serviceRow = new ListRow(tr("Bảo trì"), this);
 
-    props.setScrollMetric(QScrollerProperties::AxisLockThreshold, 1.0);
-    props.setScrollMetric(QScrollerProperties::OvershootDragResistanceFactor, 0.5);
-    props.setScrollMetric(QScrollerProperties::OvershootDragDistanceFactor, 0);
-    props.setScrollMetric(QScrollerProperties::OvershootScrollDistanceFactor, 0);
+    mBrightness->setLeadingIcon(QStringLiteral("sun"), QStringLiteral("yellow"));
+    mSampling->setLeadingIcon(QStringLiteral("clock"), QStringLiteral("aqua"));
+    unitRow->setLeadingIcon(QStringLiteral("thermometer"), QStringLiteral("red"));
+    languageRow->setLeadingIcon(QStringLiteral("globe"), QStringLiteral("blue"));
+    mUpdate->setLeadingIcon(QStringLiteral("download"), QStringLiteral("green"));
+    serviceRow->setLeadingIcon(QStringLiteral("wrench"), QStringLiteral("default"));
 
-    scroller->setScrollerProperties(props);
+    unitRow->setTrailing(ListRow::NoTrailing);
+    unitRow->setPressable(false);
 
-    QObject::connect(ui->brightnessSlider, &QSlider::valueChanged, this, &SettingsScreen::onBrightnessChanged);
-    QObject::connect(ui->otaToggle, &QCheckBox::toggled, this, &SettingsScreen::onOtaToggled);
-    QObject::connect(ui->checkUpdatesButton, &QPushButton::clicked, this, &SettingsScreen::checkForUpdateRequested);
+    int y = kCardY;
+    for (ListRow *row : {mBrightness, mSampling, unitRow, languageRow, mUpdate, serviceRow}) {
+        row->setGeometry(8, y, 224, kRowHeight);
+        y += kRowHeight;
+    }
+    mBrightness->setSeparator(false);
 
-    setSettingsEnabled(false);
-    setMacAddress(QString());
-}
+    mUnit = new MiniSegment(QStringLiteral("°C"), QStringLiteral("°F"), unitRow);
+    mUnit->move(unitRow->width() - mUnit->width(), 0);
 
-void SettingsScreen::setOtaMode(bool autoMode)
-{
-    ui->otaToggle->setChecked(autoMode);
-}
-
-void SettingsScreen::setCurrentVersion(const QString &version)
-{
-    ui->firmwareVersionValue->setText(version);
-}
-
-void SettingsScreen::onCheckStarted()
-{
-    ui->checkUpdatesButton->setEnabled(false);
-    ui->checkUpdatesButton->setText("Checking…");
-}
-
-void SettingsScreen::onCheckFinished(const QString &resultText)
-{
-    ui->checkUpdatesButton->setEnabled(true);
-    ui->checkUpdatesButton->setText(resultText);
-    QTimer::singleShot(2500, ui->checkUpdatesButton, [this]() {
-        ui->checkUpdatesButton->setText("Check for updates");
+    connect(mBrightness, &QAbstractButton::clicked, this, &SettingsScreen::displayRequested);
+    connect(mSampling, &QAbstractButton::clicked, this, &SettingsScreen::samplingRequested);
+    connect(languageRow, &QAbstractButton::clicked, this, &SettingsScreen::languageLocationRequested);
+    connect(mUpdate, &QAbstractButton::clicked, this, &SettingsScreen::updateRequested);
+    connect(serviceRow, &QAbstractButton::clicked, this, &SettingsScreen::serviceRequested);
+    connect(mUnit, &MiniSegment::currentChanged, this, [this](int index) {
+        emit temperatureUnitRequested(index == 1 ? TemperatureUnit::Fahrenheit : TemperatureUnit::Celsius);
     });
-}
-
-SettingsScreen::~SettingsScreen()
-{
-    delete ui;
 }
 
 void SettingsScreen::setBrightness(int value)
 {
-    ui->brightnessSlider->blockSignals(true);
-    ui->brightnessSlider->setValue(value);
-    ui->brightnessSlider->blockSignals(false);
-    ui->brightnessValue->setText(QString("%1%").arg(value));
+    mBrightness->setValue(QStringLiteral("%1%").arg(value));
 }
 
-void SettingsScreen::setSettingsEnabled(bool enabled)
+void SettingsScreen::setSamplingPeriodText(const QString &text)
 {
-    ui->brightnessSlider->setEnabled(enabled);
-    ui->otaToggle->setEnabled(enabled);
+    mSampling->setValue(text);
 }
 
-void SettingsScreen::setMacAddress(const QString &mac)
+void SettingsScreen::setCurrentVersion(const QString &version)
 {
-    ui->deviceMacValue->setText(mac.isEmpty() ? QStringLiteral("--") : mac);
+    mUpdate->setValue(version);
 }
 
-void SettingsScreen::onBrightnessChanged(int value)
+void SettingsScreen::setTemperatureUnit(TemperatureUnit unit)
 {
-    ui->brightnessValue->setText(QString("%1%").arg(value));
-    emit brightnessChangeRequested(value);
-}
-
-void SettingsScreen::onOtaToggled(bool checked)
-{
-    if (checked) {
-        ui->otaModeLabel->setText("Automatic");
-        ui->otaDescLabel->setText("Show updates when available");
-    } else {
-        ui->otaModeLabel->setText("Manual");
-        ui->otaDescLabel->setText("Confirm before updating");
-    }
-    emit otaAutoModeChanged(checked);
+    mUnit->setCurrentIndex(unit == TemperatureUnit::Fahrenheit ? 1 : 0);
 }

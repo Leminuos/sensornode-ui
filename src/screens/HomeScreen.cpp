@@ -53,6 +53,13 @@ void HomeScreen::setStale(bool stale)
     applyReadings();
 }
 
+void HomeScreen::setTemperatureUnit(TemperatureUnit unit)
+{
+    mUnit = unit;
+    mTemperature->setUnit(unit == TemperatureUnit::Fahrenheit ? QStringLiteral("°F") : QStringLiteral("°C"));
+    applyReadings();
+}
+
 void HomeScreen::showEvent(QShowEvent *event)
 {
     QWidget::showEvent(event);
@@ -61,7 +68,7 @@ void HomeScreen::showEvent(QShowEvent *event)
 
 void HomeScreen::applyReadings()
 {
-    mTemperature->setReading(mStale ? QString() : reading(mTempC, 1));
+    mTemperature->setReading(mStale ? QString() : reading(displayTemperature(mTempC, mUnit), 1));
     mHumidity->setReading(mStale ? QString() : reading(mHumidityValue, 0));
     mLight->setReading(mStale ? QString() : reading(mLux, 0));
 }

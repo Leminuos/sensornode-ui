@@ -3,40 +3,37 @@
 
 #include <QWidget>
 
-QT_BEGIN_NAMESPACE
-namespace Ui { class SettingsScreen; }
-QT_END_NAMESPACE
+#include "model/Metric.h"
+
+class ListRow;
+class MiniSegment;
 
 class SettingsScreen : public QWidget
 {
     Q_OBJECT
 
 public:
-    SettingsScreen(QWidget *parent = nullptr);
-    ~SettingsScreen();
+    explicit SettingsScreen(QWidget *parent = nullptr);
 
 public slots:
-    // Đồng bộ trạng thái toggle Auto/Manual với cấu hình đã lưu (/data).
-    void setOtaMode(bool autoMode);
-    // Hiển thị version firmware hiện tại (đọc từ /etc/sw-versions qua OtaManager).
-    void setCurrentVersion(const QString &version);
-    // Phản hồi cho nút "Check for updates" (mode manual).
-    void onCheckStarted();
-    void onCheckFinished(const QString &resultText);
     void setBrightness(int value);
-    void setSettingsEnabled(bool enabled);
-    void setMacAddress(const QString &mac);
+    void setSamplingPeriodText(const QString &text);
+    void setCurrentVersion(const QString &version);
+    void setTemperatureUnit(TemperatureUnit unit);
 
 signals:
-    void brightnessChangeRequested(int value);
-    void otaAutoModeChanged(bool autoMode);  // toggle Auto/Manual
-    void checkForUpdateRequested();          // nút "Check for updates"
+    void displayRequested();
+    void samplingRequested();
+    void languageLocationRequested();
+    void updateRequested();
+    void serviceRequested();
+    void temperatureUnitRequested(TemperatureUnit unit);
 
 private:
-    void onBrightnessChanged(int value);
-    void onOtaToggled(bool checked);
-
-    Ui::SettingsScreen *ui;
+    ListRow *mBrightness;
+    ListRow *mSampling;
+    ListRow *mUpdate;
+    MiniSegment *mUnit;
 };
 
 #endif // SETTINGS_SCREEN_H

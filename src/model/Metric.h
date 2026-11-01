@@ -7,7 +7,20 @@
 
 enum class Metric { Temperature, Humidity, Light };
 
+enum class TemperatureUnit { Celsius, Fahrenheit };
+
 Q_DECLARE_METATYPE(Metric)
+Q_DECLARE_METATYPE(TemperatureUnit)
+
+inline double toFahrenheit(double celsius)
+{
+    return celsius * 9.0 / 5.0 + 32.0;
+}
+
+inline double displayTemperature(double celsius, TemperatureUnit unit)
+{
+    return unit == TemperatureUnit::Fahrenheit ? toFahrenheit(celsius) : celsius;
+}
 
 inline double metricValue(const Sample &sample, Metric metric)
 {

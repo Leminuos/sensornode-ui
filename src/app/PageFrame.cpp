@@ -51,12 +51,18 @@ void PageFrame::showTab(int tab)
     showPage(page);
 }
 
+void PageFrame::addPage(SubPage *page)
+{
+    mStack->addWidget(page);
+    connect(page, &SubPage::backRequested, this, &PageFrame::popPage);
+}
+
 void PageFrame::pushPage(SubPage *page)
 {
     if (mPageTrail.contains(page)) return;
 
     if (mStack->indexOf(page) < 0) {
-        connect(page, &SubPage::backRequested, this, &PageFrame::popPage);
+        addPage(page);
     }
     mPageTrail.append(page);
     setMode(Mode::SubPage);

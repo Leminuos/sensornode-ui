@@ -18,14 +18,14 @@ public:
     QString clockText() const { return mClockText; }
     bool networkUp() const { return mNetworkUp; }
 
+public slots:
+    void refresh();
+
 signals:
-    // Chuỗi rỗng nghĩa là giờ chưa đồng bộ.
     void clockChanged(const QString &text);
     void networkChanged(bool up);
 
 private:
-    void poll();
-
     QString mTimeSyncFlag;
     QString mInterfaceName;
     QString mClockText;

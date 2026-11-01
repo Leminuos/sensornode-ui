@@ -17,11 +17,13 @@ public:
     void start();
     bool isOnline() const;
     bool isStale() const { return mStale; }
+    int intervalMs() const { return mIntervalMs; }
 
 signals:
     void sampleReceived(double tempC, double humidity, double lux);
     void macAddressChanged(const QString &mac);
     void onlineChanged(bool online);
+    void intervalChanged(int intervalMs);
     void staleChanged(bool stale);
 
 private:

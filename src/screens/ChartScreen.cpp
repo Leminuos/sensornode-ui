@@ -263,6 +263,19 @@ void ChartScreen::showMetric(Metric metric)
     }
 }
 
+void ChartScreen::setTemperatureUnit(TemperatureUnit unit)
+{
+    mUnit = unit;
+    if (isVisible()) {
+        refresh();
+    }
+}
+
+double ChartScreen::displayValue(double value) const
+{
+    return mMetric == Metric::Temperature ? displayTemperature(value, mUnit) : value;
+}
+
 void ChartScreen::reload()
 {
     // Màn đang ẩn thì để showEvent() vẽ lại khi user mở tab.
@@ -289,7 +302,7 @@ void ChartScreen::refresh()
         for (const Sample &sample : buckets) {
             const double value = metricValue(sample, mMetric);
             if (!qIsNaN(value)) {
-                points.append(QPointF(sample.timestampSec * 1000.0, value));
+                points.append(QPointF(sample.timestampSec * 1000.0, displayValue(value)));
             }
         }
         stats = mHistory->stats(range.hours, mMetric);
@@ -299,7 +312,7 @@ void ChartScreen::refresh()
     mCanvas->setData(points, nowMs - range.hours * 3600 * 1000LL, nowMs);
 
     const auto format = [this](double value) {
-        return qIsNaN(value) ? QStringLiteral("--") : QString::number(value, 'f', decimalsFor(mMetric));
+        return qIsNaN(value) ? QStringLiteral("--") : QString::number(displayValue(value), 'f', decimalsFor(mMetric));
     };
     mMin->setText(format(stats.min));
     mAverage->setText(format(stats.average));

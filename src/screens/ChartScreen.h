@@ -20,6 +20,7 @@ public:
 
 public slots:
     void showMetric(Metric metric);
+    void setTemperatureUnit(TemperatureUnit unit);
     void reload();
 
 protected:
@@ -27,6 +28,7 @@ protected:
 
 private:
     void refresh();
+    double displayValue(double value) const;
 
     const HistoryModel *mHistory;
     QButtonGroup *mMetricTabs;
@@ -36,6 +38,7 @@ private:
     QLabel *mAverage;
     QLabel *mMax;
     Metric mMetric = Metric::Temperature;
+    TemperatureUnit mUnit = TemperatureUnit::Celsius;
 };
 
 #endif // CHART_SCREEN_H

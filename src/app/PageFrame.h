@@ -33,6 +33,7 @@ public:
     void addTab(int tab, QWidget *page);
     void showTab(int tab);
 
+    void addPage(SubPage *page);
     void pushPage(SubPage *page);
     void popPage();
 
