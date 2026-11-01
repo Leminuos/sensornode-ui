@@ -242,6 +242,12 @@ def bake_surfaces():
     surface("btn_danger_pressed", W, H, rect, (R["button"],), grad("dng-pressed-top", "dng-pressed-bottom"), inset=press)
     surface("btn_disabled", W, H, rect, (R["button"],), rgba("track"))
 
+    # Nút lớn ở S5c: cao 92 px, có PNG riêng vì kéo giãn sẽ làm hỏng gradient và dither.
+    W, H, rect = padded(bw, 92)
+    tall = lambda t, b: vertical(t, b, PAD_T, 92)
+    surface("btn_big", W, H, rect, (R["button"],), tall("pri-top", "pri-bottom"), (3, 8, "pri-shadow"), "pri-highlight")
+    surface("btn_big_pressed", W, H, rect, (R["button"],), tall("pri-pressed-top", "pri-pressed-bottom"), inset=press)
+
     # Nút quay lại: vòng 30 px, vùng chạm 44×40.
     back = (8, 4, 30, 30)
     backgrad = lambda t, b: vertical(t, b, 4, 30)
