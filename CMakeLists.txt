@@ -57,6 +57,8 @@ add_executable(sensornode-ui
 
   src/app/AppWindow.cpp
   src/app/AppWindow.h
+  src/app/PageFrame.cpp
+  src/app/PageFrame.h
   src/app/Theme.cpp
   src/app/Theme.h
 
