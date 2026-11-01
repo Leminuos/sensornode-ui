@@ -97,6 +97,8 @@ add_library(sensornode-ui-widgets STATIC
   src/widgets/MiniSegment.h
   src/widgets/RaisedButton.cpp
   src/widgets/RaisedButton.h
+  src/widgets/ScrollList.cpp
+  src/widgets/ScrollList.h
   src/widgets/SegmentedControl.cpp
   src/widgets/SegmentedControl.h
   src/widgets/StatusHeader.cpp

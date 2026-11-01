@@ -7,7 +7,7 @@
 
 class ListRow;
 class QLabel;
-class QScrollArea;
+class ScrollList;
 
 class LocationPage : public SubPage
 {
@@ -31,10 +31,7 @@ protected:
     void showEvent(QShowEvent *event) override;
 
 private:
-    void moveIndicator();
-
-    QScrollArea *mScroll;
-    QWidget *mIndicator;
+    ScrollList *mList;
     QLabel *mError;
     QVector<ListRow *> mRows;
     int mSelected = 0;
