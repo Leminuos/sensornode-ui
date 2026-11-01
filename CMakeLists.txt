@@ -92,6 +92,8 @@ add_library(sensornode-ui-widgets STATIC
   src/screens/ServicePage.h
   src/screens/SettingsScreen.cpp
   src/screens/SettingsScreen.h
+  src/screens/UpdateFlowPage.cpp
+  src/screens/UpdateFlowPage.h
   src/screens/UpdatePage.cpp
   src/screens/UpdatePage.h
 
