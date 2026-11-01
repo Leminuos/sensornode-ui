@@ -27,6 +27,7 @@ public:
 public slots:
     void setAutoMode(bool autoMode);
     void checkForUpdate();
+    void refreshStatus();
     void confirmUpdate();
     void dismissUpdate();
     void dismissFailure();
@@ -35,6 +36,7 @@ public slots:
 signals:
     void currentVersionChanged(const QString &version);
     void trialBootChanged(bool trialBoot);
+    void systemInfoChanged(const OtaSystemInfo &info);
 
     void updateAvailable(const QString &current, const QString &available);
     void upToDate();
