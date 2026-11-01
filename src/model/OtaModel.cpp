@@ -125,6 +125,7 @@ void OtaModel::onReply(const QJsonObject &reply)
         }
     } else if (cmd == QLatin1String("reboot") && !ok) {
         qWarning() << "OTA reboot rejected:" << error;
+        mRebootFailed = true;
         emit stateChanged(mState);
     }
 }
@@ -136,10 +137,18 @@ void OtaModel::applyOta(const QJsonObject &ota, bool live)
         setState(OtaState::Downloading);
     } else if (daemonState == QLatin1String("installing")) {
         setState(OtaState::Flashing);
-    } else if (daemonState == QLatin1String("done") || daemonState == QLatin1String("rebooting")) {
-        const bool rebootFailed = mState == OtaState::Done && !ota.value(QStringLiteral("error")).toString().isEmpty();
+    } else if (daemonState == QLatin1String("rebooting")) {
+        mRebootFailed = false;
+        setState(OtaState::Rebooting);
+    } else if (daemonState == QLatin1String("done")) {
+        const bool rebootFailed = (mState == OtaState::Done || mState == OtaState::Rebooting)
+            && !ota.value(QStringLiteral("error")).toString().isEmpty();
+        if (rebootFailed) {
+            mRebootFailed = true;
+        }
+        const bool sameState = mState == OtaState::Done;
         setState(OtaState::Done);
-        if (live && rebootFailed) {
+        if (live && rebootFailed && sameState) {
             emit stateChanged(mState);
         }
     } else if (daemonState == QLatin1String("failed")) {
@@ -150,7 +159,9 @@ void OtaModel::applyOta(const QJsonObject &ota, bool live)
         fail(QStringLiteral("Update interrupted"));
     }
 
-    const QString available = ota.value(QStringLiteral("available")).toObject().value(QStringLiteral("version")).toString();
+    const QJsonObject manifest = ota.value(QStringLiteral("available")).toObject();
+    const QString available = manifest.value(QStringLiteral("version")).toString();
+    mAvailableSize = static_cast<qint64>(manifest.value(QStringLiteral("size")).toDouble(-1));
     if (available != mAvailableVersion) {
         mAvailableVersion = available;
         if (mAvailableVersion.isEmpty()) {
@@ -223,8 +234,10 @@ void OtaModel::dismissFailure()
 
 void OtaModel::reboot()
 {
+    mRebootFailed = false;
     if (mClient.sendCommand(QStringLiteral("reboot")) < 0) {
         qWarning() << "OTA reboot:" << kDaemonDown;
+        mRebootFailed = true;
         emit stateChanged(mState);
     }
 }
@@ -251,6 +264,11 @@ void OtaModel::setTrialBoot(bool trialBoot)
 void OtaModel::fail(const QString &reason)
 {
     mLastError = reason.isEmpty() ? QStringLiteral("Update failed") : reason;
+    if (mState == OtaState::Flashing) {
+        mFailedPhase = OtaState::Flashing;
+    } else if (mState != OtaState::Failed) {
+        mFailedPhase = OtaState::Downloading;
+    }
     setState(OtaState::Failed);
 }
 
@@ -261,7 +279,8 @@ bool OtaModel::isInstalling() const
 
 bool OtaModel::isBusy() const
 {
-    return isInstalling() || mState == OtaState::Done || mState == OtaState::Failed;
+    return isInstalling() || mState == OtaState::Done || mState == OtaState::Rebooting
+        || mState == OtaState::Failed;
 }
 
 void OtaModel::finishCheck()

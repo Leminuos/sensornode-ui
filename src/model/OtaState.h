@@ -11,6 +11,7 @@ enum class OtaState {
     Downloading,
     Flashing,
     Done,
+    Rebooting,
     Failed
 };
 
