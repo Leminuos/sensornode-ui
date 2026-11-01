@@ -39,6 +39,10 @@ add_library(sensornode-ui-lib STATIC
   src/model/DisplayModel.cpp
   src/model/DisplayModel.h
   src/model/ChartScale.h
+  src/model/DeviceInfoModel.cpp
+  src/model/DeviceInfoModel.h
+  src/model/ErrorLogModel.cpp
+  src/model/ErrorLogModel.h
   src/model/Metric.h
   src/model/SettingsModel.cpp
   src/model/SettingsModel.h
@@ -66,8 +70,14 @@ add_library(sensornode-ui-widgets STATIC
   src/app/Theme.cpp
   src/app/Theme.h
 
+  src/screens/DevicePage.cpp
+  src/screens/DevicePage.h
   src/screens/DisplayPage.cpp
   src/screens/DisplayPage.h
+  src/screens/ErrorLogPage.cpp
+  src/screens/ErrorLogPage.h
+  src/screens/FirmwarePage.cpp
+  src/screens/FirmwarePage.h
   src/screens/HomeScreen.cpp
   src/screens/HomeScreen.h
   src/screens/LanguageLocationPage.cpp
@@ -76,6 +86,10 @@ add_library(sensornode-ui-widgets STATIC
   src/screens/LocationPage.h
   src/screens/SamplingPage.cpp
   src/screens/SamplingPage.h
+  src/screens/SensorsPage.cpp
+  src/screens/SensorsPage.h
+  src/screens/ServicePage.cpp
+  src/screens/ServicePage.h
   src/screens/SettingsScreen.cpp
   src/screens/SettingsScreen.h
   src/screens/UpdatePage.cpp
@@ -83,6 +97,10 @@ add_library(sensornode-ui-widgets STATIC
 
   src/widgets/BottomNavBar.cpp
   src/widgets/BottomNavBar.h
+  src/widgets/BottomSheet.cpp
+  src/widgets/BottomSheet.h
+  src/widgets/KeyValueList.cpp
+  src/widgets/KeyValueList.h
   src/widgets/ListRow.cpp
   src/widgets/ListRow.h
   src/widgets/MetricTile.cpp
@@ -91,6 +109,8 @@ add_library(sensornode-ui-widgets STATIC
   src/widgets/MiniSegment.h
   src/widgets/RaisedButton.cpp
   src/widgets/RaisedButton.h
+  src/widgets/ScrollList.cpp
+  src/widgets/ScrollList.h
   src/widgets/SegmentedControl.cpp
   src/widgets/SegmentedControl.h
   src/widgets/StatusHeader.cpp

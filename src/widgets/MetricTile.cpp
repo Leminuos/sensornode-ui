@@ -72,8 +72,7 @@ void MetricTile::setReading(const QString &value)
 
     if (wasDead != mValue.isEmpty()) {
         setProperty("dead", mValue.isEmpty());
-        style()->unpolish(this);
-        style()->polish(this);
+        Theme::repolish(this);
     }
     update();
 }

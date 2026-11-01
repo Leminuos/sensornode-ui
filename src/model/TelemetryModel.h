@@ -6,6 +6,7 @@
 #include <QTimer>
 
 #include "ipc/DaemonClient.h"
+#include "model/Sample.h"
 
 class TelemetryModel : public QObject
 {
@@ -21,6 +22,7 @@ public:
 
 signals:
     void sampleReceived(double tempC, double humidity, double lux);
+    void reportReceived(const SensorReport &report);
     void macAddressChanged(const QString &mac);
     void onlineChanged(bool online);
     void intervalChanged(int intervalMs);

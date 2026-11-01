@@ -5,8 +5,14 @@
 #include "model/Metric.h"
 #include "model/OtaState.h"
 
+class BottomSheet;
 class ChartScreen;
+class DeviceInfoModel;
+class DevicePage;
 class DisplayPage;
+class ErrorLogModel;
+class ErrorLogPage;
+class FirmwarePage;
 class DisplayModel;
 class HistoryModel;
 class HomeScreen;
@@ -14,6 +20,8 @@ class LanguageLocationPage;
 class LocationPage;
 class OtaModel;
 class SamplingPage;
+class SensorsPage;
+class ServicePage;
 class SettingsModel;
 class SettingsScreen;
 class SubPage;
@@ -48,10 +56,12 @@ private:
     void wireTelemetry();
     void wireSettings();
     void wireSystemStatus();
+    void wireService();
     void wireOta();
     void start();
 
     void buildSettingsPages();
+    void buildServicePages();
     void showLocation(int index);
     void showUpdatePopup();
     void enterUpdateMode();
@@ -63,6 +73,8 @@ private:
     SettingsModel *mSettingsModel;
     DisplayModel *mDisplayModel;
     SystemStatusModel *mSystemStatus;
+    DeviceInfoModel *mDeviceInfo;
+    ErrorLogModel *mErrorLog;
 
     UpdatePopup *mPopup;
 
@@ -74,7 +86,13 @@ private:
     LanguageLocationPage *mLanguagePage;
     LocationPage *mLocationPage;
     UpdatePage *mUpdatePage;
-    SubPage *mServicePage;
+    ServicePage *mServicePage;
+    FirmwarePage *mFirmwarePage;
+    DevicePage *mDevicePage;
+    SensorsPage *mSensorsPage;
+    ErrorLogPage *mErrorLogPage;
+    SubPage *mCalibrationPage;
+    BottomSheet *mRestartSheet;
     UpdateProgressScreen *mProgress;
 };
 

@@ -300,7 +300,7 @@ def bake_surfaces():
 # Hình vector từ mockup, viewBox 24×24, nét 2.
 ICONS = {
     "network": ('<rect x="9" y="3" width="6" height="5"/><rect x="3" y="16" width="6" height="5"/>'
-                '<rect x="15" y="16" width="6" height="5"/><path d="M12 8v4M6 16v-4h12v4"/>', (15,)),
+                '<rect x="15" y="16" width="6" height="5"/><path d="M12 8v4M6 16v-4h12v4"/>', (15, 16)),
     "network_off": ('<rect x="9" y="3" width="6" height="5"/><rect x="3" y="16" width="6" height="5"/>'
                     '<rect x="15" y="16" width="6" height="5"/><path d="M12 8v4M6 16v-4h12v4"/>'
                     '<path d="M3 3l18 18"/>', (15,)),

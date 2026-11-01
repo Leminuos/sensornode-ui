@@ -3,14 +3,9 @@
 #include "app/Theme.h"
 #include "model/Locations.h"
 #include "widgets/ListRow.h"
+#include "widgets/ScrollList.h"
 
 #include <QLabel>
-#include <QPainterPath>
-#include <QRegion>
-#include <QScrollArea>
-#include <QScrollBar>
-#include <QScroller>
-#include <QScrollerProperties>
 
 static constexpr int kRowHeight = 44;
 static constexpr int kListX = 8;
@@ -18,29 +13,16 @@ static constexpr int kListY = 6;
 static constexpr int kListWidth = 224;
 static constexpr int kListHeight = 244;
 static constexpr int kErrorHeight = 20;
-static constexpr int kIndicatorWidth = 3;
 
 LocationPage::LocationPage(QWidget *parent)
     : SubPage(tr("Vị trí"), parent)
-    , mScroll(new QScrollArea(content()))
-    , mIndicator(new QWidget(mScroll))
+    , mList(new ScrollList(content()))
     , mError(new QLabel(tr("Không đổi được vị trí."), content()))
 {
-    mScroll->setObjectName(QStringLiteral("locationScroll"));
-    mScroll->setGeometry(kListX, kListY, kListWidth, kListHeight);
-    mScroll->setFrameShape(QFrame::NoFrame);
-    mScroll->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    mScroll->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-
-    QPainterPath corners;
-    const int radius = Theme::metric(QStringLiteral("radius-card"));
-    corners.addRoundedRect(QRectF(0, 0, kListWidth, kListHeight), radius, radius);
-    mScroll->setMask(QRegion(corners.toFillPolygon().toPolygon()));
+    mList->setGeometry(kListX, kListY, kListWidth, kListHeight);
 
     const QVector<Location> &locations = Locations::all();
     auto *list = new QWidget;
-    list->setObjectName(QStringLiteral("locationList"));
-    list->setAttribute(Qt::WA_StyledBackground);
     list->setFixedSize(kListWidth, locations.size() * kRowHeight);
 
     for (int i = 0; i < locations.size(); ++i) {
@@ -55,21 +37,7 @@ LocationPage::LocationPage(QWidget *parent)
         });
         mRows.append(row);
     }
-    mScroll->setWidget(list);
-
-    QScroller::grabGesture(mScroll->viewport(), QScroller::LeftMouseButtonGesture);
-    QScroller *scroller = QScroller::scroller(mScroll->viewport());
-    QScrollerProperties props = scroller->scrollerProperties();
-    props.setScrollMetric(QScrollerProperties::AxisLockThreshold, 1.0);
-    props.setScrollMetric(QScrollerProperties::OvershootDragResistanceFactor, 0.5);
-    props.setScrollMetric(QScrollerProperties::OvershootDragDistanceFactor, 0);
-    props.setScrollMetric(QScrollerProperties::OvershootScrollDistanceFactor, 0);
-    scroller->setScrollerProperties(props);
-
-    mIndicator->setObjectName(QStringLiteral("scrollIndicator"));
-    mIndicator->setAttribute(Qt::WA_StyledBackground);
-    mIndicator->setAttribute(Qt::WA_TransparentForMouseEvents);
-    connect(mScroll->verticalScrollBar(), &QScrollBar::valueChanged, this, &LocationPage::moveIndicator);
+    mList->setContent(list);
 
     mError->setObjectName(QStringLiteral("inlineError"));
     mError->setGeometry(kListX + 2, kListY + kListHeight - kErrorHeight, kListWidth - 4, kErrorHeight);
@@ -93,7 +61,7 @@ void LocationPage::finishApply(int previousIndex, bool ok)
         setSelectedIndex(previousIndex);
     }
     mError->setVisible(!ok);
-    mScroll->setFixedHeight(ok ? kListHeight : kListHeight - kErrorHeight - 2);
+    mList->resize(kListWidth, ok ? kListHeight : kListHeight - kErrorHeight - 2);
 }
 
 void LocationPage::setClockSynced(bool synced)
@@ -115,19 +83,5 @@ void LocationPage::showEvent(QShowEvent *event)
 {
     SubPage::showEvent(event);
     refreshTimes();
-    mScroll->verticalScrollBar()->setValue(qMax(0, mSelected * kRowHeight - (kListHeight - kRowHeight) / 2));
-    moveIndicator();
-}
-
-void LocationPage::moveIndicator()
-{
-    const QScrollBar *bar = mScroll->verticalScrollBar();
-    const int contentHeight = mScroll->widget()->height();
-    const int viewHeight = mScroll->viewport()->height();
-    const int track = viewHeight - 8;
-    const int thumb = track * viewHeight / contentHeight;
-    const int y = 4 + (bar->maximum() > 0 ? (track - thumb) * bar->value() / bar->maximum() : 0);
-
-    mIndicator->setGeometry(kListWidth - kIndicatorWidth - 2, y, kIndicatorWidth, thumb);
-    mIndicator->raise();
+    mList->scrollToRow(mSelected * kRowHeight, kRowHeight);
 }

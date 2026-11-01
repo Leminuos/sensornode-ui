@@ -8,8 +8,10 @@
 #include <QJsonObject>
 #include <QPainter>
 #include <QRegularExpression>
+#include <QStyle>
 #include <QStringList>
 #include <QTextStream>
+#include <QWidget>
 
 static void initResources()
 {
@@ -166,6 +168,12 @@ QPixmap Theme::icon(const QString &name, int size, const QString &colorName)
 
     cache.insert(key, tinted);
     return tinted;
+}
+
+void Theme::repolish(QWidget *widget)
+{
+    widget->style()->unpolish(widget);
+    widget->style()->polish(widget);
 }
 
 QMargins Theme::shadowMargins()

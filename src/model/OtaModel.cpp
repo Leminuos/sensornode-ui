@@ -90,6 +90,15 @@ void OtaModel::onReply(const QJsonObject &reply)
         const QJsonObject system = reply.value(QStringLiteral("system")).toObject();
         setTrialBoot(isTrialBoot(system));
 
+        OtaSystemInfo info;
+        info.version = system.value(QStringLiteral("sw_version")).toString();
+        info.runningSlot = system.value(QStringLiteral("running_slot")).toString();
+        info.activeSlot = system.value(QStringLiteral("active_slot")).toString();
+        info.trialBoot = mTrialBoot;
+        info.bootCount = system.value(QStringLiteral("boot_count")).toInt(-1);
+        info.bootLimit = system.value(QStringLiteral("boot_limit")).toInt(-1);
+        emit systemInfoChanged(info);
+
         const QString version = system.value(QStringLiteral("sw_version")).toString();
 
         if (!version.isEmpty() && version != mCurrentVersion) {
@@ -182,6 +191,11 @@ void OtaModel::checkForUpdate()
     if (mState == OtaState::Idle) {
         setState(OtaState::Checking);
     }
+}
+
+void OtaModel::refreshStatus()
+{
+    mClient.sendCommand(QStringLiteral("status"));
 }
 
 void OtaModel::confirmUpdate()

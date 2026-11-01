@@ -2,6 +2,8 @@
 
 #include "app/DemoData.h"
 #include "app/Stubs.h"
+#include "model/DeviceInfoModel.h"
+#include "model/ErrorLogModel.h"
 #include "model/HistoryModel.h"
 #include "model/Locations.h"
 #include "model/OtaModel.h"
@@ -10,16 +12,22 @@
 #include "model/SystemStatusModel.h"
 #include "model/TelemetryModel.h"
 #include "screens/ChartScreen.h"
+#include "screens/DevicePage.h"
 #include "screens/DisplayPage.h"
+#include "screens/ErrorLogPage.h"
+#include "screens/FirmwarePage.h"
 #include "screens/HomeScreen.h"
 #include "screens/LanguageLocationPage.h"
 #include "screens/LocationPage.h"
 #include "screens/SamplingPage.h"
+#include "screens/SensorsPage.h"
+#include "screens/ServicePage.h"
 #include "screens/SettingsScreen.h"
 #include "screens/UpdatePage.h"
 #include "screens/UpdatePopup.h"
 #include "screens/UpdateProgressScreen.h"
 #include "widgets/BottomNavBar.h"
+#include "widgets/BottomSheet.h"
 #include "widgets/StatusHeader.h"
 #include "widgets/SubPage.h"
 
@@ -34,11 +42,14 @@ AppWindow::AppWindow(QWidget *parent)
     , mSettingsModel(new SettingsModel(this))
     , mDisplayModel(new DisplayModel(this))
     , mSystemStatus(new SystemStatusModel(this))
+    , mDeviceInfo(new DeviceInfoModel(this))
+    , mErrorLog(new ErrorLogModel(this))
 {
     buildUi();
     wireTelemetry();
     wireSettings();
     wireSystemStatus();
+    wireService();
     wireOta();
     start();
 }
@@ -60,6 +71,7 @@ void AppWindow::buildUi()
     stack()->addWidget(mProgress);
 
     buildSettingsPages();
+    buildServicePages();
 
     mPopup = new UpdatePopup(this);
     mPopup->hide();
@@ -72,11 +84,11 @@ void AppWindow::buildSettingsPages()
     mLanguagePage = new LanguageLocationPage(stack());
     mLocationPage = new LocationPage(stack());
     mUpdatePage = new UpdatePage(stack());
-    mServicePage = new SubPage(tr("Bảo trì"), stack());
+    mServicePage = new ServicePage(stack());
 
     for (SubPage *page : {static_cast<SubPage *>(mDisplayPage), static_cast<SubPage *>(mSamplingPage),
                           static_cast<SubPage *>(mLanguagePage), static_cast<SubPage *>(mLocationPage),
-                          static_cast<SubPage *>(mUpdatePage), mServicePage}) {
+                          static_cast<SubPage *>(mUpdatePage), static_cast<SubPage *>(mServicePage)}) {
         addPage(page);
     }
 
@@ -93,6 +105,54 @@ void AppWindow::buildSettingsPages()
     mLanguagePage->setLanguage(QLatin1String(DemoData::language));
     mLocationPage->setSelectedIndex(DemoData::locationIndex);
     showLocation(DemoData::locationIndex);
+}
+
+void AppWindow::buildServicePages()
+{
+    mFirmwarePage = new FirmwarePage(stack());
+    mDevicePage = new DevicePage(stack());
+    mSensorsPage = new SensorsPage(stack());
+    mErrorLogPage = new ErrorLogPage(stack());
+    mCalibrationPage = new SubPage(tr("Hiệu chỉnh cảm ứng"), stack());
+
+    for (SubPage *page : {static_cast<SubPage *>(mFirmwarePage), static_cast<SubPage *>(mDevicePage),
+                          static_cast<SubPage *>(mSensorsPage), static_cast<SubPage *>(mErrorLogPage),
+                          mCalibrationPage}) {
+        addPage(page);
+    }
+
+    connect(mServicePage, &ServicePage::firmwareRequested, this, [this]() { pushPage(mFirmwarePage); });
+    connect(mServicePage, &ServicePage::deviceRequested, this, [this]() { pushPage(mDevicePage); });
+    connect(mServicePage, &ServicePage::sensorsRequested, this, [this]() { pushPage(mSensorsPage); });
+    connect(mServicePage, &ServicePage::errorLogRequested, this, [this]() { pushPage(mErrorLogPage); });
+    connect(mServicePage, &ServicePage::calibrationRequested, this, [this]() { pushPage(mCalibrationPage); });
+
+    mRestartSheet = new BottomSheet(this);
+    mRestartSheet->setTitle(tr("Khởi động lại thiết bị?"));
+    mRestartSheet->setBody(tr("Việc đo sẽ dừng khoảng 1 phút."));
+    mRestartSheet->setActions(tr("Huỷ"), tr("Khởi động lại"), RaisedButton::Danger);
+
+    mDevicePage->setMqttConnected(DemoData::mqttConnected);
+    mSensorsPage->setPeriodText(SamplingPage::periodText(mSamplingPage->period()));
+}
+
+void AppWindow::wireService()
+{
+    connect(mFirmwarePage, &FirmwarePage::refreshRequested, mOta, &OtaModel::refreshStatus);
+    connect(mFirmwarePage, &FirmwarePage::refreshRequested, mDeviceInfo, &DeviceInfoModel::refresh);
+    connect(mDevicePage, &DevicePage::refreshRequested, mDeviceInfo, &DeviceInfoModel::refresh);
+    connect(mErrorLogPage, &ErrorLogPage::refreshRequested, mErrorLog, &ErrorLogModel::reload);
+
+    connect(mOta, &OtaModel::systemInfoChanged, mFirmwarePage, &FirmwarePage::setSystemInfo);
+    connect(mDeviceInfo, &DeviceInfoModel::infoChanged, mFirmwarePage, &FirmwarePage::setDeviceInfo);
+    connect(mDeviceInfo, &DeviceInfoModel::infoChanged, mDevicePage, &DevicePage::setDeviceInfo);
+    connect(mTelemetry, &TelemetryModel::macAddressChanged, mDevicePage, &DevicePage::setMacAddress);
+    connect(mTelemetry, &TelemetryModel::reportReceived, mSensorsPage, &SensorsPage::setReport);
+    connect(mErrorLog, &ErrorLogModel::entriesChanged, mErrorLogPage, &ErrorLogPage::setEntries);
+    connect(mErrorLog, &ErrorLogModel::failed, mErrorLogPage, &ErrorLogPage::showLoadFailed);
+
+    connect(mFirmwarePage, &FirmwarePage::restartRequested, mRestartSheet, &BottomSheet::present);
+    connect(mRestartSheet, &BottomSheet::accepted, this, []() { Stubs::restartDevice(); });
 }
 
 void AppWindow::wireTelemetry()
@@ -185,13 +245,17 @@ void AppWindow::onSamplingPeriodRequested(int seconds)
     mSamplingPage->beginApply(seconds);
     const bool ok = Stubs::setSamplingPeriod(seconds);
     mSamplingPage->finishApply(ok);
-    mSettings->setSamplingPeriodText(SamplingPage::periodText(mSamplingPage->period()));
+    const QString period = SamplingPage::periodText(mSamplingPage->period());
+    mSettings->setSamplingPeriodText(period);
+    mSensorsPage->setPeriodText(period);
 }
 
 void AppWindow::onTelemetryIntervalChanged(int intervalMs)
 {
     mSamplingPage->setPeriod(intervalMs / 1000);
-    mSettings->setSamplingPeriodText(SamplingPage::periodText(mSamplingPage->period()));
+    const QString period = SamplingPage::periodText(mSamplingPage->period());
+    mSettings->setSamplingPeriodText(period);
+    mSensorsPage->setPeriodText(period);
 }
 
 void AppWindow::onTemperatureUnitRequested(TemperatureUnit unit)
@@ -199,6 +263,7 @@ void AppWindow::onTemperatureUnitRequested(TemperatureUnit unit)
     Stubs::setTemperatureUnit(unit);
     mHome->setTemperatureUnit(unit);
     mCharts->setTemperatureUnit(unit);
+    mSensorsPage->setTemperatureUnit(unit);
 }
 
 void AppWindow::onLanguageRequested(const QString &language)

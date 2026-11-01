@@ -272,16 +272,99 @@ QSlider::handle:horizontal {
     font-size: @font-small;
 }
 
-#locationList {
-    background-color: @card-top;
-}
-
 #scrollIndicator {
     background-color: @text-muted;
     border-radius: 1px;
 }
 
-QScrollArea#locationScroll {
+ScrollList QWidget#scrollContent {
+    background-color: @card-top;
+}
+
+ScrollList {
     background: transparent;
     border: none;
+}
+
+/* ----- Bảo trì ----- */
+#kvLabel {
+    color: @text-muted;
+    font-size: @font-small;
+}
+
+#kvValue {
+    color: @text;
+    font-size: @font-small;
+    font-weight: bold;
+}
+
+#kvValue[tone="good"] {
+    color: @ok;
+}
+
+#kvValue[tone="bad"] {
+    color: @error;
+}
+
+QLabel[chip] {
+    border-radius: @radius-chip;
+    font-size: @font-caption;
+    font-weight: bold;
+    padding: 2px 8px;
+}
+
+QLabel[chip="neutral"] {
+    background-color: @track;
+    color: @text-muted;
+}
+
+QLabel[chip="warn"] {
+    background-color: @warn;
+    color: @on-warn;
+}
+
+QLabel[chip="ok"] {
+    background-color: @ok;
+    color: @track;
+}
+
+QProgressBar#usageBar {
+    background-color: @track;
+    border: none;
+    border-radius: 3px;
+}
+
+QProgressBar#usageBar::chunk {
+    background-color: @primary;
+    border-radius: 3px;
+}
+
+#logEmpty {
+    color: @text-muted;
+    font-size: @font-small;
+}
+
+/* ----- Bottom sheet ----- */
+BottomSheet {
+    background-color: @scrim;
+}
+
+#sheetPanel {
+    border-width: 28px 16px 16px 16px;
+    border-image: url(:/surfaces/sheet.png) 28 16 16 16 repeat stretch;
+}
+
+#sheetTitle {
+    color: @text;
+    font-size: @font-unit;
+    font-weight: bold;
+}
+
+#sheetBody {
+    color: @text-muted;
+    font-size: @font-small;
+}
+
+BottomSheet RaisedButton {
+    font-size: @font-small;
 }

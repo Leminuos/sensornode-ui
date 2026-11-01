@@ -3,7 +3,6 @@
 #include "app/Theme.h"
 
 #include <QLabel>
-#include <QStyle>
 #include <QVariant>
 
 static constexpr int kClockWidth = 38;
@@ -37,8 +36,7 @@ void StatusHeader::setClock(const QString &text)
 {
     mClock->setText(text.isEmpty() ? QStringLiteral("--:--") : text);
     mClock->setProperty("synced", !text.isEmpty());
-    mClock->style()->unpolish(mClock);
-    mClock->style()->polish(mClock);
+    Theme::repolish(mClock);
 }
 
 void StatusHeader::setNetworkUp(bool up)

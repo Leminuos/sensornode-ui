@@ -36,6 +36,16 @@ inline QString timeSyncFlag()
     return qEnvironmentVariable("SENSORNODE_TIMESYNC_FLAG", QStringLiteral("/run/systemd/timesync/synchronized"));
 }
 
+inline QString dataMount()
+{
+    return qEnvironmentVariable("SENSORNODE_DATA_MOUNT", QStringLiteral("/data"));
+}
+
+inline QString journalctl()
+{
+    return qEnvironmentVariable("SENSORNODE_JOURNALCTL", QStringLiteral("journalctl"));
+}
+
 inline QString networkInterface()
 {
     return qEnvironmentVariable("SENSORNODE_NET_INTERFACE", QStringLiteral("eth0"));

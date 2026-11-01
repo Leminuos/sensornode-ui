@@ -2,6 +2,8 @@
 
 #include "ipc/DaemonEndpoints.h"
 
+#include <QJsonArray>
+#include <QJsonObject>
 #include <QtNumeric>
 
 static constexpr int kStaleCycles = 3;
@@ -80,5 +82,27 @@ void TelemetryModel::emitSample(const QJsonObject &sample)
 
     setStale(false);
     armStaleTimer();
-    emit sampleReceived(reading(sample, "temp_c"), reading(sample, "humi_rh"), reading(sample, "lux"));
+    const double temp = reading(sample, "temp_c");
+    const double humidity = reading(sample, "humi_rh");
+    const double lux = reading(sample, "lux");
+    emit sampleReceived(temp, humidity, lux);
+
+    SensorReport report;
+    report.timestampMs = static_cast<qint64>(sample.value(QStringLiteral("ts")).toDouble());
+    report.tempC = temp;
+    report.humidity = humidity;
+    report.lux = lux;
+
+    const QJsonArray errors = sample.value(QStringLiteral("errors")).toArray();
+    for (const QJsonValue &value : errors) {
+        const QJsonObject error = value.toObject();
+        const QString sensor = error.value(QStringLiteral("sensor")).toString();
+        const QString reason = error.value(QStringLiteral("error")).toString();
+        if (sensor == QLatin1String("sht30")) {
+            report.sht30Error = reason;
+        } else if (sensor == QLatin1String("bh1750")) {
+            report.bh1750Error = reason;
+        }
+    }
+    emit reportReceived(report);
 }
