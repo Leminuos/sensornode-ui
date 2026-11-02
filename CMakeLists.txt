@@ -162,6 +162,8 @@ if(SENSORNODE_BUILD_APP)
 
     src/app/AppWindow.cpp
     src/app/AppWindow.h
+    src/app/FirstFrameNotifier.cpp
+    src/app/FirstFrameNotifier.h
 
     src/screens/ChartScreen.cpp
     src/screens/ChartScreen.h
