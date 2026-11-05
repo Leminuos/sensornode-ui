@@ -7,6 +7,7 @@
 #include <QString>
 
 #include "ipc/DaemonClient.h"
+#include "model/Metric.h"
 
 class SettingsModel : public QObject
 {
@@ -16,6 +17,14 @@ public:
     explicit SettingsModel(QObject *parent = nullptr, const QString &socketPath = QString());
 
     void start();
+    int brightness() const { return mBrightness; }
+
+    // Các setter trả về false nếu chưa kết nối được settingsd.
+    bool setAutoDim(int minutes);
+    bool setTemperatureUnit(TemperatureUnit unit);
+    bool setLanguage(const QString &code);
+    bool setLocation(const QString &id, const QString &timeZone);
+    bool reset();
 
 public slots:
     void setBrightness(int value);
@@ -24,14 +33,22 @@ public slots:
 signals:
     void brightnessChanged(int value);
     void autoModeChanged(bool autoMode);
+    void autoDimChanged(int minutes);
+    void temperatureUnitChanged(TemperatureUnit unit);
+    void languageChanged(const QString &code);
+    void locationChanged(const QString &id);
     void availableChanged(bool available);
+    void resetFinished(bool ok);
 
 private:
     void onMessage(const QJsonObject &message);
-    void set(const QString &key, const QJsonValue &value);
+    void applySettings(const QJsonObject &settings);
+    bool set(const QString &key, const QJsonValue &value);
 
     DaemonClient mClient;
+    int mBrightness = 0;
     bool mAutoMode = false;
+    int mResetId = -1;
 };
 
 #endif // SETTINGS_MODEL_H

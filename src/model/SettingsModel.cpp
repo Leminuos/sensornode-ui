@@ -6,12 +6,21 @@
 
 static const QString kBrightness = QStringLiteral("brightness");
 static const QString kAutoMode = QStringLiteral("auto_mode");
+static const QString kAutoDim = QStringLiteral("auto_dim_min");
+static const QString kTemperatureUnit = QStringLiteral("temperature_unit");
+static const QString kLanguage = QStringLiteral("language");
+static const QString kLocation = QStringLiteral("location");
+static const QString kTimeZone = QStringLiteral("timezone");
 
 SettingsModel::SettingsModel(QObject *parent, const QString &socketPath)
     : QObject(parent)
     , mClient(socketPath.isEmpty() ? DaemonEndpoints::settingsSocket() : socketPath)
 {
     connect(&mClient, &DaemonClient::disconnected, this, [this]() {
+        if (mResetId >= 0) {
+            mResetId = -1;
+            emit resetFinished(false);
+        }
         emit availableChanged(false);
     });
     connect(&mClient, &DaemonClient::messageReceived, this, &SettingsModel::onMessage);
@@ -24,6 +33,7 @@ void SettingsModel::start()
 
 void SettingsModel::setBrightness(int value)
 {
+    mBrightness = value;
     set(kBrightness, value);
 }
 
@@ -36,9 +46,51 @@ void SettingsModel::setAutoMode(bool autoMode)
     emit autoModeChanged(autoMode);
 }
 
-void SettingsModel::set(const QString &key, const QJsonValue &value)
+bool SettingsModel::setAutoDim(int minutes)
 {
-    mClient.sendCommand(QStringLiteral("set"), {{QStringLiteral("key"), key}, {QStringLiteral("value"), value}});
+    return set(kAutoDim, minutes);
+}
+
+bool SettingsModel::setTemperatureUnit(TemperatureUnit unit)
+{
+    return set(kTemperatureUnit, unit == TemperatureUnit::Fahrenheit ? QStringLiteral("F") : QStringLiteral("C"));
+}
+
+bool SettingsModel::setLanguage(const QString &code)
+{
+    return set(kLanguage, code);
+}
+
+bool SettingsModel::setLocation(const QString &id, const QString &timeZone)
+{
+    return set(kLocation, id) && set(kTimeZone, timeZone);
+}
+
+bool SettingsModel::reset()
+{
+    if (mResetId >= 0) return true;
+
+    mResetId = mClient.sendCommand(QStringLiteral("reset"));
+    return mResetId >= 0;
+}
+
+bool SettingsModel::set(const QString &key, const QJsonValue &value)
+{
+    return mClient.sendCommand(QStringLiteral("set"), {{QStringLiteral("key"), key}, {QStringLiteral("value"), value}}) >= 0;
+}
+
+void SettingsModel::applySettings(const QJsonObject &settings)
+{
+    mBrightness = settings.value(kBrightness).toInt();
+    emit brightnessChanged(mBrightness);
+    mAutoMode = settings.value(kAutoMode).toBool();
+    emit autoModeChanged(mAutoMode);
+    emit autoDimChanged(settings.value(kAutoDim).toInt());
+    emit temperatureUnitChanged(settings.value(kTemperatureUnit).toString() == QLatin1String("F")
+                                    ? TemperatureUnit::Fahrenheit
+                                    : TemperatureUnit::Celsius);
+    emit languageChanged(settings.value(kLanguage).toString());
+    emit locationChanged(settings.value(kLocation).toString());
 }
 
 void SettingsModel::onMessage(const QJsonObject &message)
@@ -46,12 +98,19 @@ void SettingsModel::onMessage(const QJsonObject &message)
     const QString type = message.value(QStringLiteral("type")).toString();
 
     if (type == QLatin1String("hello")) {
-        const QJsonObject settings = message.value(QStringLiteral("settings")).toObject();
-        emit brightnessChanged(settings.value(kBrightness).toInt());
-        mAutoMode = settings.value(kAutoMode).toBool();
-        emit autoModeChanged(mAutoMode);
+        applySettings(message.value(QStringLiteral("settings")).toObject());
         emit availableChanged(true);
-    } else if (type == QLatin1String("reply") && !message.value(QStringLiteral("ok")).toBool()) {
+        return;
+    }
+    if (type != QLatin1String("reply")) return;
+
+    const bool ok = message.value(QStringLiteral("ok")).toBool();
+    if (mResetId >= 0 && message.value(QStringLiteral("id")).toInt(-1) == mResetId) {
+        mResetId = -1;
+        if (ok) applySettings(message.value(QStringLiteral("settings")).toObject());
+        emit resetFinished(ok);
+    }
+    if (!ok) {
         qWarning() << "settingsd rejected" << message.value(QStringLiteral("error")).toString();
     }
 }
