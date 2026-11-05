@@ -3,17 +3,10 @@
 
 #include <QString>
 
-#include "model/Metric.h"
-
 namespace Stubs {
 
 bool setSamplingPeriod(int seconds);
-bool setLocation(const QString &city, const QString &timeZone);
-void setTemperatureUnit(TemperatureUnit unit);
-void setAutoDim(int minutes);
-void setLanguage(const QString &language);
 void restartDevice();
-bool factoryReset();
 void applyTouchCalibration(const QString &pointercal);
 void keepTouchCalibration();
 void restoreTouchCalibration();

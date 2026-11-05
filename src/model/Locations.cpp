@@ -28,6 +28,15 @@ const QVector<Location> &Locations::all()
     return locations;
 }
 
+int Locations::indexOf(const QString &id)
+{
+    const QVector<Location> &locations = all();
+    for (int i = 0; i < locations.size(); ++i) {
+        if (locations.at(i).nameEn == id) return i;
+    }
+    return -1;
+}
+
 QString Locations::displayName(const Location &location)
 {
     return Language::instance().code() == QLatin1String("en") ? location.nameEn : location.name;

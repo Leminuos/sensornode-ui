@@ -16,6 +16,9 @@ namespace Locations {
 
 const QVector<Location> &all();
 
+// Id lưu trong settingsd là nameEn. Trả về -1 nếu không có.
+int indexOf(const QString &id);
+
 QString displayName(const Location &location);
 
 int offsetMinutes(const Location &location);

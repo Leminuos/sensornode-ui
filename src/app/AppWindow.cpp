@@ -318,7 +318,16 @@ void AppWindow::wireSettings()
     connect(mDisplayPage, &DisplayPage::brightnessCommitted, mSettingsModel, &SettingsModel::setBrightness);
     connect(mUpdatePage, &UpdatePage::autoNotifyRequested, mSettingsModel, &SettingsModel::setAutoMode);
 
-    connect(mDisplayPage, &DisplayPage::autoDimRequested, this, [](int minutes) { Stubs::setAutoDim(minutes); });
+    connect(mSettingsModel, &SettingsModel::autoDimChanged, mDisplayPage, &DisplayPage::setAutoDimMinutes);
+    connect(mSettingsModel, &SettingsModel::temperatureUnitChanged, this, &AppWindow::applyTemperatureUnit);
+    connect(mSettingsModel, &SettingsModel::languageChanged, this, &AppWindow::applyLanguage);
+    connect(mSettingsModel, &SettingsModel::locationChanged, this, [this](const QString &id) {
+        const int index = Locations::indexOf(id);
+        if (index >= 0) applyLocation(index);
+    });
+    connect(mSettingsModel, &SettingsModel::resetFinished, this, &AppWindow::onResetFinished);
+
+    connect(mDisplayPage, &DisplayPage::autoDimRequested, mSettingsModel, &SettingsModel::setAutoDim);
     connect(mSamplingPage, &SamplingPage::periodRequested, this, &AppWindow::onSamplingPeriodRequested);
     connect(mSettings, &SettingsScreen::temperatureUnitRequested, this, &AppWindow::onTemperatureUnitRequested);
     connect(mLanguagePage, &LanguageLocationPage::languageRequested, this, &AppWindow::onLanguageRequested);
@@ -414,7 +423,13 @@ void AppWindow::onTelemetryIntervalChanged(int intervalMs)
 
 void AppWindow::onTemperatureUnitRequested(TemperatureUnit unit)
 {
-    Stubs::setTemperatureUnit(unit);
+    mSettingsModel->setTemperatureUnit(unit);
+    applyTemperatureUnit(unit);
+}
+
+void AppWindow::applyTemperatureUnit(TemperatureUnit unit)
+{
+    mSettings->setTemperatureUnit(unit);
     mHome->setTemperatureUnit(unit);
     mCharts->setTemperatureUnit(unit);
     mSensorsPage->setTemperatureUnit(unit);
@@ -422,7 +437,13 @@ void AppWindow::onTemperatureUnitRequested(TemperatureUnit unit)
 
 void AppWindow::onLanguageRequested(const QString &language)
 {
-    Stubs::setLanguage(language);
+    mSettingsModel->setLanguage(language);
+    Language::instance().setCode(language);
+}
+
+void AppWindow::applyLanguage(const QString &language)
+{
+    mLanguagePage->setLanguage(language);
     Language::instance().setCode(language);
 }
 
@@ -432,14 +453,18 @@ void AppWindow::onLocationRequested(int index)
     const Location &location = Locations::all().at(index);
 
     mLocationPage->setSelectedIndex(index);
-    const bool ok = Stubs::setLocation(location.nameEn, location.timeZone);
+    const bool ok = mSettingsModel->setLocation(location.nameEn, location.timeZone);
     mLocationPage->finishApply(previous, ok);
 
-    if (ok) {
-        showLocation(index);
-        mSystemStatus->refresh();
-        mLocationPage->refreshTimes();
-    }
+    if (ok) applyLocation(index);
+}
+
+void AppWindow::applyLocation(int index)
+{
+    mLocationPage->setSelectedIndex(index);
+    showLocation(index);
+    mSystemStatus->refresh();
+    mLocationPage->refreshTimes();
 }
 
 void AppWindow::showLocation(int index)
@@ -521,33 +546,19 @@ void AppWindow::showFactoryResetSheet()
 
 void AppWindow::onFactoryResetAccepted()
 {
-    if (!Stubs::factoryReset()) {
+    if (!mSettingsModel->reset()) onResetFinished(false);
+}
+
+void AppWindow::onResetFinished(bool ok)
+{
+    if (!ok) {
         mFactoryResetSheet->setBody(tr("Không khôi phục được cài đặt. Hãy thử lại."));
         mFactoryResetSheet->present();
         return;
     }
-    restoreDefaults();
-}
-
-void AppWindow::restoreDefaults()
-{
-    mDisplayModel->setBrightness(DemoData::brightness);
-    mSettingsModel->setBrightness(DemoData::brightness);
-    mDisplayPage->setBrightness(DemoData::brightness);
-    mSettings->setBrightness(DemoData::brightness);
-
-    mDisplayPage->setAutoDimMinutes(DemoData::autoDimMinutes);
-    Stubs::setAutoDim(DemoData::autoDimMinutes);
-
+    // displayd chỉ đọc brightness từ settingsd lúc khởi động.
+    mDisplayModel->setBrightness(mSettingsModel->brightness());
     onSamplingPeriodRequested(DemoData::samplingPeriodSec);
-
-    mSettings->setTemperatureUnit(DemoData::temperatureUnit);
-    onTemperatureUnitRequested(DemoData::temperatureUnit);
-
-    mLanguagePage->setLanguage(QLatin1String(DemoData::language));
-    onLanguageRequested(QLatin1String(DemoData::language));
-
-    onLocationRequested(DemoData::locationIndex);
 }
 
 int AppWindow::sizeMb() const

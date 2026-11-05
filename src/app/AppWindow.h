@@ -62,6 +62,9 @@ private slots:
     void onOtaStateChanged(OtaState state);
     void onUpdateClosed();
     void onFactoryResetAccepted();
+    void onResetFinished(bool ok);
+    void applyTemperatureUnit(TemperatureUnit unit);
+    void applyLanguage(const QString &language);
 
 private:
     void buildUi();
@@ -75,6 +78,7 @@ private:
     void buildSettingsPages();
     void buildServicePages();
     void showLocation(int index);
+    void applyLocation(int index);
     void buildUpdateFlow();
     void buildCalibration();
     void startCalibration();
@@ -82,7 +86,6 @@ private:
     void applyLanguageTexts();
     void showUpdateSheet();
     void showFactoryResetSheet();
-    void restoreDefaults();
     void checkRollback();
     int sizeMb() const;
 
