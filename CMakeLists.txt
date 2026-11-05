@@ -26,6 +26,8 @@ if(PRODUCTION_BUILD)
 endif()
 
 add_library(sensornode-ui-lib STATIC
+  src/app/AutoDimmer.cpp
+  src/app/AutoDimmer.h
   src/app/Language.cpp
   src/app/Language.h
 

@@ -9,6 +9,7 @@
 #include <QVector>
 
 class AdvancedPage;
+class AutoDimmer;
 class BottomSheet;
 class CalibrationIntroPage;
 class CalibrationPage;
@@ -94,6 +95,7 @@ private:
     OtaModel *mOta;
     SettingsModel *mSettingsModel;
     DisplayModel *mDisplayModel;
+    AutoDimmer *mAutoDimmer;
     SystemStatusModel *mSystemStatus;
     NetworkModel *mNetwork;
     DeviceInfoModel *mDeviceInfo;

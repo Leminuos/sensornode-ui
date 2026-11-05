@@ -1,5 +1,6 @@
 #include "app/AppWindow.h"
 
+#include "app/AutoDimmer.h"
 #include "app/DemoData.h"
 #include "app/Language.h"
 #include "app/Stubs.h"
@@ -54,6 +55,7 @@ AppWindow::AppWindow(QWidget *parent)
     , mOta(new OtaModel(this))
     , mSettingsModel(new SettingsModel(this))
     , mDisplayModel(new DisplayModel(this))
+    , mAutoDimmer(new AutoDimmer(this))
     , mSystemStatus(new SystemStatusModel(this))
     , mNetwork(new NetworkModel(this))
     , mDeviceInfo(new DeviceInfoModel(this))
@@ -226,6 +228,7 @@ void AppWindow::buildSettingsPages()
     mSettings->setTemperatureUnit(DemoData::temperatureUnit);
     mSettings->setSamplingPeriodText(SamplingPage::periodText(mSamplingPage->period()));
     mDisplayPage->setAutoDimMinutes(DemoData::autoDimMinutes);
+    mAutoDimmer->setTimeoutMinutes(DemoData::autoDimMinutes);
     mLanguagePage->setLanguage(QLatin1String(DemoData::language));
     mLocationPage->setSelectedIndex(DemoData::locationIndex);
     showLocation(DemoData::locationIndex);
@@ -320,6 +323,7 @@ void AppWindow::wireSettings()
     connect(mUpdatePage, &UpdatePage::autoNotifyRequested, mSettingsModel, &SettingsModel::setAutoMode);
 
     connect(mSettingsModel, &SettingsModel::autoDimChanged, mDisplayPage, &DisplayPage::setAutoDimMinutes);
+    connect(mSettingsModel, &SettingsModel::autoDimChanged, mAutoDimmer, &AutoDimmer::setTimeoutMinutes);
     connect(mSettingsModel, &SettingsModel::temperatureUnitChanged, this, &AppWindow::applyTemperatureUnit);
     connect(mSettingsModel, &SettingsModel::languageChanged, this, &AppWindow::applyLanguage);
     connect(mSettingsModel, &SettingsModel::locationChanged, this, [this](const QString &id) {
@@ -329,6 +333,13 @@ void AppWindow::wireSettings()
     connect(mSettingsModel, &SettingsModel::resetFinished, this, &AppWindow::onResetFinished);
 
     connect(mDisplayPage, &DisplayPage::autoDimRequested, mSettingsModel, &SettingsModel::setAutoDim);
+    connect(mDisplayPage, &DisplayPage::autoDimRequested, mAutoDimmer, &AutoDimmer::setTimeoutMinutes);
+
+    connect(mAutoDimmer, &AutoDimmer::offChanged, mDisplayModel, &DisplayModel::setOff);
+    connect(stack(), &QStackedWidget::currentChanged, this, [this]() {
+        const QWidget *page = currentPage();
+        mAutoDimmer->setInhibited(page == mUpdateFlow || page == mCalibration);
+    });
     connect(mSamplingPage, &SamplingPage::periodRequested, this, &AppWindow::onSamplingPeriodRequested);
     connect(mSettings, &SettingsScreen::temperatureUnitRequested, this, &AppWindow::onTemperatureUnitRequested);
     connect(mLanguagePage, &LanguageLocationPage::languageRequested, this, &AppWindow::onLanguageRequested);
