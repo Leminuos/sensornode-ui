@@ -32,6 +32,8 @@ add_library(sensornode-ui-lib STATIC
   src/ipc/DaemonClient.cpp
   src/ipc/DaemonClient.h
   src/ipc/DaemonEndpoints.h
+  src/ipc/SystemdNotify.cpp
+  src/ipc/SystemdNotify.h
 
   src/model/HistoryModel.cpp
   src/model/HistoryModel.h
