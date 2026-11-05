@@ -28,6 +28,7 @@ DisplayModel::DisplayModel(QObject *parent, const QString &devicePath)
     : QObject(parent)
     , mBrightnessPath((devicePath.isEmpty() ? DaemonEndpoints::backlightDevice() : devicePath)
                       + QStringLiteral("/brightness"))
+    , mBrightness(kDefaultBrightness)
 {
     mFallback.setSingleShot(true);
     mFallback.setInterval(kFallbackMs);
@@ -42,10 +43,23 @@ void DisplayModel::start()
 bool DisplayModel::setBrightness(int value)
 {
     mFallback.stop();
+    mBrightness = qBound(0, value, 100);
+    return mOff || write(kBrightnessLut[mBrightness]);
+}
 
+bool DisplayModel::setOff(bool off)
+{
+    if (off == mOff) return true;
+
+    mOff = off;
+    return write(off ? 0 : kBrightnessLut[mBrightness]);
+}
+
+bool DisplayModel::write(int duty)
+{
     QFile file(mBrightnessPath);
-    const QByteArray duty = QByteArray::number(kBrightnessLut[qBound(0, value, 100)]);
-    const bool ok = file.open(QFile::WriteOnly | QFile::Truncate) && file.write(duty) == duty.size() && file.flush();
+    const QByteArray text = QByteArray::number(duty);
+    const bool ok = file.open(QFile::WriteOnly | QFile::Truncate) && file.write(text) == text.size() && file.flush();
     if (!ok) {
         qWarning() << "Backlight: write failed" << mBrightnessPath << file.errorString();
     }

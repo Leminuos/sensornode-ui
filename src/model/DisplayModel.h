@@ -17,12 +17,16 @@ public:
 
 public slots:
     bool setBrightness(int value);
+    bool setOff(bool off);
 
 private:
+    bool write(int duty);
     void report(bool ok);
 
     QString mBrightnessPath;
     QTimer mFallback;
+    int mBrightness;
+    bool mOff = false;
     int mReported = -1;
 };
 
