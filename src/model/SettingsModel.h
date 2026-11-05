@@ -17,7 +17,6 @@ public:
     explicit SettingsModel(QObject *parent = nullptr, const QString &socketPath = QString());
 
     void start();
-    int brightness() const { return mBrightness; }
 
     // Các setter trả về false nếu chưa kết nối được settingsd.
     bool setAutoDim(int minutes);
@@ -46,7 +45,6 @@ private:
     bool set(const QString &key, const QJsonValue &value);
 
     DaemonClient mClient;
-    int mBrightness = 0;
     bool mAutoMode = false;
     int mResetId = -1;
 };

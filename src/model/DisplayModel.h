@@ -1,28 +1,29 @@
 #ifndef DISPLAY_MODEL_H
 #define DISPLAY_MODEL_H
 
-#include <QJsonObject>
 #include <QObject>
 #include <QString>
-
-#include "ipc/DaemonClient.h"
+#include <QTimer>
 
 class DisplayModel : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit DisplayModel(QObject *parent = nullptr, const QString &socketPath = QString());
+    explicit DisplayModel(QObject *parent = nullptr, const QString &devicePath = QString());
 
+    // Áp mức mặc định nếu chưa có setBrightness nào sau 1 s.
     void start();
 
 public slots:
-    void setBrightness(int value);
+    bool setBrightness(int value);
 
 private:
-    void onMessage(const QJsonObject &message);
+    void report(bool ok);
 
-    DaemonClient mClient;
+    QString mBrightnessPath;
+    QTimer mFallback;
+    int mReported = -1;
 };
 
 #endif // DISPLAY_MODEL_H

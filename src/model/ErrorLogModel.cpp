@@ -35,7 +35,7 @@ void ErrorLogModel::reload()
     QStringList args = {QStringLiteral("--no-pager"), QStringLiteral("--quiet"), QStringLiteral("--reverse"),
                         QStringLiteral("--output=json"), QStringLiteral("--priority=warning"),
                         QStringLiteral("--lines=%1").arg(kMaxEntries)};
-    for (const char *daemon : {"telemetryd", "otad", "settingsd", "displayd"}) {
+    for (const char *daemon : {"telemetryd", "otad", "settingsd"}) {
         args << QStringLiteral("--unit=sensornode-%1.service").arg(QLatin1String(daemon));
     }
 

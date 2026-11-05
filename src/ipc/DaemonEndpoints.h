@@ -21,9 +21,9 @@ inline QString settingsSocket()
     return qEnvironmentVariable("SENSORNODE_SETTINGS_SOCKET", QStringLiteral("/run/sensornode/settings.sock"));
 }
 
-inline QString displaySocket()
+inline QString backlightDevice()
 {
-    return qEnvironmentVariable("SENSORNODE_DISPLAY_SOCKET", QStringLiteral("/run/sensornode/display.sock"));
+    return qEnvironmentVariable("SENSORNODE_BACKLIGHT", QStringLiteral("/sys/class/backlight/backlight"));
 }
 
 inline QString telemetryDb()

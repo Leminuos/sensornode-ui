@@ -33,7 +33,6 @@ void SettingsModel::start()
 
 void SettingsModel::setBrightness(int value)
 {
-    mBrightness = value;
     set(kBrightness, value);
 }
 
@@ -81,8 +80,7 @@ bool SettingsModel::set(const QString &key, const QJsonValue &value)
 
 void SettingsModel::applySettings(const QJsonObject &settings)
 {
-    mBrightness = settings.value(kBrightness).toInt();
-    emit brightnessChanged(mBrightness);
+    emit brightnessChanged(settings.value(kBrightness).toInt());
     mAutoMode = settings.value(kAutoMode).toBool();
     emit autoModeChanged(mAutoMode);
     emit autoDimChanged(settings.value(kAutoDim).toInt());

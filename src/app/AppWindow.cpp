@@ -313,6 +313,7 @@ void AppWindow::wireSettings()
     connect(mSettingsModel, &SettingsModel::autoModeChanged, mOta, &OtaModel::setAutoMode);
     connect(mSettingsModel, &SettingsModel::availableChanged, mDisplayPage, &DisplayPage::setBrightnessEnabled);
     connect(mSettingsModel, &SettingsModel::availableChanged, mUpdatePage, &UpdatePage::setAutoNotifyEnabled);
+    connect(mSettingsModel, &SettingsModel::brightnessChanged, mDisplayModel, &DisplayModel::setBrightness);
     connect(mDisplayPage, &DisplayPage::brightnessPreviewed, mDisplayModel, &DisplayModel::setBrightness);
     connect(mDisplayPage, &DisplayPage::brightnessPreviewed, mSettings, &SettingsScreen::setBrightness);
     connect(mDisplayPage, &DisplayPage::brightnessCommitted, mSettingsModel, &SettingsModel::setBrightness);
@@ -556,8 +557,6 @@ void AppWindow::onResetFinished(bool ok)
         mFactoryResetSheet->present();
         return;
     }
-    // displayd chỉ đọc brightness từ settingsd lúc khởi động.
-    mDisplayModel->setBrightness(mSettingsModel->brightness());
     onSamplingPeriodRequested(DemoData::samplingPeriodSec);
 }
 
