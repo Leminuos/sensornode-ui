@@ -55,6 +55,7 @@ private slots:
     void onCheckFailed(const QString &reason);
     void onSamplingPeriodRequested(int seconds);
     void onTelemetryIntervalChanged(int intervalMs);
+    void onIntervalApplied(bool ok);
     void onTemperatureUnitRequested(TemperatureUnit unit);
     void onLanguageRequested(const QString &language);
     void onLocationRequested(int index);

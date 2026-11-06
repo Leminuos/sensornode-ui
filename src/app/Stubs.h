@@ -5,7 +5,6 @@
 
 namespace Stubs {
 
-bool setSamplingPeriod(int seconds);
 void restartDevice();
 void applyTouchCalibration(const QString &pointercal);
 void keepTouchCalibration();

@@ -306,6 +306,7 @@ void AppWindow::wireTelemetry()
     });
     connect(mTelemetry, &TelemetryModel::sampleReceived, mCharts, &ChartScreen::reload);
     connect(mTelemetry, &TelemetryModel::intervalChanged, this, &AppWindow::onTelemetryIntervalChanged);
+    connect(mTelemetry, &TelemetryModel::intervalApplied, this, &AppWindow::onIntervalApplied);
 }
 
 void AppWindow::wireSettings()
@@ -418,8 +419,18 @@ void AppWindow::onCheckFailed(const QString &reason)
 void AppWindow::onSamplingPeriodRequested(int seconds)
 {
     mSamplingPage->beginApply(seconds);
-    const bool ok = Stubs::setSamplingPeriod(seconds);
+    if (!mTelemetry->setInterval(seconds * 1000)) {
+        onIntervalApplied(false);
+    }
+}
+
+void AppWindow::onIntervalApplied(bool ok)
+{
+    const int seconds = mSamplingPage->pendingPeriod();
     mSamplingPage->finishApply(ok);
+    if (ok) {
+        mSettingsModel->setSamplingPeriod(seconds);
+    }
     const QString period = SamplingPage::periodText(mSamplingPage->period());
     mSettings->setSamplingPeriodText(period);
     mSensorsPage->setPeriodText(period);
@@ -568,7 +579,7 @@ void AppWindow::onResetFinished(bool ok)
         mFactoryResetSheet->present();
         return;
     }
-    onSamplingPeriodRequested(DemoData::samplingPeriodSec);
+    onSamplingPeriodRequested(mSettingsModel->samplingPeriod());
 }
 
 int AppWindow::sizeMb() const

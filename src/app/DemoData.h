@@ -5,7 +5,6 @@
 
 namespace DemoData {
 
-constexpr int samplingPeriodSec = 5;
 constexpr int autoDimMinutes = 5;
 constexpr int locationIndex = 0;
 constexpr TemperatureUnit temperatureUnit = TemperatureUnit::Celsius;

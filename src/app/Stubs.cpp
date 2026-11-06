@@ -2,12 +2,6 @@
 
 #include <QDebug>
 
-bool Stubs::setSamplingPeriod(int seconds)
-{
-    qInfo("[STUB] set sampling period: %d s", seconds);
-    return true;
-}
-
 void Stubs::restartDevice()
 {
     qInfo("[STUB] restart device");

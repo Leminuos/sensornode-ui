@@ -17,9 +17,11 @@ public:
     explicit SettingsModel(QObject *parent = nullptr, const QString &socketPath = QString());
 
     void start();
+    int samplingPeriod() const { return mSamplingPeriodSec; }
 
     // Các setter trả về false nếu chưa kết nối được settingsd.
     bool setAutoDim(int minutes);
+    bool setSamplingPeriod(int seconds);
     bool setTemperatureUnit(TemperatureUnit unit);
     bool setLanguage(const QString &code);
     bool setLocation(const QString &id, const QString &timeZone);
@@ -46,6 +48,7 @@ private:
 
     DaemonClient mClient;
     bool mAutoMode = false;
+    int mSamplingPeriodSec = 5;
     int mResetId = -1;
 };
 

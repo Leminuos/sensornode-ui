@@ -23,6 +23,7 @@ public slots:
     void setPeriod(int seconds);
     void beginApply(int seconds);
     void finishApply(bool ok);
+    int pendingPeriod() const { return mPendingSec; }
 
 signals:
     void periodRequested(int seconds);

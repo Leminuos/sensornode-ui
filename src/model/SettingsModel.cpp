@@ -7,6 +7,7 @@
 static const QString kBrightness = QStringLiteral("brightness");
 static const QString kAutoMode = QStringLiteral("auto_mode");
 static const QString kAutoDim = QStringLiteral("auto_dim_min");
+static const QString kSamplingPeriod = QStringLiteral("sampling_period_s");
 static const QString kTemperatureUnit = QStringLiteral("temperature_unit");
 static const QString kLanguage = QStringLiteral("language");
 static const QString kLocation = QStringLiteral("location");
@@ -50,6 +51,12 @@ bool SettingsModel::setAutoDim(int minutes)
     return set(kAutoDim, minutes);
 }
 
+bool SettingsModel::setSamplingPeriod(int seconds)
+{
+    mSamplingPeriodSec = seconds;
+    return set(kSamplingPeriod, seconds);
+}
+
 bool SettingsModel::setTemperatureUnit(TemperatureUnit unit)
 {
     return set(kTemperatureUnit, unit == TemperatureUnit::Fahrenheit ? QStringLiteral("F") : QStringLiteral("C"));
@@ -84,6 +91,7 @@ void SettingsModel::applySettings(const QJsonObject &settings)
     mAutoMode = settings.value(kAutoMode).toBool();
     emit autoModeChanged(mAutoMode);
     emit autoDimChanged(settings.value(kAutoDim).toInt());
+    mSamplingPeriodSec = settings.value(kSamplingPeriod).toInt(mSamplingPeriodSec);
     emit temperatureUnitChanged(settings.value(kTemperatureUnit).toString() == QLatin1String("F")
                                     ? TemperatureUnit::Fahrenheit
                                     : TemperatureUnit::Celsius);
