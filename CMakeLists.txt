@@ -47,6 +47,8 @@ add_library(sensornode-ui-lib STATIC
   src/model/Sample.h
   src/model/DisplayModel.cpp
   src/model/DisplayModel.h
+  src/model/CalibrationFile.cpp
+  src/model/CalibrationFile.h
   src/model/ChartScale.h
   src/model/DeviceInfoModel.cpp
   src/model/DeviceInfoModel.h
@@ -78,8 +80,6 @@ add_library(sensornode-ui-widgets STATIC
   src/app/DemoData.h
   src/app/PageFrame.cpp
   src/app/PageFrame.h
-  src/app/Stubs.cpp
-  src/app/Stubs.h
   src/app/Theme.cpp
   src/app/Theme.h
 

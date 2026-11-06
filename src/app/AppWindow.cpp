@@ -3,7 +3,6 @@
 #include "app/AutoDimmer.h"
 #include "app/DemoData.h"
 #include "app/Language.h"
-#include "app/Stubs.h"
 #include "model/DeviceInfoModel.h"
 #include "model/ErrorLogModel.h"
 #include "model/HistoryModel.h"
@@ -42,12 +41,15 @@
 #include "widgets/StatusHeader.h"
 #include "widgets/SubPage.h"
 
+#include <QCoreApplication>
 #include <QDebug>
 #include <QFile>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QStackedWidget>
 #include <QVariant>
+
+static constexpr int kCalibrationRestartCode = 75;
 
 AppWindow::AppWindow(QWidget *parent)
     : PageFrame(parent)
@@ -110,19 +112,20 @@ void AppWindow::buildCalibration()
     connect(mCalibrationIntro, &CalibrationIntroPage::startRequested, this, &AppWindow::startCalibration);
 
     connect(mCalibration, &CalibrationPage::pointsCaptured, this, &AppWindow::onCalibrationPoints);
-    connect(mCalibration, &CalibrationPage::cancelled, this, &AppWindow::finishCalibration);
+    connect(mCalibration, &CalibrationPage::cancelled, this, [this]() {
+        if (mCalibrationFile.isPending()) {
+            revertCalibration();
+        } else {
+            finishCalibration();
+        }
+    });
     connect(mCalibration, &CalibrationPage::kept, this, [this]() {
-        Stubs::keepTouchCalibration();
+        mCalibrationFile.keep();
         finishCalibration();
     });
-    connect(mCalibration, &CalibrationPage::reverted, this, [this]() {
-        Stubs::restoreTouchCalibration();
-        finishCalibration();
-    });
-    connect(mCalibration, &CalibrationPage::restartRequested, this, [this]() {
-        Stubs::restoreTouchCalibration();
-        mCalibration->beginPoints();
-    });
+    connect(mCalibration, &CalibrationPage::reverted, this, &AppWindow::revertCalibration);
+    // Calib đang chờ xác nhận vẫn là nền để tính lại, .bak giữ bản trước khi bắt đầu.
+    connect(mCalibration, &CalibrationPage::restartRequested, mCalibration, &CalibrationPage::beginPoints);
 }
 
 void AppWindow::applyLanguageTexts()
@@ -155,6 +158,21 @@ void AppWindow::finishCalibration()
     leaveOverlay();
 }
 
+void AppWindow::revertCalibration()
+{
+    if (mCalibrationFile.revert()) {
+        restartForCalibration();
+    } else {
+        finishCalibration();
+    }
+}
+
+// tslib chỉ đọc pointercal lúc mở. Thoát với mã khác 0 để Restart=on-failure chạy lại UI.
+void AppWindow::restartForCalibration()
+{
+    QCoreApplication::exit(kCalibrationRestartCode);
+}
+
 void AppWindow::onCalibrationPoints(const QVector<QPointF> &touched)
 {
     QVector<QPointF> targets;
@@ -169,13 +187,16 @@ void AppWindow::onCalibrationPoints(const QVector<QPointF> &touched)
     }
 
     Pointercal current = TouchCalibration::identity(width(), height());
-    QFile file(DaemonEndpoints::touchCalibrationFile());
+    QFile file(mCalibrationFile.path());
     if (file.open(QFile::ReadOnly)) {
         TouchCalibration::parse(file.readAll(), &current);
     }
 
-    Stubs::applyTouchCalibration(TouchCalibration::format(TouchCalibration::compose(fit, current)));
-    mCalibration->beginVerify();
+    if (mCalibrationFile.apply(TouchCalibration::format(TouchCalibration::compose(fit, current)))) {
+        restartForCalibration();
+    } else {
+        finishCalibration();
+    }
 }
 
 void AppWindow::buildUpdateFlow()
@@ -412,6 +433,11 @@ void AppWindow::start()
     mPower->start();
     mSystemStatus->start();
     mNetwork->start();
+
+    if (mCalibrationFile.isPending()) {
+        mCalibration->beginVerify();
+        showFullScreenPage(mCalibration);
+    }
 }
 
 void AppWindow::onCheckForUpdateRequested()

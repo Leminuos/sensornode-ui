@@ -2,6 +2,7 @@
 #define APP_WINDOW_H
 
 #include "app/PageFrame.h"
+#include "model/CalibrationFile.h"
 #include "model/Metric.h"
 #include "model/OtaState.h"
 
@@ -87,6 +88,8 @@ private:
     void buildCalibration();
     void startCalibration();
     void finishCalibration();
+    void revertCalibration();
+    void restartForCalibration();
     void applyLanguageTexts();
     void showUpdateSheet();
     void showFactoryResetSheet();
@@ -99,6 +102,7 @@ private:
     DisplayModel *mDisplayModel;
     AutoDimmer *mAutoDimmer;
     PowerModel *mPower;
+    CalibrationFile mCalibrationFile;
     SystemStatusModel *mSystemStatus;
     NetworkModel *mNetwork;
     DeviceInfoModel *mDeviceInfo;
