@@ -10,6 +10,7 @@
 #include "model/Locations.h"
 #include "model/NetworkModel.h"
 #include "model/OtaModel.h"
+#include "model/PowerModel.h"
 #include "model/DisplayModel.h"
 #include "ipc/DaemonEndpoints.h"
 #include "model/SettingsModel.h"
@@ -56,6 +57,7 @@ AppWindow::AppWindow(QWidget *parent)
     , mSettingsModel(new SettingsModel(this))
     , mDisplayModel(new DisplayModel(this))
     , mAutoDimmer(new AutoDimmer(this))
+    , mPower(new PowerModel(this))
     , mSystemStatus(new SystemStatusModel(this))
     , mNetwork(new NetworkModel(this))
     , mDeviceInfo(new DeviceInfoModel(this))
@@ -290,8 +292,15 @@ void AppWindow::wireService()
     connect(mErrorLog, &ErrorLogModel::entriesChanged, mErrorLogPage, &ErrorLogPage::setEntries);
     connect(mErrorLog, &ErrorLogModel::failed, mErrorLogPage, &ErrorLogPage::showLoadFailed);
 
-    connect(mSystemPage, &SystemPage::restartRequested, mRestartSheet, &BottomSheet::present);
-    connect(mRestartSheet, &BottomSheet::accepted, this, []() { Stubs::restartDevice(); });
+    connect(mSystemPage, &SystemPage::restartRequested, this, [this]() {
+        mRestartSheet->setBody(tr("Việc đo sẽ dừng khoảng 1 phút."));
+        mRestartSheet->present();
+    });
+    connect(mRestartSheet, &BottomSheet::accepted, mPower, &PowerModel::reboot);
+    connect(mPower, &PowerModel::rebootFailed, this, [this]() {
+        mRestartSheet->setBody(tr("Không khởi động lại được. Hãy thử lại."));
+        mRestartSheet->present();
+    });
     connect(mServicePage, &ServicePage::factoryResetRequested, this, &AppWindow::showFactoryResetSheet);
     connect(mFactoryResetSheet, &BottomSheet::accepted, this, &AppWindow::onFactoryResetAccepted);
 }
@@ -398,6 +407,7 @@ void AppWindow::start()
     mSettingsModel->start();
     mDisplayModel->start();
     mOta->start();
+    mPower->start();
     mSystemStatus->start();
     mNetwork->start();
 

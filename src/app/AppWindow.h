@@ -29,6 +29,7 @@ class NetworkDetailPage;
 class NetworkModel;
 class NetworkPage;
 class OtaModel;
+class PowerModel;
 class SamplingPage;
 class SensorsPage;
 class ServicePage;
@@ -97,6 +98,7 @@ private:
     SettingsModel *mSettingsModel;
     DisplayModel *mDisplayModel;
     AutoDimmer *mAutoDimmer;
+    PowerModel *mPower;
     SystemStatusModel *mSystemStatus;
     NetworkModel *mNetwork;
     DeviceInfoModel *mDeviceInfo;

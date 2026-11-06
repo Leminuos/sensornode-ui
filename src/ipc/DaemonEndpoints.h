@@ -21,6 +21,11 @@ inline QString settingsSocket()
     return qEnvironmentVariable("SENSORNODE_SETTINGS_SOCKET", QStringLiteral("/run/sensornode/settings.sock"));
 }
 
+inline QString powerSocket()
+{
+    return qEnvironmentVariable("SENSORNODE_POWER_SOCKET", QStringLiteral("/run/sensornode/power.sock"));
+}
+
 inline QString backlightDevice()
 {
     return qEnvironmentVariable("SENSORNODE_BACKLIGHT", QStringLiteral("/sys/class/backlight/backlight"));

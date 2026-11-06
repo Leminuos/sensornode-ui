@@ -42,6 +42,8 @@ add_library(sensornode-ui-lib STATIC
   src/model/OtaModel.cpp
   src/model/OtaModel.h
   src/model/OtaState.h
+  src/model/PowerModel.cpp
+  src/model/PowerModel.h
   src/model/Sample.h
   src/model/DisplayModel.cpp
   src/model/DisplayModel.h

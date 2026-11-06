@@ -78,6 +78,10 @@
         <source>Không khôi phục được cài đặt. Hãy thử lại.</source>
         <translation>Could not reset settings. Try again.</translation>
     </message>
+    <message>
+        <source>Không khởi động lại được. Hãy thử lại.</source>
+        <translation>Could not restart. Try again.</translation>
+    </message>
 </context>
 <context>
     <name>BottomNavBar</name>
