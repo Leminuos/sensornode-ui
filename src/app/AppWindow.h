@@ -64,6 +64,7 @@ private slots:
     void onUpdateAvailable(const QString &current, const QString &available);
     void onOtaStateChanged(OtaState state);
     void onUpdateClosed();
+    void onRolledBack(const QString &failedVersion);
     void onFactoryResetAccepted();
     void onResetFinished(bool ok);
     void applyTemperatureUnit(TemperatureUnit unit);
@@ -89,7 +90,6 @@ private:
     void applyLanguageTexts();
     void showUpdateSheet();
     void showFactoryResetSheet();
-    void checkRollback();
     int sizeMb() const;
 
     TelemetryModel *mTelemetry;

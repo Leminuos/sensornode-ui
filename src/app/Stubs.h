@@ -8,7 +8,6 @@ namespace Stubs {
 void applyTouchCalibration(const QString &pointercal);
 void keepTouchCalibration();
 void restoreTouchCalibration();
-QString rolledBackVersion();
 
 } // namespace Stubs
 

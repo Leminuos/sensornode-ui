@@ -26,6 +26,7 @@ public:
     bool rebootFailed() const { return mRebootFailed; }
     qint64 availableSize() const { return mAvailableSize; }
     bool trialBoot() const { return mTrialBoot; }
+    QString rolledBackVersion() const { return mRolledBack; }
 
 public slots:
     void setAutoMode(bool autoMode);
@@ -35,10 +36,13 @@ public slots:
     void dismissUpdate();
     void dismissFailure();
     void reboot();
+    void dismissRollback();
 
 signals:
     void currentVersionChanged(const QString &version);
     void trialBootChanged(bool trialBoot);
+    // Version vừa bị U-Boot rollback, rỗng khi đã dismiss.
+    void rolledBackChanged(const QString &version);
     void systemInfoChanged(const OtaSystemInfo &info);
 
     void updateAvailable(const QString &current, const QString &available);
@@ -75,6 +79,7 @@ private:
     qint64 mAvailableSize = -1;
     int mCheckId = -1;
     bool mTrialBoot = false;
+    QString mRolledBack;
     QTimer mTrialPoll;
 };
 

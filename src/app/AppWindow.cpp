@@ -394,7 +394,9 @@ void AppWindow::wireOta()
     connect(mUpdateFlow, &UpdateFlowPage::closeRequested, this, &AppWindow::onUpdateClosed);
     connect(mUpdateFlow, &UpdateFlowPage::retryRequested, mOta, &OtaModel::confirmUpdate);
     connect(mUpdateFlow, &UpdateFlowPage::rebootRequested, mOta, &OtaModel::reboot);
+    connect(mOta, &OtaModel::rolledBackChanged, this, &AppWindow::onRolledBack);
     connect(mUpdateFlow, &UpdateFlowPage::rollbackAcknowledged, this, [this]() {
+        mOta->dismissRollback();
         showTab(BottomNavBar::Home);
     });
 }
@@ -410,8 +412,6 @@ void AppWindow::start()
     mPower->start();
     mSystemStatus->start();
     mNetwork->start();
-
-    checkRollback();
 }
 
 void AppWindow::onCheckForUpdateRequested()
@@ -598,11 +598,10 @@ int AppWindow::sizeMb() const
     return bytes > 0 ? static_cast<int>(qMax<qint64>(1, bytes / (1000 * 1000))) : 0;
 }
 
-void AppWindow::checkRollback()
+void AppWindow::onRolledBack(const QString &failedVersion)
 {
-    const QString failed = Stubs::rolledBackVersion();
-    if (!failed.isEmpty()) {
-        mUpdateFlow->showRolledBack(mOta->currentVersion(), failed);
-        showTakeover(mUpdateFlow);
-    }
+    if (failedVersion.isEmpty()) return;
+
+    mUpdateFlow->showRolledBack(mOta->currentVersion(), failedVersion);
+    showTakeover(mUpdateFlow);
 }

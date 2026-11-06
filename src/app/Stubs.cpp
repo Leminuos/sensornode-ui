@@ -2,12 +2,6 @@
 
 #include <QDebug>
 
-QString Stubs::rolledBackVersion()
-{
-    qInfo("[STUB] check rollback: none");
-    return QString();
-}
-
 void Stubs::applyTouchCalibration(const QString &pointercal)
 {
     qInfo("[STUB] apply touch calibration: %s", qUtf8Printable(pointercal));

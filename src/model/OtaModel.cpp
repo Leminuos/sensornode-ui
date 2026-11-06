@@ -62,7 +62,8 @@ void OtaModel::onMessage(const QJsonObject &message)
     const QString type = message.value(QStringLiteral("type")).toString();
     const QJsonObject ota = message.value(QStringLiteral("ota")).toObject();
 
-    if (type == QLatin1String("state") || type == QLatin1String("progress") || type == QLatin1String("available")) {
+    if (type == QLatin1String("state") || type == QLatin1String("progress") || type == QLatin1String("available")
+        || type == QLatin1String("rollback")) {
         applyOta(ota, /*live=*/true);
     } else if (type == QLatin1String("reply")) {
         onReply(message);
@@ -132,6 +133,12 @@ void OtaModel::onReply(const QJsonObject &reply)
 
 void OtaModel::applyOta(const QJsonObject &ota, bool live)
 {
+    const QString rolledBack = ota.value(QStringLiteral("rolled_back")).toString();
+    if (rolledBack != mRolledBack) {
+        mRolledBack = rolledBack;
+        emit rolledBackChanged(mRolledBack);
+    }
+
     const QString daemonState = ota.value(QStringLiteral("state")).toString();
     if (daemonState == QLatin1String("downloading")) {
         setState(OtaState::Downloading);
@@ -230,6 +237,11 @@ void OtaModel::dismissFailure()
     if (mState == OtaState::Failed) {
         setState(OtaState::Idle);
     }
+}
+
+void OtaModel::dismissRollback()
+{
+    mClient.sendCommand(QStringLiteral("dismiss_rollback"));
 }
 
 void OtaModel::reboot()
