@@ -267,7 +267,6 @@ void AppWindow::buildServicePages()
     mRestartSheet = new BottomSheet(this);
     mFactoryResetSheet = new BottomSheet(this);
 
-    mNetworkPage->setServerConnected(DemoData::mqttConnected);
     mSensorsPage->setPeriodText(SamplingPage::periodText(mSamplingPage->period()));
 }
 
@@ -287,6 +286,7 @@ void AppWindow::wireService()
     connect(mTelemetry, &TelemetryModel::nodeIdChanged, mDevicePage, &DevicePage::setNodeId);
     connect(mTelemetry, &TelemetryModel::macAddressChanged, mDevicePage, &DevicePage::setMacAddress);
     connect(mTelemetry, &TelemetryModel::reportReceived, mSensorsPage, &SensorsPage::setReport);
+    connect(mTelemetry, &TelemetryModel::mqttConnectedChanged, mNetworkPage, &NetworkPage::setServerConnected);
     connect(mErrorLog, &ErrorLogModel::entriesChanged, mErrorLogPage, &ErrorLogPage::setEntries);
     connect(mErrorLog, &ErrorLogModel::failed, mErrorLogPage, &ErrorLogPage::showLoadFailed);
 
