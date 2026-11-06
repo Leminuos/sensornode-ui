@@ -23,6 +23,11 @@ TelemetryModel::TelemetryModel(QObject *parent, const QString &socketPath)
         mClient.sendCommand(QStringLiteral("get_latest"));
     });
     connect(&mClient, &DaemonClient::disconnected, this, [this]() {
+        if (mIntervalId >= 0) {
+            mIntervalId = -1;
+            emit intervalApplied(false);
+        }
+        setMqttConnected(false);
         emit onlineChanged(false);
     });
     connect(&mClient, &DaemonClient::messageReceived, this, &TelemetryModel::onMessage);
@@ -42,6 +47,31 @@ bool TelemetryModel::isOnline() const
     return mClient.isConnected();
 }
 
+bool TelemetryModel::setInterval(int intervalMs)
+{
+    if (mIntervalId >= 0) return false;
+
+    mIntervalId = mClient.sendCommand(QStringLiteral("set_interval"), {{QStringLiteral("interval_ms"), intervalMs}});
+    return mIntervalId >= 0;
+}
+
+void TelemetryModel::updateInterval(const QJsonObject &message)
+{
+    const int interval = message.value(QStringLiteral("interval_ms")).toInt(mIntervalMs);
+    if (interval == mIntervalMs) return;
+
+    mIntervalMs = interval;
+    emit intervalChanged(mIntervalMs);
+}
+
+void TelemetryModel::setMqttConnected(bool connected)
+{
+    if (connected == mMqttConnected) return;
+
+    mMqttConnected = connected;
+    emit mqttConnectedChanged(connected);
+}
+
 void TelemetryModel::onMessage(const QJsonObject &message)
 {
     const QString type = message.value(QStringLiteral("type")).toString();
@@ -49,18 +79,25 @@ void TelemetryModel::onMessage(const QJsonObject &message)
     if (type == QLatin1String("hello")) {
         emit macAddressChanged(message.value(QStringLiteral("mac")).toString().toUpper());
         emit nodeIdChanged(message.value(QStringLiteral("node")).toString());
-        const int interval = message.value(QStringLiteral("interval_ms")).toInt(mIntervalMs);
-        if (interval != mIntervalMs) {
-            mIntervalMs = interval;
-            emit intervalChanged(mIntervalMs);
-        }
+        updateInterval(message);
+        setMqttConnected(message.value(QStringLiteral("mqtt")).toString() == QLatin1String("connected"));
         armStaleTimer();
     } else if (type == QLatin1String("sample")) {
         emitSample(message);
-    } else if (type == QLatin1String("reply")
-               && message.value(QStringLiteral("cmd")).toString() == QLatin1String("get_latest")
-               && message.value(QStringLiteral("ok")).toBool()) {
-        emitSample(message.value(QStringLiteral("sample")).toObject());
+    } else if (type == QLatin1String("interval")) {
+        updateInterval(message);
+        armStaleTimer();
+    } else if (type == QLatin1String("mqtt")) {
+        setMqttConnected(message.value(QStringLiteral("state")).toString() == QLatin1String("connected"));
+    } else if (type == QLatin1String("reply")) {
+        const QString cmd = message.value(QStringLiteral("cmd")).toString();
+        const bool ok = message.value(QStringLiteral("ok")).toBool();
+        if (cmd == QLatin1String("get_latest") && ok) {
+            emitSample(message.value(QStringLiteral("sample")).toObject());
+        } else if (mIntervalId >= 0 && message.value(QStringLiteral("id")).toInt(-1) == mIntervalId) {
+            mIntervalId = -1;
+            emit intervalApplied(ok);
+        }
     }
 }
 
