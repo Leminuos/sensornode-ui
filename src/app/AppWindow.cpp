@@ -280,7 +280,11 @@ void AppWindow::buildServicePages()
     connect(mServicePage, &ServicePage::deviceRequested, this, [this]() { pushPage(mDevicePage); });
     connect(mServicePage, &ServicePage::systemRequested, this, [this]() { pushPage(mSystemPage); });
     connect(mServicePage, &ServicePage::networkRequested, this, [this]() { pushPage(mNetworkPage); });
+#ifdef SENSORNODE_PRODUCTION
+    mServicePage->setAdvancedVisible(false);
+#else
     connect(mServicePage, &ServicePage::advancedRequested, this, [this]() { pushPage(mAdvancedPage); });
+#endif
     connect(mNetworkPage, &NetworkPage::ethernetRequested, this, [this]() { pushPage(mEthernetPage); });
     connect(mNetworkPage, &NetworkPage::wifiRequested, this, [this]() { pushPage(mWifiPage); });
     connect(mAdvancedPage, &AdvancedPage::firmwareRequested, this, [this]() { pushPage(mFirmwarePage); });

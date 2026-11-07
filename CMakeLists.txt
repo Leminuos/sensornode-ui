@@ -22,7 +22,7 @@ pkg_check_modules(SQLITE3 REQUIRED IMPORTED_TARGET sqlite3)
 add_compile_options(-Wall -Wextra -Wpedantic)
 
 if(PRODUCTION_BUILD)
-  add_compile_definitions(QT_NO_DEBUG_OUTPUT)
+  add_compile_definitions(QT_NO_DEBUG_OUTPUT SENSORNODE_PRODUCTION)
 endif()
 
 add_library(sensornode-ui-lib STATIC
