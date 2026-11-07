@@ -5,6 +5,7 @@
 #include <QJsonValue>
 #include <QObject>
 #include <QString>
+#include <QStringList>
 
 #include "ipc/DaemonClient.h"
 #include "model/Metric.h"
@@ -43,7 +44,8 @@ signals:
 
 private:
     void onMessage(const QJsonObject &message);
-    void applySettings(const QJsonObject &settings);
+    // keys rỗng nghĩa là áp dụng mọi key.
+    void applySettings(const QJsonObject &settings, const QStringList &keys = QStringList());
     bool set(const QString &key, const QJsonValue &value);
 
     DaemonClient mClient;
